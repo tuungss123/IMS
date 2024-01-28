@@ -1,6 +1,5 @@
-import React from "react";
-
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField } from "@mui/material";
+import { useState } from "react";
 
 function createData(name, calories, fat, carbs, protein) {
     return { name, calories, fat, carbs, protein };
@@ -15,7 +14,37 @@ const rows = [
 ];
 
 const InventoryPage = () => {
-    return (
+    
+  const [inputText, setInputText] = useState("");
+  let inputHandler = (e) => {
+    var lowerCase = e.target.value.toLowerCase();
+    setInputText(lowerCase);
+    
+  };
+
+  const filteredData = rows.filter((el) => {
+    //palitan yamu rows into REAL DATA
+    if (inputText === '') {
+      return el;
+    } else {
+      return el.name.toLowerCase().includes(inputText);
+    }
+  })
+
+  return (<div>
+
+      <div className="main">
+      <div className="search">
+        <TextField
+          id="outlined-basic"
+          onChange={inputHandler}
+          variant="outlined"
+          fullWidth
+          label="Search"
+        />
+      </div>
+      </div>
+
         <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
@@ -28,7 +57,7 @@ const InventoryPage = () => {
                 </TableRow>
             </TableHead>
             <TableBody>
-                {rows.map((row) => (
+                {filteredData.map((row) => (
                 <TableRow
                     key={row.name}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -45,6 +74,7 @@ const InventoryPage = () => {
             </TableBody>
             </Table>
         </TableContainer>
+        </div>
     )
 }
 
