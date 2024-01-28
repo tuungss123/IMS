@@ -1,18 +1,36 @@
-import React from "react"
+import {
+  createBrowserRouter,
+  Routes,
+  Route,
+  Link,
+  NavLink,
+  createRoutesFromElements,
+  RouterProvider
+} from 'react-router-dom'
+
+//pages
 import SignIn from "./pages/sign-in"
 import HomePage from "./pages/home"
 import InventoryPage from "./pages/inventory"
 import OrdersPage from "./pages/orders"
-import SideNav from "./components/sidenav"
-import Navbar from "./components/navbar"
 import MenuPage from "./pages/menu"
+import RootLayout from './layouts/root-layout'
 import "./App.css"
+
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route path='/' element={<RootLayout/>}>
+      <Route index element={<HomePage/>} />
+      <Route path='inventory' element={<InventoryPage/>} />
+      <Route path='orders' element={<OrdersPage/>} />
+      <Route path='menu' element={<MenuPage/>} />
+    </Route>
+  )
+)
 
 const App = () => {
   return (
-    <div className="App">
-      <MenuPage/>
-    </div>
+    <RouterProvider router={router}/>
   )
 }
 
