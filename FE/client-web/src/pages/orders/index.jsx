@@ -1,8 +1,11 @@
 import * as React from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { Box, Collapse, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper } from '@mui/material';
+import { Box, Collapse, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper, TextField } from '@mui/material';
+import "./styles.css"
+
 
 function createData(name, calories, fat, carbs, protein, price) {
   return {
@@ -117,7 +120,38 @@ const rows = [
 ];
 
 export default function OrdersPage() {
-  return (
+
+  const [inputText, setInputText] = useState("");
+  let inputHandler = (e) => {
+    var lowerCase = e.target.value.toLowerCase();
+    setInputText(lowerCase);
+    
+  };
+
+  const filteredData = rows.filter((el) => {
+    //palitan yamu rows into REAL DATA
+    if (inputText === '') {
+      return el;
+    } else {
+      return el.name.toLowerCase().includes(inputText);
+    }
+  })
+
+  return (<div>
+
+      <div className="main">
+      <div className="search">
+        <TextField
+          id="outlined-basic"
+          onChange={inputHandler}
+          variant="outlined"
+          fullWidth
+          label="Search"
+        />
+      </div>
+    </div>
+
+    
     <TableContainer component={Paper}>
       <Table aria-label="collapsible table">
         <TableHead>
@@ -131,11 +165,13 @@ export default function OrdersPage() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
+          {filteredData.map((row) => (
             <Row key={row.name} row={row} />
           ))}
         </TableBody>
       </Table>
     </TableContainer>
+</div>
+    
   );
 }

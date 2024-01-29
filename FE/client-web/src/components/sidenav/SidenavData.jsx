@@ -1,4 +1,3 @@
-import React from "react";
 import HomeIcon from '@mui/icons-material/Home';
 import WidgetsIcon from '@mui/icons-material/Widgets';
 import ReceiptIcon from '@mui/icons-material/Receipt';
@@ -9,7 +8,7 @@ export const SidenavData = [
     {
         title: "Home",
         icon: <HomeIcon/>,
-        link: "/home"
+        link: "/"
     },
     {
         title: "Menu",
@@ -19,7 +18,7 @@ export const SidenavData = [
     {
         title: "Order",
         icon: <ReceiptIcon/>,
-        link: "/order"
+        link: "/orders"
     },
     {
         title: "Inventory",

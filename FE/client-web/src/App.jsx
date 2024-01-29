@@ -1,15 +1,11 @@
 import {
   createBrowserRouter,
-  Routes,
   Route,
-  Link,
-  NavLink,
   createRoutesFromElements,
   RouterProvider
 } from 'react-router-dom'
 
 //pages
-import SignIn from "./pages/sign-in"
 import HomePage from "./pages/home"
 import InventoryPage from "./pages/inventory"
 import OrdersPage from "./pages/orders"
