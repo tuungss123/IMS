@@ -119,7 +119,7 @@ const rows = [
   createData('Gingerbread', 356, 16.0, 49, 3.9, 1.5),
 ];
 
-export default function OrdersPage() {
+export default function ArchivePage() {
 
   const [inputText, setInputText] = useState("");
   let inputHandler = (e) => {

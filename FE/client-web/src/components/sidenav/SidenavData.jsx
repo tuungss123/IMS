@@ -11,14 +11,14 @@ export const SidenavData = [
         link: "/"
     },
     {
-        title: "Menu",
+        title: "Inventory",
         icon: <WidgetsIcon/>,
-        link: "/menu"
+        link: "/cafeinventory"
     },
     {
-        title: "Order",
+        title: "Archive",
         icon: <ReceiptIcon/>,
-        link: "/orders"
+        link: "/archive"
     },
     {
         title: "Inventory",
