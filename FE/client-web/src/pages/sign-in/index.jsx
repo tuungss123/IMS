@@ -1,7 +1,6 @@
-import React from "react";
 import { Box, Paper, TextField, Button } from '@mui/material'
 
-import bgImage from '/Users/RYZEN 5 5600g/Desktop/IMS/FE/client-web/src/assets/bg.svg'
+import bgImage from '../../assets/bg.svg'
 
 
 const SignIn = () => {
