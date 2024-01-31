@@ -12,6 +12,8 @@ import OrdersPage from "./pages/orders"
 import MenuPage from "./pages/menu"
 import RootLayout from './layouts/root-layout'
 import "./App.css"
+import ProfilePage from './pages/profile'
+import SignIn from './pages/sign-in'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -20,6 +22,8 @@ const router = createBrowserRouter(
       <Route path='inventory' element={<InventoryPage/>} />
       <Route path='orders' element={<OrdersPage/>} />
       <Route path='menu' element={<MenuPage/>} />
+      <Route path='profile' element={<ProfilePage/>} />
+      <Route path='signin' element={<SignIn/>} />
     </Route>
   )
 )
