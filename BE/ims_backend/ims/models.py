@@ -6,10 +6,6 @@ class Item(models.Model):
     item_name = models.CharField(max_length=64)
     stock = models.IntegerField()
     price = models.DecimalField(decimal_places=2, max_digits=10)
-    calories = models.IntegerField()
-    fat = models.IntegerField()
-    carbs = models.IntegerField()
-    protein = models.IntegerField()
 
     def __str__(self):
         return f'{self.item_name}'
