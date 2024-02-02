@@ -37,6 +37,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 INSTALLED_APPS = [
     'ims',
+    'jazzmin',
     'corsheaders',
     'rest_framework',
     'django.contrib.admin',
