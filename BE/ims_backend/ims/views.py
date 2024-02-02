@@ -14,6 +14,7 @@ def index(request):
     return HttpResponse('Test works...')
 
 
+# ITEMS ENDPOINTS
 @api_view(['GET'])
 def retrieve_all_items(request):
     if request.method == 'GET':
@@ -78,3 +79,78 @@ def delete_item(request, item_id):
         return Response({'response': 'Item Deleted'}, 200)
     except:
         return Response({'response': 'Failed to Delete Item'}, 200)
+    
+
+# TRANSACTIONS ENDPOINTS
+@api_view(['GET'])
+def retrieve_all_transactions(request):
+    if request.method == 'GET':
+        all_transactions = Transaction.objects.all()
+        serialize_transactions = TransactionSerializer(all_transactions, many=True)
+
+        return Response({'transactions': serialize_transactions.data}, 200)
+    
+
+@api_view(['GET'])
+def retrieve_transaction(request, transaction_id):
+    if request.method == 'GET':
+        transaction = Transaction.objects.filter(id=transaction_id)
+        serialize_transaction = TransactionSerializer(transaction, many=False)
+
+        return Response({'transaction': serialize_transaction.data}, 200)
+
+
+@api_view(['POST'])
+def create_transaction(request):
+    transacted_item = request.POST.get('transacted_item')
+    transacted_amount = request.POST.get('transacted_amount')
+    transactor = request.POST.get('transactor')
+    date_created = request.POST.get('date_created')
+    date_changed = request.POST.get('date_changed')
+
+    try:
+        new_transaction = Transaction(
+            transacted_item = transacted_item,
+            transacted_amount = transacted_amount,
+            transactor = transactor,
+            date_created = date_created,
+            date_changed = date_changed
+        )
+        new_transaction.save()
+
+        return Response({'response': 'Transaction Created'}, 200)
+    except:
+        return Response({'response': 'Failed to Create Item'}, 200)
+    
+
+@api_view(['POST'])
+def update_transaction(request, transaction_id):
+    transacted_item = request.POST.get('transacted_item')
+    transacted_amount = request.POST.get('transacted_amount')
+    transactor = request.POST.get('transactor')
+    date_created = request.POST.get('date_created')
+    date_changed = request.POST.get('date_changed')
+
+    try:
+        transaction = Transaction.objects.get(id=transaction_id)
+        transaction.transacted_item = transacted_item,
+        transaction.transacted_amount = transacted_amount
+        transaction.transactor = transactor
+        transaction.date_created = date_created
+        transaction.date_changed = date_changed
+        transaction.save()
+
+        return Response({'response': 'Transaction Updated'}, 200)
+    except:
+        return Response({'response': 'Failed to Update Transaction'}, 200)
+    
+
+@api_view(['POST'])
+def delete_transaction(request, transaction_id):
+    try:
+        transaction = Item.objects.get(id=transaction_id)
+        transaction.delete()
+
+        return Response({'response': 'Transaction Deleted'}, 200)
+    except:
+        return Response({'response': 'Failed to Delete Transaction'}, 200)

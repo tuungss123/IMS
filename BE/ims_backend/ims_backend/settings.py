@@ -84,8 +84,12 @@ WSGI_APPLICATION = 'ims_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'ims',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',  # Set to the MySQL server host (usually 'localhost' during development)
+        'PORT': '3306',      # Set to the MySQL server port (usually '3306')
     }
 }
 
