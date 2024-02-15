@@ -68,7 +68,24 @@ def update_item(request, item_id):
         return Response({'response': 'Item Updated'}, 200)
     except:
         return Response({'response': 'Failed to Update Item'}, 200)
-    
+
+
+@api_view(['POST'])
+def request_item(request, item_id):
+    request_quantity = int(request.POST.get('request_quantity'))
+
+    try:
+        item = Item.objects.get(id=item_id)
+        
+        if item.commissary_stock >= request_quantity:
+            item.commissary_stock -= request_quantity
+
+            return Response({'response': 'Request Successful'}, 200)
+        else:
+            return Response({'response': 'Request Failed. Stock Insufficient'}, 400)
+    except:
+        return Response({'response': 'Failed to Create Item Request'}, 200)
+
 
 @api_view(['POST'])
 def delete_item(request, item_id):

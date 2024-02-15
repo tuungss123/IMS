@@ -1,16 +1,46 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Pagination} from "@mui/material";
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Pagination, Modal } from "@mui/material";
 import './styles.css';
 
 const CafeInventoryPage = () => {
     const [inventoryData, setInventoryData] = useState([]);
+    const [selectedItem , setSelectedItem] = useState('');
+    const [requestedItem, setRequestedItem] = useState(0);
+    const [requestedQuantity, setRequestedQuantity] = useState(0);
+    const [modalVisible, setModalVisible] = useState(false);
 
     useEffect(() => {
         retrieveInventoryItems();
     }, []);
 
+    const handleCloseModal = () => {
+        setModalVisible(false);
+    }
+
+    const setModalDetails = (item_id, item_name) => {
+        setRequestedItem(item_id);
+        setSelectedItem(item_name);
+        setModalVisible(true);
+    }
+
     async function retrieveInventoryItems(){
         const data = await fetch('http://127.0.0.1:8000/all_items');
+        const response = await data.json();
+        
+        console.log(response.items);
+        setInventoryData(response.items);
+    }
+
+    async function requestItem(){
+        const requestOptions = {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                'request_quantity': requestedQuantity
+            })
+        }
+
+        const data = await fetch(`http://127.0.0.1:8000/request_item/${this.requestedQuantity}`, requestOptions);
         const response = await data.json();
         
         console.log(response.items);
@@ -43,7 +73,9 @@ const CafeInventoryPage = () => {
                         </TableCell>
                         <TableCell align="center">{item.cafe_stock}</TableCell>
                         <TableCell align="center">
-                            <Button variant='outlined'>Request Stock</Button>
+                            <Button variant='outlined' onClick={() => setModalDetails(item.id, item.item_name)}>
+                                Request Stock
+                            </Button>
                         </TableCell>
                     </TableRow>
                     ))}
@@ -52,6 +84,18 @@ const CafeInventoryPage = () => {
             </TableContainer>
 
             <Pagination sx={{ marginTop: '2%' }} count={10} />
+
+            <Modal
+                open={modalVisible}
+                onClose={handleCloseModal}
+                id='modal'
+                sx={{ bgcolor: 'background.Paper' }}
+            >
+                <div>
+                    <Typography variant="h5">Test</Typography>
+                    <TextField label="Request Quantity" type='number'></TextField>
+                </div>
+            </Modal>
         </Box>
     )
 }
