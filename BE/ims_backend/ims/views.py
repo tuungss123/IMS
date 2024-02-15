@@ -22,7 +22,7 @@ def retrieve_all_items(request):
         serialize_items = ItemSerializer(all_items, many=True)
 
         return Response({'items': serialize_items.data}, 200)
-    
+
 
 @api_view(['GET'])
 def retrieve_item(request, item_id):
@@ -36,14 +36,14 @@ def retrieve_item(request, item_id):
 @api_view(['POST'])
 def create_item(request):
     item_name = request.POST.get('item_name')
-    stock = request.POST.get('stock')
-    price = request.POST.get('price')
+    commissary_stock = request.POST.get('commissary_stock')
+    cafe_stock = request.POST.get('cafe_stock')
 
     try:
         new_item = Item(
             item_name=item_name,
-            stock=stock,
-            price=price,
+            commissary_stock=commissary_stock,
+            cafe_stock=cafe_stock
         )
         new_item.save()
 
@@ -55,14 +55,14 @@ def create_item(request):
 @api_view(['POST'])
 def update_item(request, item_id):
     item_name = request.POST.get('item_name')
-    stock = request.POST.get('stock')
-    price = request.POST.get('price')
+    commissary_stock = request.POST.get('commissary_stock')
+    cafe_stock = request.POST.get('cafe_stock')
 
     try:
         item = Item.objects.get(id=item_id)
         item.item_name = item_name
-        item.stock = stock
-        item.price = price
+        item.commissary_stock = commissary_stock
+        item.cafe_stock = cafe_stock
         item.save()
 
         return Response({'response': 'Item Updated'}, 200)

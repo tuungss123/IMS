@@ -1,0 +1,24 @@
+#search-box-container {
+    display: flex;
+    justify-content: end;
+    width: 100%;
+    margin-top: 2%;
+    margin-bottom: 2%;
+}
+
+#search-box {
+    width: 20vw;
+}
+
+#pagination-container {
+    margin-top: 2%;
+}
+
+#inventory-table {
+    max-height: 60vh;
+}
+
+.table-header {
+    position: sticky;
+    top: 0;
+}

@@ -1,36 +1,33 @@
+import React from 'react';
 import {
-  createBrowserRouter,
-  Route,
-  createRoutesFromElements,
-  RouterProvider
+  BrowserRouter as Router, Routes, Route
 } from 'react-router-dom'
 
-//pages
-import HomePage from "./pages/home"
-import InventoryPage from "./pages/inventory"
+//Site Pages
+import InventoryPage from "./pages/Cafe/inventory"
 import RootLayout from './layouts/root-layout'
-import "./App.css"
-import ProfilePage from './pages/profile'
+import ProfilePage from './pages/Cafe/profile'
 import SignIn from './pages/sign-in'
-import ArchivePage from './pages/archive'
-import CafeInventoryPage from './pages/menu'
-
-const router = createBrowserRouter(
-  createRoutesFromElements(
-    <Route path='/' element={<RootLayout/>}>
-      <Route index element={<HomePage/>} />
-      <Route path='inventory' element={<InventoryPage/>} />
-      <Route path='archive' element={<ArchivePage/>} />
-      <Route path='cafeinventory' element={<CafeInventoryPage/>} />
-      <Route path='profile' element={<ProfilePage/>} />
-      <Route path='signin' element={<SignIn/>} />
-    </Route>
-  )
-)
+import ArchivePage from './pages/Cafe/archive'
+import CafeInventoryPage from './pages/Cafe/menu'
+import "./App.css"
 
 const App = () => {
   return (
-    <RouterProvider router={router}/>
+    <Router>
+      <Routes>
+        {/* PATHS UNDER LOGGED IN USER */}
+        <Route path="/" element={<RootLayout />}>
+          <Route path="transfer_history" element={<InventoryPage />} />
+          <Route path="archive" element={<ArchivePage />} />
+          <Route path="cafeinventory" element={<CafeInventoryPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+        </Route>
+
+        {/* LOGIN PATH */}
+        <Route path="signin" element={<SignIn />} />
+      </Routes>
+    </Router>
   )
 }
 

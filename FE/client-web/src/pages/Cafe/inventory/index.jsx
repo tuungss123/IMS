@@ -1,5 +1,8 @@
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper} from "@mui/material";
 
+//Inventory for Commissary
+
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField } from "@mui/material";
+import { useState } from "react";
 
 function createData(name, calories, fat, carbs, protein) {
     return { name, calories, fat, carbs, protein };
@@ -13,13 +16,36 @@ const rows = [
     createData('Gingerbread', 356, 16.0, 49, 3.9),
 ];
 
-const CafeInventoryPage = () => {
+const InventoryPage = () => {
     
+  const [inputText, setInputText] = useState("");
+  let inputHandler = (e) => {
+    var lowerCase = e.target.value.toLowerCase();
+    setInputText(lowerCase);
+    
+  };
 
+  const filteredData = rows.filter((el) => {
+    if (inputText === '') {
+      return el;
+    } else {
+      return el.name.toLowerCase().includes(inputText);
+    }
+  })
 
+  return (<div>
+      <div className="main">
+      <div className="search">
+        <TextField
+          id="outlined-basic"
+          onChange={inputHandler}
+          variant="outlined"
+          fullWidth
+          label="Search"
+        />
+      </div>
+      </div>
 
-  return (
-//Inventory for Cafe
         <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
@@ -31,8 +57,9 @@ const CafeInventoryPage = () => {
                 <TableCell align="right">Protein&nbsp;(g)</TableCell>
                 </TableRow>
             </TableHead>
+
             <TableBody>
-                {rows.map((row) => (
+                {filteredData.map((row) => (
                 <TableRow
                     key={row.name}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -49,8 +76,8 @@ const CafeInventoryPage = () => {
             </TableBody>
             </Table>
         </TableContainer>
-      
+        </div>
     )
 }
 
-export default CafeInventoryPage;
+export default InventoryPage;

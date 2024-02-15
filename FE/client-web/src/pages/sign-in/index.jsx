@@ -1,45 +1,53 @@
-import { Box, Paper, TextField, Button } from '@mui/material'
-
-import bgImage from '../../assets/bg.svg'
-
+import { Box, Paper, TextField, Button, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import "./style.css"
 
 const SignIn = () => {
-  return (
-    <Box sx={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      height: "90vh",
-      backgroundImage: `url(${bgImage})`,
-      backgroundSize: 'cover',
-      backgroundRepeat: 'no-repeat',
-    }}>
+  const navigate = useNavigate();
 
+  function login(){
+    navigate('/inventory');
+  }
+
+  return (
+    <Box id='main-container'>
       <Paper 
-        elevation={6}
+        elevation={2}
         variant="elevation" square
         spacing={2}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "100px",
-          flexDirection: "column",
-          height: "40vh",
-          width: "50%",
-          gap: "16px",
-          borderRadius: "1%"
-        }}
+        id='sign-in-container'
       >
+        <Box id="sign-in-header">
+          <Typography variant="h5">
+            Sign In
+          </Typography>
+
+          <Typography variant="subtitle1">Sign in to your account.</Typography>
+        </Box>
+
+        <TextField className="input-field" label="Username"/>
         <TextField 
-          label="Email Address"
-        />
-        <TextField 
+          className="input-field"
           label="Password"
           type="password"
         />
-        <Button variant="contained">Button</Button>
+
+        <Box id="forgot-password-section">
+          <Button>Forgot Password?</Button>
+        </Box>
+
+        <Button id="sign-in-button" variant="contained" onClick={login}>Button</Button>
       </Paper>
+
+      <Box
+        id='sign-in-main-content'
+      >
+          <Typography variant="h2">
+            Inventory Monitoring System
+          </Typography>
+
+          <Typography variant="subtitle1">This is your inventory monitoring system.</Typography>
+      </Box>
     </Box>
   );
 };
