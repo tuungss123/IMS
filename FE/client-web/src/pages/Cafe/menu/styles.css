@@ -15,7 +15,8 @@
 }
 
 #inventory-table {
-    max-height: 60vh;
+    height: 68vh;
+    max-height: 68vh;
 }
 
 #inventory-table::-webkit-scrollbar {
@@ -29,15 +30,61 @@
     border-radius: 15px;
 }
 
-.table-header {
-    position: sticky;
-    top: 0;
+#header-row {
+    background-color: white;
 }
 
-#modal {
+.table-header {
+    background-color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+#modal-container {
+    height: 100vh;
+    width: 100vw;
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal {
+    position: absolute;
     background-color: white;
     border-radius: 15px;
+    z-index: 100;
+    height: 40vh;
+    width: 40vw;
+    padding: 2%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#modal-title {
+    margin-bottom: 5%;
+}
+
+#item-title {
+    margin-bottom: 2%;
+}
+
+#modal-input-field {
+    width: 30vw;
+}
+
+#modal-buttons-container {
+    width: 100%;
+    margin-top: 7.5%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+#modal-buttons-container button {
+    margin-left: 2%;
+    margin-right: 2%;
 }

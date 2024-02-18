@@ -1,10 +1,10 @@
-import { SidenavData } from './SidenavData';
+import { CommissarySidenavData } from './CommissarySidenavData';
 import { Box, Paper, TextField, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import "./styles.css";
 
 
-function SideNav() {
+function CommissarySidenav() {
   const navigate = useNavigate();
 
   function changePageContent(page){
@@ -19,11 +19,11 @@ function SideNav() {
           {/* INSERT IMAGE HERE */}
           <Box id='profile'></Box>
           <Typography variant='h6'>{JSON.parse(localStorage.getItem('user_data'))}</Typography>
-          <Typography variant='subtitle1'>System {JSON.parse(localStorage.getItem('user_data'))} User</Typography>
+          <Typography variant='subtitle1'>Commissary User</Typography>
         </Box>
 
         <ul className='side-bar-links'>
-        {SidenavData.map(( val, key) => {
+        {CommissarySidenavData.map(( val, key) => {
             return( 
                 <li 
                   key={key} 
@@ -41,4 +41,4 @@ function SideNav() {
   )
 }
 
-export default SideNav;
+export default CommissarySidenav;
