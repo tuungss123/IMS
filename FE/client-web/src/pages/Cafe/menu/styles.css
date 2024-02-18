@@ -1,0 +1,43 @@
+#search-box-container {
+    display: flex;
+    justify-content: end;
+    width: 100%;
+    margin-top: 2%;
+    margin-bottom: 2%;
+}
+
+#search-box {
+    width: 20vw;
+}
+
+#pagination-container {
+    margin-top: 2%;
+}
+
+#inventory-table {
+    max-height: 60vh;
+}
+
+#inventory-table::-webkit-scrollbar {
+    width: 10px;
+    background-color: #FCFCFC;
+    scroll-behavior: smooth;
+}
+
+#inventory-table::-webkit-scrollbar-thumb {
+    background-color: rgb(90, 2, 2);
+    border-radius: 15px;
+}
+
+.table-header {
+    position: sticky;
+    top: 0;
+}
+
+#modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    background-color: white;
+    border-radius: 15px;
+}

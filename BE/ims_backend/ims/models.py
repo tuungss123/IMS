@@ -4,7 +4,8 @@ from django.contrib.auth.models import User
 # Create your models here.
 class Item(models.Model):
     item_name = models.CharField(max_length=64)
-    stock = models.IntegerField()
+    commissary_stock = models.IntegerField()
+    cafe_stock = models.IntegerField()
 
     def __str__(self):
         return f'{self.item_name}'

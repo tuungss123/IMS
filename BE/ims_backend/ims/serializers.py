@@ -7,8 +7,8 @@ class ItemSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'item_name',
-            'stock',
-            'price',
+            'commissary_stock',
+            'cafe_stock',
         ]
 
 
