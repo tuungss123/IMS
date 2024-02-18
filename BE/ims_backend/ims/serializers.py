@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Item, Transaction
+from .models import Item, Transaction, SpoiledMaterialReport
 
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,6 +13,8 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class TransactionSerializer(serializers.ModelSerializer):
+    transacted_item = ItemSerializer()
+
     class Meta:
         model = Transaction
         fields = [
@@ -21,5 +23,21 @@ class TransactionSerializer(serializers.ModelSerializer):
             'transacted_amount',
             'transactor',
             'date_created',
-            'date_changed'
+            'date_changed',
+            'admin_approval',
+            'approval'
+        ]
+
+
+class SpoiledMaterialReportSerializer(serializers.ModelSerializer):
+    item = ItemSerializer()
+
+    class Meta:
+        model = SpoiledMaterialReport
+        fields = [
+            'id',
+            'item',
+            'spoil_amount',
+            'report_creator',
+            'date_created'
         ]

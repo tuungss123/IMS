@@ -6,26 +6,26 @@ import AccountCircleSharpIcon from '@mui/icons-material/AccountCircleSharp';
 import Build from '@mui/icons-material/Build';
 import Logout from '@mui/icons-material/Logout';
 
-export const SidenavData = [
+export const CommissarySidenavData = [
     {
         title: "Inventory",
         icon: <WidgetsIcon/>,
-        link: "/cafeinventory"
+        link: "/commissary/inventory"
     },
     {
         title: "Stock Analysis",
         icon: <ReceiptIcon/>,
-        link: "/archive"
+        link: "/commissary/analysis"
     },
     {
         title: "Transaction History",
         icon: <InventorySharpIcon/>,
-        link: "/transfer_history"
+        link: "/commissary/transfer_history"
     },
     // {
     //     title: "Profile",
     //     icon: <AccountCircleSharpIcon/>,
-    //     link: "/profile"
+    //     link: "/commissary/profile"
     // },
     // {
     //     title: "Settings",

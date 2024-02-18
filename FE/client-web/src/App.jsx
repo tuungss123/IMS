@@ -2,32 +2,53 @@ import React from 'react';
 import {
   BrowserRouter as Router, Routes, Route
 } from 'react-router-dom'
+import { ThemeProvider } from '@emotion/react';
+import theme from './theme';
 
 //Site Pages
-import InventoryPage from "./pages/Cafe/inventory"
-import RootLayout from './layouts/root-layout'
-import ProfilePage from './pages/Cafe/profile'
+import RootLayout from './layouts/root-layout';
+import CommissaryLayout from './layouts/root-layout/commissary_nav';
 import SignIn from './pages/sign-in'
+
+// CAFE
+import TransferHistoryPage from './pages/Cafe/transfer_history';
+import ProfilePage from './pages/Cafe/profile'
 import ArchivePage from './pages/Cafe/archive'
 import CafeInventoryPage from './pages/Cafe/menu'
+
+// COMMISSARY
+import CommissaryInventoryPage from './pages/Commissary/commissary_inventory';
+import CommissaryTransferHistoryPage from './pages/Commissary/item_requests';
+import CommissaryAnalyis from './pages/Commissary/analysis';
+
 import "./App.css"
 
 const App = () => {
   return (
-    <Router>
-      <Routes>
-        {/* PATHS UNDER LOGGED IN USER */}
-        <Route path="/" element={<RootLayout />}>
-          <Route path="transfer_history" element={<InventoryPage />} />
-          <Route path="archive" element={<ArchivePage />} />
-          <Route path="cafeinventory" element={<CafeInventoryPage />} />
-          <Route path="profile" element={<ProfilePage />} />
-        </Route>
+    <ThemeProvider theme={theme}>
+      <Router>
+        <Routes>
+          {/* PATHS UNDER LOGGED IN USER */}
+          <Route path="/" element={<RootLayout />}>
+            <Route path="transfer_history" element={<TransferHistoryPage />} />
+            <Route path="archive" element={<ArchivePage />} />
+            <Route path="cafeinventory" element={<CafeInventoryPage />} />
+            <Route path="profile" element={<ProfilePage />} />
+          </Route>
 
-        {/* LOGIN PATH */}
-        <Route path="signin" element={<SignIn />} />
-      </Routes>
-    </Router>
+          {/* COMMISSARY */}
+          <Route path="/commissary" element={<CommissaryLayout />}>
+            <Route path="/commissary/transfer_history" element={<CommissaryTransferHistoryPage />} />
+            <Route path="/commissary/analysis" element={<CommissaryAnalyis />} />
+            <Route path="/commissary/inventory" element={<CommissaryInventoryPage />} />
+            <Route path="/commissary/profile" element={<ProfilePage />} />
+          </Route>
+
+          {/* LOGIN PATH */}
+          <Route path="login" element={<SignIn />} />
+        </Routes>
+      </Router>
+    </ThemeProvider>
   )
 }
 

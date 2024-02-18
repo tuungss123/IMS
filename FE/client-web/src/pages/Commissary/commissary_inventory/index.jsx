@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Pagination, Modal } from "@mui/material";
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import './styles.css';
 
-const CafeInventoryPage = () => {
+
+const CommissaryInventoryPage = () => {
     const [inventoryData, setInventoryData] = useState([]);
     
     // stock request
@@ -60,25 +64,6 @@ const CafeInventoryPage = () => {
         }
     }
 
-    async function reportSpoiledItem(){
-        const requestOptions = {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                'item_id': spoiledItemId,
-                'spoil_amount': spoiledQty,
-                'report_creator': JSON.parse(localStorage.getItem('user_data'))
-            })
-        }
-
-        const response = await fetch(`http://127.0.0.1:8000/report_spoiled/${spoiledItemId}`, requestOptions);
-        const data = await response.json();
-        
-        if (data.response == 'Spoil Report Created'){
-            setSpoiledModalVisible(false);
-        }
-    }
-
     async function search(searched_item){
         const requestOptions = {
             method: 'POST',
@@ -97,10 +82,11 @@ const CafeInventoryPage = () => {
 
     return (
         <Box>
-            <Typography variant='h5'>Inventory</Typography>
+            <Typography variant='h5'>Commissary Inventory</Typography>
             <Typography variant='body1'>Listed below are all the inventory items within the system.</Typography>
 
             <Box id='search-box-container'>
+                <Button variant='outlined' sx={{ marginRight: '2%' }}>Add Item</Button>
                 <TextField label='Search Inventory' id='search-box' size="small" onChange={(search_item) => search(search_item.target.value)}>Search</TextField>
             </Box>
 
@@ -110,8 +96,7 @@ const CafeInventoryPage = () => {
                     <TableRow id='header-row'>
                         <TableCell align="center" className='table-header'>Item Name</TableCell>
                         <TableCell align="center" className='table-header'>Current Stock</TableCell>
-                        <TableCell align="center" className='table-header'>Request Item</TableCell>
-                        <TableCell align="center" className='table-header'>Report Spoil</TableCell>
+                        <TableCell align="center" className='table-header'>Options</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -120,16 +105,10 @@ const CafeInventoryPage = () => {
                             <TableCell component="th" scope="row">
                                 {item.item_name}
                             </TableCell>
-                            <TableCell align="center">{item.cafe_stock}</TableCell>
+                            <TableCell align="center">{item.commissary_stock}</TableCell>
                             <TableCell align="center">
-                                <Button variant='outlined' onClick={() => setModalDetails(item.id, item.item_name)}>
-                                    Request Stock
-                                </Button>
-                            </TableCell>
-                            <TableCell align="center">
-                                <Button variant='outlined' onClick={() => setSpoiledModalDetails(item.id, item.item_name)}>
-                                    Report Spoiled Item
-                                </Button>
+                                <EditIcon />
+                                <DeleteIcon  />
                             </TableCell>
                         </TableRow>
                     ))}
@@ -196,4 +175,4 @@ const CafeInventoryPage = () => {
     )
 }
 
-export default CafeInventoryPage;
+export default CommissaryInventoryPage;

@@ -1,0 +1,32 @@
+#spoilage-table {
+    height: 64vh;
+    max-height: 64vh;
+}
+
+#spoilage-table::-webkit-scrollbar {
+    width: 10px;
+    background-color: #FCFCFC;
+    scroll-behavior: smooth;
+}
+
+#spoilage-table::-webkit-scrollbar-thumb {
+    background-color: rgb(90, 2, 2);
+    border-radius: 15px;
+}
+
+#header-row {
+    background-color: white;
+}
+
+.table-header {
+    background-color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+#date-pickers {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}

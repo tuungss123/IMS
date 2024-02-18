@@ -1,0 +1,33 @@
+/* .options-cell {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+} */
+
+#transfers-table {
+    height: 68vh;
+    max-height: 68vh;
+    overflow-y: scroll;
+}
+
+#transfers-table::-webkit-scrollbar {
+    width: 10px;
+    background-color: #FCFCFC;
+    scroll-behavior: smooth;
+}
+
+#transfers-table::-webkit-scrollbar-thumb {
+    background-color: rgb(90, 2, 2);
+    border-radius: 15px;
+}
+
+#header-row {
+    background-color: white;
+}
+
+.table-header {
+    background-color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
