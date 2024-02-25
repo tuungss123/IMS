@@ -12,9 +12,9 @@ import SignIn from './pages/sign-in'
 
 // CAFE
 import TransferHistoryPage from './pages/Cafe/transfer_history';
-import ProfilePage from './pages/Cafe/profile'
-import ArchivePage from './pages/Cafe/archive'
-import CafeInventoryPage from './pages/Cafe/menu'
+import ProfilePage from './pages/Cafe/profile';
+import CafeAnalysis from './pages/Cafe/analysis';
+import CafeInventoryPage from './pages/Cafe/menu';
 
 // COMMISSARY
 import CommissaryInventoryPage from './pages/Commissary/commissary_inventory';
@@ -22,6 +22,7 @@ import CommissaryTransferHistoryPage from './pages/Commissary/item_requests';
 import CommissaryAnalyis from './pages/Commissary/analysis';
 
 import "./App.css"
+
 
 const App = () => {
   return (
@@ -31,7 +32,7 @@ const App = () => {
           {/* PATHS UNDER LOGGED IN USER */}
           <Route path="/" element={<RootLayout />}>
             <Route path="transfer_history" element={<TransferHistoryPage />} />
-            <Route path="archive" element={<ArchivePage />} />
+            <Route path="analysis" element={<CafeAnalysis />} />
             <Route path="cafeinventory" element={<CafeInventoryPage />} />
             <Route path="profile" element={<ProfilePage />} />
           </Route>

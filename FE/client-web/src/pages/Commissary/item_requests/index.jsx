@@ -38,6 +38,21 @@ const CommissaryTransferHistoryPage = () => {
     retrieveInventoryItems();
   }
 
+  async function search(searched_item){
+      const requestOptions = {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              'search': searched_item
+          })
+      }
+
+      const data = await fetch('http://127.0.0.1:8000/search_transfer_requests', requestOptions);
+      const response = await data.json();
+      
+      setTransferData(response.transactions);
+  }
+
   return (
     <Box>
       <Typography variant="h5">Transfer Requests</Typography>
@@ -52,6 +67,7 @@ const CommissaryTransferHistoryPage = () => {
             label="Search Transactions..."
             size="small"
             sx={{ marginTop: '7.5%' }}
+            onChange={(search_item) => search(search_item.target.value)}
           />
         </div>
       </div>
@@ -76,12 +92,17 @@ const CommissaryTransferHistoryPage = () => {
                       <TableCell align="center">{transfer.transactor}</TableCell>
                       <TableCell align="center">{transfer.date_created}</TableCell>
                       <TableCell align="center">{transfer.approval}</TableCell>
-                      {transfer.approval === 'Pending' && (
-                        <TableCell align="center">
+                      <TableCell align="center">
+                        {transfer.approval === 'Pending' && transfer.transacted_amount <= transfer.transacted_item.commissary_stock && (
+                          <>
                             <CheckIcon onClick={() => processTransaction(transfer.id, 'Approved')} />
                             <DoDisturbIcon onClick={() => processTransaction(transfer.id, 'Denied')} />
-                        </TableCell>
-                      )}
+                          </>
+                        )}
+                        {transfer.approval === 'Pending' && transfer.transacted_amount > transfer.transacted_item.commissary_stock && (
+                          <DoDisturbIcon onClick={() => processTransaction(transfer.id, 'Denied')} />
+                        )}
+                      </TableCell>
                       {transfer.approval != 'Pending' && (
                         <TableCell align="center">
                           -
@@ -92,23 +113,6 @@ const CommissaryTransferHistoryPage = () => {
             </TableBody>
             </Table>
         </TableContainer>
-
-        <Modal
-            open={isModalVisible}
-            onClose={() => setIsModalVisible(false)}
-            sx={{ bgcolor: 'background.Paper', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-        >
-            <div class='modal'>
-                <Typography variant="h5" id="modal-title">Message</Typography>
-                <Typography variant="h6" id='item-title'>{modalMessage}</Typography>
-                
-                <Box id='modal-buttons-container'>
-                    <Button variant='outlined' onClick={() => setIsModalVisible(false) }>Close</Button>
-                </Box>
-            </div>
-        </Modal>
 
         <Modal
             open={isModalVisible}
