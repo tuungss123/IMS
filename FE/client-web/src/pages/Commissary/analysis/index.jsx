@@ -25,6 +25,19 @@ const CommissaryAnalyis = () => {
         setModalVisible(true);
     }
 
+    function formatDateTime(dateTimeString) {
+        const date = new Date(dateTimeString);
+
+        return date.toLocaleString('en-US', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,
+        });
+    }
+
     async function retrieveSpoilageReports(){
         const data = await fetch('http://127.0.0.1:8000/retrieve_spoilage_reports');
         const response = await data.json();
@@ -93,7 +106,7 @@ const CommissaryAnalyis = () => {
                             </TableCell>
                             <TableCell align="center">{spoilage.spoil_amount}</TableCell>
                             <TableCell align="center">{spoilage.report_creator}</TableCell>
-                            <TableCell align="center">{spoilage.date_created}</TableCell>
+                            <TableCell align="center">{formatDateTime(spoilage.date_created)}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

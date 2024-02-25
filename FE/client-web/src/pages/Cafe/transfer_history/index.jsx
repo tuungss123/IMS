@@ -1,4 +1,4 @@
-import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Typography } from "@mui/material";
+import { Button, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Typography, Modal } from "@mui/material";
 import { useState, useEffect } from "react";
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
@@ -7,10 +7,20 @@ import './styles.css';
 const TransferHistoryPage = () => {
   const [transferData, setTransferData] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [modId, setModId] = useState(0);
+  const [modName, setModName] = useState('');
+  const [modifyQty, setModifyQty] = useState(0);
+
 
   useEffect(() => {
       retrieveInventoryItems();
   }, []);
+
+  function setModalDetails(item_id, item_name){
+    setModId(item_id);
+    setModName(item_name);
+    setModalVisible(true);
+  }
 
   async function retrieveInventoryItems(){
     const data = await fetch('http://127.0.0.1:8000/all_transactions');
@@ -33,6 +43,41 @@ const TransferHistoryPage = () => {
     retrieveInventoryItems();
   }
 
+  async function modifyRequestedQty(){
+      const requestOptions = {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              'transacted_amount': modifyQty
+          })
+      }
+
+      const response = await fetch(`http://127.0.0.1:8000/update_transaction/${modId}`, requestOptions);
+      const data = await response.json();
+      
+      console.log(data.response);
+
+      if (data.response == 'Transaction Updated'){
+          setModalVisible(false);
+          retrieveInventoryItems();
+      }
+  }
+
+  async function search(searched_item){
+      const requestOptions = {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              'search': searched_item
+          })
+      }
+
+      const data = await fetch('http://127.0.0.1:8000/search_transfer_requests', requestOptions);
+      const response = await data.json();
+      
+      setTransferData(response.transactions);
+  }
+
   return (
     <Box>
       <Typography variant="h5">Transfer Requests</Typography>
@@ -47,6 +92,7 @@ const TransferHistoryPage = () => {
             label="Search Transactions..."
             size="small"
             sx={{ marginTop: '7.5%' }}
+            onChange={(search_item) => search(search_item.target.value)}
           />
         </div>
       </div>
@@ -73,7 +119,7 @@ const TransferHistoryPage = () => {
                       <TableCell align="center">{transfer.approval}</TableCell>
                       {transfer.approval === 'Pending' && (
                         <TableCell align="center">
-                          <EditOutlinedIcon />
+                          <EditOutlinedIcon onClick={() => setModalDetails(transfer.id, transfer.transacted_item.item_name )} />
                           <DeleteOutlineOutlinedIcon onClick={() => deleteTransaction(transfer.id)} />
                         </TableCell>
                       )}
@@ -88,32 +134,32 @@ const TransferHistoryPage = () => {
             </Table>
         </TableContainer>
 
-        {/* <Modal
-            open={spoiledModalVisible}
-            onClose={() => setSpoiledModalVisible(false)}
+        <Modal
+            open={modalVisible}
+            onClose={() => setModalVisible(false)}
             sx={{ bgcolor: 'background.Paper', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
         >
             <div class='modal'>
-                <Typography variant="h5" id="modal-title">Report Spoiled Item</Typography>
+                <Typography variant="h5" id="modal-title">Modify Transaction Quantity Request</Typography>
 
-                <Typography variant="h6" id='item-title'>{spoiledItemName}</Typography>
+                <Typography variant="h6" id='item-title'>{modName}</Typography>
                 <TextField 
-                    label="Amount of Items Spoiled" 
+                    label="Change amount" 
                     type='number' 
                     id="modal-input-field" 
                     size='small' 
-                    onChange={(spoilQty) => setSpoiledQty(spoilQty.target.value)}
+                    onChange={(qty) => setModifyQty(qty.target.value)}
                 >
                 </TextField>
                 
                 <Box id='modal-buttons-container'>
-                    <Button variant='outlined' onClick={() => reportSpoiledItem() }>Report</Button>
-                    <Button variant='outlined' onClick={() => setSpoiledModalVisible(false) }>Cancel</Button>
+                    <Button variant='outlined' onClick={() => modifyRequestedQty() }>Modify</Button>
+                    <Button variant='outlined' onClick={() => setModalVisible(false) }>Cancel</Button>
                 </Box>
             </div>
-        </Modal> */}
+        </Modal>
     </Box>
   )
 }

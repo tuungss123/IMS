@@ -17,6 +17,10 @@ const CafeInventoryPage = () => {
     const [spoiledQty, setSpoiledQty] = useState(0);
     const [spoiledModalVisible, setSpoiledModalVisible] = useState(false);
 
+    // message modal
+    const [modalMessage, setModalMessage] = useState('');
+    const [isModalVisible, setIsModalVisible] = useState(false);
+
     useEffect(() => {
         retrieveInventoryItems();
     }, []);
@@ -37,7 +41,6 @@ const CafeInventoryPage = () => {
         const data = await fetch('http://127.0.0.1:8000/all_items');
         const response = await data.json();
         
-        console.log(response.items);
         setInventoryData(response.items);
     }
 
@@ -74,8 +77,9 @@ const CafeInventoryPage = () => {
         const response = await fetch(`http://127.0.0.1:8000/report_spoiled/${spoiledItemId}`, requestOptions);
         const data = await response.json();
         
-        if (data.response == 'Spoil Report Created'){
+        if (data.response == 'Spoil Report Created' || data.response == 'Invalid Spoil Report'){
             setSpoiledModalVisible(false);
+            retrieveInventoryItems();
         }
     }
 
@@ -91,7 +95,6 @@ const CafeInventoryPage = () => {
         const data = await fetch('http://127.0.0.1:8000/search_items', requestOptions);
         const response = await data.json();
         
-        console.log(response.items);
         setInventoryData(response.items);
     }
 
@@ -120,7 +123,9 @@ const CafeInventoryPage = () => {
                             <TableCell component="th" scope="row">
                                 {item.item_name}
                             </TableCell>
-                            <TableCell align="center">{item.cafe_stock}</TableCell>
+                            <TableCell align="center">
+                                {item.cafe_stock < 10 ? `${item.cafe_stock} (Critical Stock)` : item.cafe_stock}
+                            </TableCell>
                             <TableCell align="center">
                                 <Button variant='outlined' onClick={() => setModalDetails(item.id, item.item_name)}>
                                     Request Stock
@@ -146,7 +151,7 @@ const CafeInventoryPage = () => {
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
             >
-                <div class='modal'>
+                <div className='modal'>
                     <Typography variant="h5" id="modal-title">Request Item from Commissary</Typography>
 
                     <Typography variant="h6" id='item-title'>{selectedItem}</Typography>
@@ -173,7 +178,7 @@ const CafeInventoryPage = () => {
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
             >
-                <div class='modal'>
+                <div className='modal'>
                     <Typography variant="h5" id="modal-title">Report Spoiled Item</Typography>
 
                     <Typography variant="h6" id='item-title'>{spoiledItemName}</Typography>
@@ -189,6 +194,23 @@ const CafeInventoryPage = () => {
                     <Box id='modal-buttons-container'>
                         <Button variant='outlined' onClick={() => reportSpoiledItem() }>Report</Button>
                         <Button variant='outlined' onClick={() => setSpoiledModalVisible(false) }>Cancel</Button>
+                    </Box>
+                </div>
+            </Modal>
+
+            <Modal
+                open={isModalVisible}
+                onClose={() => setIsModalVisible(false)}
+                sx={{ bgcolor: 'background.Paper', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <div class='modal'>
+                    <Typography variant="h5" id="modal-title">Message</Typography>
+                    <Typography variant="h6" id='item-title'>{modalMessage}</Typography>
+                    
+                    <Box id='modal-buttons-container'>
+                        <Button variant='outlined' onClick={() => setIsModalVisible(false) }>Close</Button>
                     </Box>
                 </div>
             </Modal>

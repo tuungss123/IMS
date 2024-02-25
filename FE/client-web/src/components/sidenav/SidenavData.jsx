@@ -15,7 +15,7 @@ export const SidenavData = [
     {
         title: "Stock Analysis",
         icon: <ReceiptIcon/>,
-        link: "/archive"
+        link: "/analysis"
     },
     {
         title: "Transaction History",

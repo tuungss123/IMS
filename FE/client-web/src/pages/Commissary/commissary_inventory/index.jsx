@@ -9,17 +9,16 @@ import './styles.css';
 const CommissaryInventoryPage = () => {
     const [inventoryData, setInventoryData] = useState([]);
     
-    // stock request
+    // modify item quantity
     const [selectedItem , setSelectedItem] = useState('');
     const [requestedItem, setRequestedItem] = useState(0);
-    const [requestedQuantity, setRequestedQuantity] = useState(0);
+    const [modifyQty, setModifyQty] = useState(0);
     const [modalVisible, setModalVisible] = useState(false);
 
-    // spoil report
-    const [spoiledItemName , setSpoiledItemName] = useState('');
-    const [spoiledItemId, setSpoiledItemId] = useState(0);
-    const [spoiledQty, setSpoiledQty] = useState(0);
-    const [spoiledModalVisible, setSpoiledModalVisible] = useState(false);
+    // add item
+    const [addItemName , setAddItemName] = useState('');
+    const [addQty, setAddQty] = useState(0);
+    const [addModalVisible, setAddModalVisible] = useState(false);
 
     useEffect(() => {
         retrieveInventoryItems();
@@ -31,36 +30,51 @@ const CommissaryInventoryPage = () => {
         setModalVisible(true);
     }
 
-    const setSpoiledModalDetails = (item_id, item_name) => {
-        setSpoiledItemId(item_id);
-        setSpoiledItemName(item_name);
-        setSpoiledModalVisible(true);
-    }
-
     async function retrieveInventoryItems(){
         const data = await fetch('http://127.0.0.1:8000/all_items');
         const response = await data.json();
         
-        console.log(response.items);
         setInventoryData(response.items);
     }
 
-    async function requestItem(){
+    async function createItem(){
         const requestOptions = {
             method: 'POST',
             headers: {'Content-Type': 'application/json' },
             body: JSON.stringify({
-                'item_id': requestedItem,
-                'request_quantity': requestedQuantity,
-                'transactor': JSON.parse(localStorage.getItem('user_data'))
+                'item_name': addItemName,
+                'commissary_stock': addQty
             })
         }
 
-        const response = await fetch(`http://127.0.0.1:8000/request_item/${requestedItem}`, requestOptions);
+        console.log(addItemName);
+        console.log(addQty);
+
+        const response = await fetch(`http://127.0.0.1:8000/create_item`, requestOptions);
         const data = await response.json();
         
-        if (data.response == 'Request Made.'){
+        console.log(data.response);
+        if (data.response == 'Item Created'){
+            setAddModalVisible(false);
+            retrieveInventoryItems();
+        }
+    }
+
+    async function addToStock(){
+        const requestOptions = {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                'stock_update': modifyQty
+            })
+        }
+
+        const response = await fetch(`http://127.0.0.1:8000/update_item/${requestedItem}`, requestOptions);
+        const data = await response.json();
+        
+        if (data.response == 'Item Updated'){
             setModalVisible(false);
+            retrieveInventoryItems();
         }
     }
 
@@ -76,7 +90,6 @@ const CommissaryInventoryPage = () => {
         const data = await fetch('http://127.0.0.1:8000/search_items', requestOptions);
         const response = await data.json();
         
-        console.log(response.items);
         setInventoryData(response.items);
     }
 
@@ -86,7 +99,7 @@ const CommissaryInventoryPage = () => {
             <Typography variant='body1'>Listed below are all the inventory items within the system.</Typography>
 
             <Box id='search-box-container'>
-                <Button variant='outlined' sx={{ marginRight: '2%' }}>Add Item</Button>
+                <Button variant='outlined' sx={{ marginRight: '2%' }} onClick={() => {setAddModalVisible(true)}}>Add Item</Button>
                 <TextField label='Search Inventory' id='search-box' size="small" onChange={(search_item) => search(search_item.target.value)}>Search</TextField>
             </Box>
 
@@ -105,10 +118,11 @@ const CommissaryInventoryPage = () => {
                             <TableCell component="th" scope="row">
                                 {item.item_name}
                             </TableCell>
-                            <TableCell align="center">{item.commissary_stock}</TableCell>
                             <TableCell align="center">
-                                <EditIcon />
-                                <DeleteIcon  />
+                                {item.commissary_stock < 10 ? `${item.commissary_stock} (Critical Stock)` : item.commissary_stock}
+                            </TableCell>
+                            <TableCell align="center">
+                                <EditIcon onClick={() => setModalDetails(item.id, item.item_name) } />
                             </TableCell>
                         </TableRow>
                     ))}
@@ -125,49 +139,58 @@ const CommissaryInventoryPage = () => {
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
             >
-                <div class='modal'>
-                    <Typography variant="h5" id="modal-title">Request Item from Commissary</Typography>
+                <div className='modal'>
+                    <Typography variant="h5" id="modal-title">Add Stock</Typography>
 
                     <Typography variant="h6" id='item-title'>{selectedItem}</Typography>
                     <TextField 
-                        label="Request Quantity" 
+                        label="Add Quantity" 
                         type='number' 
                         id="modal-input-field" 
                         size='small' 
-                        onChange={(qty) => setRequestedQuantity(qty.target.value)}
+                        onChange={(qty) => setModifyQty(qty.target.value)}
                     >
                     </TextField>
                     
                     <Box id='modal-buttons-container'>
-                        <Button variant='outlined' onClick={() => requestItem() }>Proceed</Button>
+                        <Button variant='outlined' onClick={() => addToStock() }>Proceed</Button>
                         <Button variant='outlined' onClick={() => setModalVisible(false) }>Cancel</Button>
                     </Box>
                 </div>
             </Modal>
 
             <Modal
-                open={spoiledModalVisible}
-                onClose={() => setSpoiledModalVisible(false)}
+                open={addModalVisible}
+                onClose={() => setAddModalVisible(false)}
                 sx={{ bgcolor: 'background.Paper', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
             >
-                <div class='modal'>
-                    <Typography variant="h5" id="modal-title">Report Spoiled Item</Typography>
-
-                    <Typography variant="h6" id='item-title'>{spoiledItemName}</Typography>
+                <div className='modal'>
+                    <Typography variant="h5" id="modal-title">Add New Item</Typography>
+                    
+                    <Typography variant="h6" id='item-title'>Item Name</Typography>
                     <TextField 
-                        label="Amount of Items Spoiled" 
+                        label="Enter Name of Item..." 
+                        type='text' 
+                        size='small'
+                        onChange={(itemName) => setAddItemName(itemName.target.value)}
+                    >
+                    </TextField>
+
+                    <Typography variant="h6" id='item-title'>Quantity</Typography>
+                    <TextField 
+                        label="Amount of Items to Add" 
                         type='number' 
                         id="modal-input-field" 
                         size='small' 
-                        onChange={(spoilQty) => setSpoiledQty(spoilQty.target.value)}
+                        onChange={(addQty) => setAddQty(addQty.target.value)}
                     >
                     </TextField>
                     
                     <Box id='modal-buttons-container'>
-                        <Button variant='outlined' onClick={() => reportSpoiledItem() }>Report</Button>
-                        <Button variant='outlined' onClick={() => setSpoiledModalVisible(false) }>Cancel</Button>
+                        <Button variant='outlined' onClick={() => createItem() }>Add Item</Button>
+                        <Button variant='outlined' onClick={() => setAddModalVisible(false) }>Cancel</Button>
                     </Box>
                 </div>
             </Modal>

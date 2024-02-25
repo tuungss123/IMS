@@ -72,34 +72,37 @@ def search_items(request):
 
 @api_view(['POST'])
 def create_item(request):
-    item_name = request.POST.get('item_name')
-    commissary_stock = request.POST.get('commissary_stock')
-    cafe_stock = request.POST.get('cafe_stock')
+    item_name = request.data.get('item_name')
+    commissary_stock = request.data.get('commissary_stock')
 
     try:
-        new_item = Item(
-            item_name=item_name,
-            commissary_stock=commissary_stock,
-            cafe_stock=cafe_stock
-        )
-        new_item.save()
+        item = Item.objects.filter(item_name=item_name).first()
 
-        return Response({'response': 'Item Created'}, 200)
-    except:
-        return Response({'response': 'Failed to Create Item'}, 200)
+        if item is None:
+            new_item = Item(
+                item_name=item_name,
+                commissary_stock=commissary_stock,
+                cafe_stock=0
+            )
+
+            new_item.save()
+            return Response({'response': 'Item Created'}, 200)
+        
+        else:
+            return Response({'response': 'Item Already Exists'}, 200)
+        
+    except Exception as e:
+        return Response({'response': 'Failed to Create Item'}, 400)
+
     
 
 @api_view(['POST'])
 def update_item(request, item_id):
-    item_name = request.POST.get('item_name')
-    commissary_stock = request.POST.get('commissary_stock')
-    cafe_stock = request.POST.get('cafe_stock')
+    stock_update = int(request.data.get('stock_update'))
 
     try:
         item = Item.objects.get(id=item_id)
-        item.item_name = item_name
-        item.commissary_stock = commissary_stock
-        item.cafe_stock = cafe_stock
+        item.commissary_stock += stock_update
         item.save()
 
         return Response({'response': 'Item Updated'}, 200)
@@ -156,6 +159,17 @@ def retrieve_all_transactions(request):
         return Response({'transactions': serialize_transactions.data}, 200)
     
 
+@api_view(['POST'])
+def search_transfer_requests(request):
+    if request.method == 'POST':
+        search = request.data.get('search')
+
+        transactions = Transaction.objects.filter(transacted_item__item_name__icontains=f'{search}')
+        serialize_transactions = TransactionSerializer(transactions, many=True)
+
+        return Response({'transactions': serialize_transactions.data}, 200)
+    
+
 @api_view(['GET'])
 def retrieve_transaction(request, transaction_id):
     if request.method == 'GET':
@@ -190,24 +204,16 @@ def create_transaction(request):
 
 @api_view(['POST'])
 def update_transaction(request, transaction_id):
-    transacted_item = request.POST.get('transacted_item')
-    transacted_amount = request.POST.get('transacted_amount')
-    transactor = request.POST.get('transactor')
-    date_created = request.POST.get('date_created')
-    date_changed = request.POST.get('date_changed')
+    transacted_amount = request.data.get('transacted_amount')
 
-    try:
-        transaction = Transaction.objects.get(id=transaction_id)
-        transaction.transacted_item = transacted_item,
-        transaction.transacted_amount = transacted_amount
-        transaction.transactor = transactor
-        transaction.date_created = date_created
-        transaction.date_changed = date_changed
-        transaction.save()
+    # try:
+    transaction = Transaction.objects.get(id=transaction_id)
+    transaction.transacted_amount = transacted_amount
+    transaction.save()
 
-        return Response({'response': 'Transaction Updated'}, 200)
-    except:
-        return Response({'response': 'Failed to Update Transaction'}, 200)
+    return Response({'response': 'Transaction Updated'}, 200)
+    # except:
+    #     return Response({'response': 'Failed to Update Transaction'}, 200)
     
 
 @api_view(['DELETE'])
@@ -232,47 +238,60 @@ def process_transaction(request, transaction_id):
         # HANDLE INTERN REQUEST
         if retrieved_transaction.transactor == 'Intern':
             if retrieved_transaction.admin_approval:
-                if item.commissary_stock >= retrieved_transaction.transacted_amount:
-                    item.commissary_stock -= retrieved_transaction.transacted_amount
-                    item.cafe_stock += retrieved_transaction.transacted_amount
-                
-                    if action == 'Approved':
-                        retrieved_transaction.approval = 'Approved'
-                        message = f"{retrieved_transaction.date_changed} - Approved {retrieved_transaction.transactor}'s request to transfer item: {item.item_name} * {retrieved_transaction.transacted_amount}"
 
-                    elif action == 'Denied':
-                        retrieved_transaction.approval = 'Denied'
-                        message = f"{retrieved_transaction.date_changed} - Denied {retrieved_transaction.transactor}'s request to transfer item: {item.item_name} * {retrieved_transaction.transacted_amount}"
-
-                    retrieved_transaction.save()
-                    item.save()
-                    return Response({'response': message}, 200)
-                
-                else:
-                    return Response({'response': 'Request Failed. Stock Insufficient'}, 400)
-            else:
-                return Response({'response': 'Transaction was not approved by the Administrator.'}, 400)
-            
-        else:
-            if item.commissary_stock >= retrieved_transaction.transacted_amount:
-                item.commissary_stock -= retrieved_transaction.transacted_amount
-                item.cafe_stock += retrieved_transaction.transacted_amount
-                
                 if action == 'Approved':
-                    retrieved_transaction.approval = 'Approved'
-                    message = f"{retrieved_transaction.date_changed} - Approved {retrieved_transaction.transactor}'s request to transfer item: {item.item_name} * {retrieved_transaction.transacted_amount}"
-
+                    if item.commissary_stock >= retrieved_transaction.transacted_amount:
+                        item.commissary_stock -= retrieved_transaction.transacted_amount
+                        item.cafe_stock += retrieved_transaction.transacted_amount
+                    
+                        retrieved_transaction.approval = 'Approved'
+                        message = f"""
+                            {retrieved_transaction.date_changed.strftime("%m/%d/%Y %I:%M %p")} - Approved {retrieved_transaction.transactor}'s request to transfer item: 
+                            {item.item_name} * {retrieved_transaction.transacted_amount}
+                        """
+                    
+                    else:
+                        return Response({'response': 'Request Failed. Stock Insufficient'}, 400)
+                    
                 elif action == 'Denied':
-                    retrieved_transaction.approval = 'Denied'
-                    message = f"{retrieved_transaction.date_changed} - Denied {retrieved_transaction.transactor}'s request to transfer item: {item.item_name} * {retrieved_transaction.transacted_amount}"
+                        retrieved_transaction.approval = 'Denied'
+                        message = f"""
+                            {retrieved_transaction.date_changed.strftime("%m/%d/%Y %I:%M %p")} - Denied {retrieved_transaction.transactor}'s request to transfer item: 
+                            {item.item_name} * {retrieved_transaction.transacted_amount}
+                        """
 
                 retrieved_transaction.save()
                 item.save()
                 return Response({'response': message}, 200)
             else:
-                return Response({'response': 'Request Failed. Stock Insufficient'}, 400)
+                return Response({'response': 'Transaction was not approved by the Administrator.'}, 400)
             
-        
+        else:
+            if action == 'Approved':
+                if item.commissary_stock >= retrieved_transaction.transacted_amount:
+                    item.commissary_stock -= retrieved_transaction.transacted_amount
+                    item.cafe_stock += retrieved_transaction.transacted_amount
+                    
+                    
+                    retrieved_transaction.approval = 'Approved'
+                    message = f"""
+                        {retrieved_transaction.date_changed.strftime("%m/%d/%Y %I:%M %p")} - Approved {retrieved_transaction.transactor}'s request to transfer item: 
+                        {item.item_name} * {retrieved_transaction.transacted_amount}
+                    """
+
+                else:
+                    return Response({'response': 'Request Failed. Stock Insufficient'}, 400)
+            
+            elif action == 'Denied':
+                retrieved_transaction.approval = 'Denied'
+                message = f"""
+                    {retrieved_transaction.date_changed.strftime("%m/%d/%Y %I:%M %p")} - Denied {retrieved_transaction.transactor}'s request to transfer item: 
+                    {item.item_name} * {retrieved_transaction.transacted_amount}
+                """
+
+            retrieved_transaction.save()
+            item.save()
+            return Response({'response': message}, 200)
     except:
         return Response({'response': 'Failed to Process Item Request'}, 200)
     
@@ -330,19 +349,36 @@ def retrieve_spoilage_reports(request):
 
 @api_view(['POST'])
 def report_spoiled(request, item_id):
-    spoil_amount = request.data.get('spoil_amount')
+    spoil_amount = int(request.data.get('spoil_amount'))
     report_creator = request.data.get('report_creator')
 
     try:
         spoiled_item = Item.objects.get(id=item_id)
 
-        new_spoil_report = SpoiledMaterialReport(
-            item=spoiled_item,
-            spoil_amount=spoil_amount,
-            report_creator=report_creator
-        )
-        new_spoil_report.save()
+        if spoil_amount <= spoiled_item.cafe_stock:
+            new_spoil_report = SpoiledMaterialReport(
+                item=spoiled_item,
+                spoil_amount=spoil_amount,
+                report_creator=report_creator
+            )
+            new_spoil_report.save()
 
-        return Response({'response': 'Spoil Report Created'}, 200)
+            spoiled_item.cafe_stock -= spoil_amount
+            spoiled_item.save()
+
+            return Response({'response': 'Spoil Report Created'}, 200)
+        else:
+            return Response({'response': 'Invalid Spoil Report'}, 200)
     except:
         return Response({'response': 'Failed to Create Spoil Report'}, 200)
+    
+
+@api_view(['POST'])
+def search_spoilage_reports(request):
+    if request.method == 'POST':
+        search = request.data.get('search')
+
+        reports = SpoiledMaterialReport.objects.filter(item__item_name__icontains=f'{search}')
+        serialize_reports = SpoiledMaterialReportSerializer(reports, many=True)
+
+        return Response({'reports': serialize_reports.data}, 200)
