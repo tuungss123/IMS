@@ -246,7 +246,7 @@ def process_transaction(request, transaction_id):
                     
                         retrieved_transaction.approval = 'Approved'
                         message = f"""
-                            {retrieved_transaction.date_changed.strftime("%m/%d/%Y %I:%M %p")} - Approved {retrieved_transaction.transactor}'s request to transfer item: 
+                            Approved {retrieved_transaction.transactor}'s request to transfer item: 
                             {item.item_name} * {retrieved_transaction.transacted_amount}
                         """
                     
@@ -256,13 +256,13 @@ def process_transaction(request, transaction_id):
                 elif action == 'Denied':
                         retrieved_transaction.approval = 'Denied'
                         message = f"""
-                            {retrieved_transaction.date_changed.strftime("%m/%d/%Y %I:%M %p")} - Denied {retrieved_transaction.transactor}'s request to transfer item: 
+                            Denied {retrieved_transaction.transactor}'s request to transfer item: 
                             {item.item_name} * {retrieved_transaction.transacted_amount}
                         """
 
                 retrieved_transaction.save()
                 item.save()
-                return Response({'response': message}, 200)
+                return Response({'response': message, 'date_changed': retrieved_transaction.date_changed }, 200)
             else:
                 return Response({'response': 'Transaction was not approved by the Administrator.'}, 400)
             
@@ -275,7 +275,7 @@ def process_transaction(request, transaction_id):
                     
                     retrieved_transaction.approval = 'Approved'
                     message = f"""
-                        {retrieved_transaction.date_changed.strftime("%m/%d/%Y %I:%M %p")} - Approved {retrieved_transaction.transactor}'s request to transfer item: 
+                        Approved {retrieved_transaction.transactor}'s request to transfer item: 
                         {item.item_name} * {retrieved_transaction.transacted_amount}
                     """
 
@@ -285,13 +285,13 @@ def process_transaction(request, transaction_id):
             elif action == 'Denied':
                 retrieved_transaction.approval = 'Denied'
                 message = f"""
-                    {retrieved_transaction.date_changed.strftime("%m/%d/%Y %I:%M %p")} - Denied {retrieved_transaction.transactor}'s request to transfer item: 
+                    Denied {retrieved_transaction.transactor}'s request to transfer item: 
                     {item.item_name} * {retrieved_transaction.transacted_amount}
                 """
 
             retrieved_transaction.save()
             item.save()
-            return Response({'response': message}, 200)
+            return Response({'response': message, 'date_changed': retrieved_transaction.date_changed }, 200)
     except:
         return Response({'response': 'Failed to Process Item Request'}, 200)
     
