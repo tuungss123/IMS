@@ -124,7 +124,7 @@ const CafeInventoryPage = () => {
                                 {item.item_name}
                             </TableCell>
                             <TableCell align="center">
-                                {item.cafe_stock < 10 ? `${item.cafe_stock} (Critical Stock)` : item.cafe_stock}
+                                {item.cafe_stock}
                             </TableCell>
                             <TableCell align="center">
                                 <Button variant='outlined' onClick={() => setModalDetails(item.id, item.item_name)}>

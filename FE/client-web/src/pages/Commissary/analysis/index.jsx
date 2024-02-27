@@ -4,6 +4,7 @@ import './styles.css';
 
 const CommissaryAnalyis = () => {
     const [spoilageData, setSpoilageData] = useState([]);
+    const [critStock, setCritStock] = useState([]);
     
     // stock request
     const [selectedItem , setSelectedItem] = useState('');
@@ -16,6 +17,7 @@ const CommissaryAnalyis = () => {
     const [endDate, setEndDate] = useState('');
 
     useEffect(() => {
+        retrieveCommissaryCritical();
         retrieveSpoilageReports();
     }, []);
 
@@ -77,6 +79,13 @@ const CommissaryAnalyis = () => {
         }
     }
 
+    async function retrieveCommissaryCritical(){
+        const data = await fetch('http://127.0.0.1:8000/retrieve_commissary_critical');
+        const response = await data.json();
+        
+        setCritStock(response.items);
+    }
+
     return (
         <Box>
             <Typography variant='h5'>Stock Analysis</Typography>
@@ -86,8 +95,30 @@ const CommissaryAnalyis = () => {
                 <TextField label='Search Inventory' id='search-box' size="small" onChange={(search_item) => search(search_item.target.value)}>Search</TextField>
             </Box>
             
+            
+            <Typography variant='h6'>Items with Critical Stock</Typography>
+            <TableContainer component={Paper} id='spoilage-table'>
+                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                    <TableRow id='header-row'>
+                        <TableCell align="center" className='table-header'>Item Name</TableCell>
+                        <TableCell align="center" className='table-header'>Amount Left</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {critStock.map((stock) => (
+                        <TableRow key={stock.id}>
+                            <TableCell component="th" scope="row">
+                                {stock.item_name}
+                            </TableCell>
+                            <TableCell align="center">{stock.cafe_stock}</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+                </Table>
+            </TableContainer>
 
-            <Typography variant='h6'>Spoilage Reports</Typography>
+            <Typography variant='h6' sx={{ marginTop: '3%' }}>Spoilage Reports</Typography>
             <TableContainer component={Paper} id='spoilage-table'>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>

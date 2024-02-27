@@ -13,6 +13,8 @@ urlpatterns = [
     path('update_item/<int:item_id>', views.update_item, name='update_item'),
     path('delete_item/<int:item_id>', views.delete_item, name='delete_item'),
     path('request_item/<int:item_id>', views.request_item, name='request_item'),
+    path('retrieve_cafe_critical', views.retrieve_cafe_critical, name='retrieve_cafe_critical'),
+    path('retrieve_commissary_critical', views.retrieve_commissary_critical, name='retrieve_commissary_critical'),
 
     # TRANSACTION ENDPOINTS
     path('all_transactions', views.retrieve_all_transactions, name='retrieve_transactions'),
