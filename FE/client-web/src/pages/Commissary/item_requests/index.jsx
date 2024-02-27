@@ -7,6 +7,7 @@ import './styles.css';
 const CommissaryTransferHistoryPage = () => {
   const [transferData, setTransferData] = useState([]);
   const [modalMessage, setModalMessage] = useState('');
+  const [modalDate, setModalDate] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
@@ -34,6 +35,7 @@ const CommissaryTransferHistoryPage = () => {
     const data = await response.json();
 
     setIsModalVisible(true);
+    setModalDate(data.date_changed);
     setModalMessage(data.response);
     retrieveInventoryItems();
   }
@@ -51,6 +53,13 @@ const CommissaryTransferHistoryPage = () => {
       const response = await data.json();
       
       setTransferData(response.transactions);
+  }
+
+  function convertToPhTime(date_time){
+    let date =  new Date(date_time);
+    let convertedDate = date.toLocaleString('en-US', { timeZone: 'Asia/Manila' });
+
+    return convertedDate;
   }
 
   return (
@@ -123,7 +132,7 @@ const CommissaryTransferHistoryPage = () => {
         >
             <div class='modal'>
                 <Typography variant="h5" id="modal-title">Message</Typography>
-                <Typography variant="h6" id='item-title'>{modalMessage}</Typography>
+                <Typography variant="h6" id='item-title'>{convertToPhTime(modalDate)} - {modalMessage}</Typography>
                 
                 <Box id='modal-buttons-container'>
                     <Button variant='outlined' onClick={() => setIsModalVisible(false) }>Close</Button>

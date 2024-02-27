@@ -63,6 +63,19 @@ const TransferHistoryPage = () => {
       }
   }
 
+  function formatDateTime(dateTimeString) {
+      const date = new Date(dateTimeString);
+
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      });
+  }
+
   async function search(searched_item){
       const requestOptions = {
           method: 'POST',
@@ -115,7 +128,7 @@ const TransferHistoryPage = () => {
                       <TableCell component="th" align="center">{transfer.transacted_item.item_name}</TableCell>
                       <TableCell align="center">{transfer.transacted_amount}</TableCell>
                       <TableCell align="center">{transfer.transactor}</TableCell>
-                      <TableCell align="center">{transfer.date_created}</TableCell>
+                      <TableCell align="center">{formatDateTime(transfer.date_created)}</TableCell>
                       <TableCell align="center">{transfer.approval}</TableCell>
                       {transfer.approval === 'Pending' && (
                         <TableCell align="center">
