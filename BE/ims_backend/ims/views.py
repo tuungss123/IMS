@@ -382,3 +382,22 @@ def search_spoilage_reports(request):
         serialize_reports = SpoiledMaterialReportSerializer(reports, many=True)
 
         return Response({'reports': serialize_reports.data}, 200)
+    
+
+
+# STOCK TRANSFER ANALYSIS ENDPOINTS
+@api_view(['GET'])
+def retrieve_cafe_critical(request):
+    items = Item.objects.filter(cafe_stock__lt=10)
+    serializer = ItemSerializer(items, many=True)
+
+    return Response({'items': serializer.data, 'response': 'Critical Cafe Stock Retrieved'})
+
+
+
+@api_view(['GET'])
+def retrieve_commissary_critical(request):
+    items = Item.objects.filter(commissary_stock__lt=10)
+    serializer = ItemSerializer(items, many=True)
+    
+    return Response({'items': serializer.data, 'response': 'Critical Cafe Stock Retrieved'})

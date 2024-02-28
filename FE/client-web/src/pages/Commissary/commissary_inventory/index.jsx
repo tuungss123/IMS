@@ -119,7 +119,7 @@ const CommissaryInventoryPage = () => {
                                 {item.item_name}
                             </TableCell>
                             <TableCell align="center">
-                                {item.commissary_stock < 10 ? `${item.commissary_stock} (Critical Stock)` : item.commissary_stock}
+                                {item.commissary_stock}
                             </TableCell>
                             <TableCell align="center">
                                 <EditIcon onClick={() => setModalDetails(item.id, item.item_name) } />
