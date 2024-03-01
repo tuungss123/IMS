@@ -11,10 +11,16 @@ const TransferHistoryPage = () => {
   const [modName, setModName] = useState('');
   const [modifyQty, setModifyQty] = useState(0);
 
+  const [isModifyQtyValid, setIsModifyQtyValid] = useState(false);
+
 
   useEffect(() => {
       retrieveInventoryItems();
   }, []);
+
+  useEffect(() => {
+    setIsModifyQtyValid(!isNaN(modifyQty) && modifyQty >= 1);
+  }, [modifyQty]);
 
   function setModalDetails(item_id, item_name){
     setModId(item_id);
@@ -164,11 +170,12 @@ const TransferHistoryPage = () => {
                     id="modal-input-field" 
                     size='small' 
                     onChange={(qty) => setModifyQty(qty.target.value)}
+                    defaultValue={0}
                 >
                 </TextField>
                 
                 <Box id='modal-buttons-container'>
-                    <Button variant='outlined' onClick={() => modifyRequestedQty() }>Modify</Button>
+                    <Button variant='outlined' onClick={() => modifyRequestedQty() } disabled={!isModifyQtyValid}>Modify</Button>
                     <Button variant='outlined' onClick={() => setModalVisible(false) }>Cancel</Button>
                 </Box>
             </div>
