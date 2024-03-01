@@ -33,6 +33,12 @@ const SignIn = () => {
     }
   }
 
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      login();
+    }
+  };
+
   return (
     <Box id='main-container'>
       <Paper 
@@ -49,19 +55,23 @@ const SignIn = () => {
           <Typography variant="subtitle1">Sign in to your account.</Typography>
         </Box>
 
-        <TextField className="input-field" label="Username" onChange={(user) => setUsername(user.target.value)} />
+        <TextField 
+          className="input-field" 
+          label="Username" 
+          onChange={(user) => setUsername(user.target.value)} 
+          onKeyDown={handleKeyDown}
+        />
         <TextField 
           className="input-field"
           label="Password"
           onChange={(pass) => setPassword(pass.target.value)}
           type="password"
+          onKeyDown={handleKeyDown}
         />
 
-        <Box id="forgot-password-section">
-          <Button onClick={() => login()}>Forgot Password?</Button>
-        </Box>
-
-        <Button id="sign-in-button" variant="contained" onClick={login}>Sign In</Button>
+        <Button id="sign-in-button" variant="contained" onClick={login}>
+          Sign In
+        </Button>
       </Paper>
 
       <Box
