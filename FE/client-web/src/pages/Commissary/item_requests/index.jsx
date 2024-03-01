@@ -132,7 +132,7 @@ const CommissaryTransferHistoryPage = () => {
         >
             <div class='modal'>
                 <Typography variant="h5" id="modal-title">Message</Typography>
-                <Typography variant="h6" id='item-title'>{convertToPhTime(modalDate)} - {modalMessage}</Typography>
+                <Typography variant="h6" id='item-title'>{modalMessage}</Typography>
                 
                 <Box id='modal-buttons-container'>
                     <Button variant='outlined' onClick={() => setIsModalVisible(false) }>Close</Button>
