@@ -23,8 +23,8 @@ const CafeInventoryPage = () => {
 
     // validations
     const [reqQuantityError, setReqQuantityError] = useState('');
-    const [isReqQtyValid, setIsReqQtyValid] = useState('false');
-    const [isReqSpoiledValid, setIsReqSpoiledValid] = useState('false');
+    const [isReqQtyValid, setIsReqQtyValid] = useState(false);
+    const [isReqSpoiledValid, setIsReqSpoiledValid] = useState(false);
     
 
     useEffect(() => {
