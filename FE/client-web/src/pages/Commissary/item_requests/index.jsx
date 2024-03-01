@@ -72,10 +72,9 @@ const CommissaryTransferHistoryPage = () => {
           <TextField
             id="outlined-basic"
             variant="outlined"
-            fullWidth
             label="Search Transactions..."
             size="small"
-            sx={{ marginTop: '7.5%' }}
+            sx={{ marginTop: '7.5%', marginLeft: "84%", paddingBottom: "1rem" }}
             onChange={(search_item) => search(search_item.target.value)}
           />
         </div>
