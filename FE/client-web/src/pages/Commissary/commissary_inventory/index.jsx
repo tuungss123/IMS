@@ -24,6 +24,9 @@ const CommissaryInventoryPage = () => {
     const [addItemError, setAddItemError] = useState('');
     const [addQtyError, setAddQtyError] = useState('');
 
+    //edit item validation
+    const [isEditValid, setIsEditValid] = useState('false');
+
     useEffect(() => {
         retrieveInventoryItems();
     }, []);
@@ -49,6 +52,12 @@ const CommissaryInventoryPage = () => {
             valid = false;
         } else {
             setAddItemError('');
+        }
+        if (isNaN(addQty) || addQty < 0) {
+            setAddQtyError('Please only enter a positive number');
+            valid = false;
+        } else {
+            setAddQtyError('');
         }
         return valid;
     }
@@ -168,12 +177,29 @@ const CommissaryInventoryPage = () => {
                         type='number' 
                         id="modal-input-field" 
                         size='small' 
-                        onChange={(qty) => setModifyQty(qty.target.value)}
+                        onChange={(event) => {
+                            const value = event.target.value;
+                            if (!isNaN(value) && parseInt(value) >= 0) {
+                                setModifyQty(parseInt(value));
+                                setIsEditValid(true);
+                                setAddQtyError('');
+                            } else {
+                                setAddQtyError('Please enter a positive number');
+                                setIsEditValid(false);
+                            }
+                        }}
+                        defaultValue={0}
+                        error={!!addQtyError}
+                        helperText={addQtyError}
                     >
                     </TextField>
                     
                     <Box id='modal-buttons-container'>
-                        <Button variant='outlined' onClick={() => addToStock() }>Proceed</Button>
+                        <Button 
+                        variant='outlined' 
+                        onClick={() => addToStock() }
+                        disabled={!isEditValid}
+                        >Proceed</Button>
                         <Button variant='outlined' onClick={() => setModalVisible(false) }>Cancel</Button>
                     </Box>
                 </div>
@@ -208,6 +234,8 @@ const CommissaryInventoryPage = () => {
                         size='small' 
                         onChange={(addQty) => setAddQty(addQty.target.value)}
                         defaultValue={0}
+                        error={!!addQtyError}
+                        helperText={addQtyError}
                     >
                     </TextField>
                     
