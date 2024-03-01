@@ -7,8 +7,33 @@ const SignIn = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [usernameError, setUsernameError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  const validateForm = () => {
+    let valid = true;
+
+    if (!username.trim()) {
+      setUsernameError('Username is required');
+      valid = false;
+    } else {
+      setUsernameError('');
+    }
+
+    if (!password.trim()) {
+      setPasswordError('Password is required');
+    } else {
+      setPasswordError('');
+    }
+
+    return valid;
+  }
 
   async function login(){
+    if (!validateForm()) {
+      return;
+    }
+    
     const requestOptions = {
         method: 'POST',
         headers: {'Content-Type': 'application/json' },
@@ -39,6 +64,7 @@ const SignIn = () => {
     }
   };
 
+
   return (
     <Box id='main-container'>
       <Paper 
@@ -60,6 +86,8 @@ const SignIn = () => {
           label="Username" 
           onChange={(user) => setUsername(user.target.value)} 
           onKeyDown={handleKeyDown}
+          error={!!usernameError}
+          helperText={usernameError}
         />
         <TextField 
           className="input-field"
@@ -67,6 +95,8 @@ const SignIn = () => {
           onChange={(pass) => setPassword(pass.target.value)}
           type="password"
           onKeyDown={handleKeyDown}
+          error={!!passwordError}
+          helperText={passwordError}
         />
 
         <Button id="sign-in-button" variant="contained" onClick={login}>
