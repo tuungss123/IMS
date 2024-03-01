@@ -20,6 +20,10 @@ const CommissaryInventoryPage = () => {
     const [addQty, setAddQty] = useState(0);
     const [addModalVisible, setAddModalVisible] = useState(false);
 
+    // add item verification
+    const [addItemError, setAddItemError] = useState('');
+    const [addQtyError, setAddQtyError] = useState('');
+
     useEffect(() => {
         retrieveInventoryItems();
     }, []);
@@ -37,7 +41,23 @@ const CommissaryInventoryPage = () => {
         setInventoryData(response.items);
     }
 
+    const validateAdding = () => {
+        let valid = true;
+
+        if (!addItemName.trim()) {
+            setAddItemError('Please enter a valid item');
+            valid = false;
+        } else {
+            setAddItemError('');
+        }
+        return valid;
+    }
+
     async function createItem(){
+        if (!validateAdding()) {
+            return;
+        }
+
         const requestOptions = {
             method: 'POST',
             headers: {'Content-Type': 'application/json' },
@@ -175,6 +195,8 @@ const CommissaryInventoryPage = () => {
                         type='text' 
                         size='small'
                         onChange={(itemName) => setAddItemName(itemName.target.value)}
+                        error={!!addItemError}
+                        helperText={addItemError}
                     >
                     </TextField>
 
@@ -185,6 +207,7 @@ const CommissaryInventoryPage = () => {
                         id="modal-input-field" 
                         size='small' 
                         onChange={(addQty) => setAddQty(addQty.target.value)}
+                        defaultValue={0}
                     >
                     </TextField>
                     
