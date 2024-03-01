@@ -21,9 +21,23 @@ const CafeInventoryPage = () => {
     const [modalMessage, setModalMessage] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
 
+    // validations
+    const [reqQuantityError, setReqQuantityError] = useState('');
+    const [isReqQtyValid, setIsReqQtyValid] = useState('false');
+    const [isReqSpoiledValid, setIsReqSpoiledValid] = useState('false');
+    
+
     useEffect(() => {
         retrieveInventoryItems();
     }, []);
+
+    useEffect(() => {
+        setIsReqQtyValid(!isNaN(requestedQuantity) && requestedQuantity >= 1);
+    }, [requestedQuantity]);
+
+    useEffect(() => {
+        setIsReqSpoiledValid(!isNaN(spoiledQty) && spoiledQty >=1);
+    }, [spoiledQty])
 
     const setModalDetails = (item_id, item_name) => {
         setRequestedItem(item_id);
@@ -44,7 +58,27 @@ const CafeInventoryPage = () => {
         setInventoryData(response.items);
     }
 
+    const validateRequest = () => {
+        let valid = true;
+        if (isNaN(requestedQuantity) || requestedQuantity < 0) {
+            setReqQuantityError('Please enter a number higher than 0.');
+            valid = false;
+        } else {
+            setReqQuantityError('');
+        }
+        if (isNaN(spoiledQty) || spoiledQty < 0) {
+            setReqQuantityError('Please enter a number higher than 0.');
+            valid = false;
+        } else {
+            setReqQuantityError('');
+        }
+        return valid;
+    }
+
     async function requestItem(){
+        if (!validateRequest()) {
+            return;
+        }
         const requestOptions = {
             method: 'POST',
             headers: {'Content-Type': 'application/json' },
@@ -64,6 +98,9 @@ const CafeInventoryPage = () => {
     }
 
     async function reportSpoiledItem(){
+        if (!validateRequest()) {
+            return;
+        }
         const requestOptions = {
             method: 'POST',
             headers: {'Content-Type': 'application/json' },
@@ -161,11 +198,14 @@ const CafeInventoryPage = () => {
                         id="modal-input-field" 
                         size='small' 
                         onChange={(qty) => setRequestedQuantity(qty.target.value)}
+                        defaultValue={0}
+                        error={!!reqQuantityError}
+                        helperText={reqQuantityError}
                     >
                     </TextField>
                     
                     <Box id='modal-buttons-container'>
-                        <Button variant='outlined' onClick={() => requestItem() }>Proceed</Button>
+                        <Button variant='outlined' onClick={() => requestItem() } disabled={!isReqQtyValid}>Proceed</Button>
                         <Button variant='outlined' onClick={() => setModalVisible(false) }>Cancel</Button>
                     </Box>
                 </div>
@@ -188,11 +228,18 @@ const CafeInventoryPage = () => {
                         id="modal-input-field" 
                         size='small' 
                         onChange={(spoilQty) => setSpoiledQty(spoilQty.target.value)}
+                        defaultValue={0}
+                        error={!!reqQuantityError}
+                        helperText={reqQuantityError}
                     >
                     </TextField>
                     
                     <Box id='modal-buttons-container'>
-                        <Button variant='outlined' onClick={() => reportSpoiledItem() }>Report</Button>
+                        <Button 
+                        variant='outlined' 
+                        onClick={() => reportSpoiledItem()}
+                        disabled={!isReqSpoiledValid}
+                        >Report</Button>
                         <Button variant='outlined' onClick={() => setSpoiledModalVisible(false) }>Cancel</Button>
                     </Box>
                 </div>
