@@ -5,24 +5,40 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import './styles.css';
 
-
 const CommissaryInventoryPage = () => {
     const [inventoryData, setInventoryData] = useState([]);
     
     // modify item quantity
-    const [selectedItem , setSelectedItem] = useState('');
+    const [selectedItem, setSelectedItem] = useState('');
     const [requestedItem, setRequestedItem] = useState(0);
     const [modifyQty, setModifyQty] = useState(0);
     const [modalVisible, setModalVisible] = useState(false);
 
     // add item
-    const [addItemName , setAddItemName] = useState('');
+    const [addItemName, setAddItemName] = useState('');
     const [addQty, setAddQty] = useState(0);
     const [addModalVisible, setAddModalVisible] = useState(false);
+
+    // add item verification
+    const [addItemError, setAddItemError] = useState('');
+    const [addQtyError, setAddQtyError] = useState('');
+
+    // edit item validation
+    const [isEditValid, setIsEditValid] = useState(false); // changed to false initially
 
     useEffect(() => {
         retrieveInventoryItems();
     }, []);
+
+    useEffect(() => {
+        // Reset state when add modal is opened
+        if (addModalVisible) {
+            setAddItemName('');
+            setAddQty(0);
+            setAddItemError('');
+            setAddQtyError('');
+        }
+    }, [addModalVisible]);
 
     const setModalDetails = (item_id, item_name) => {
         setRequestedItem(item_id);
@@ -37,7 +53,29 @@ const CommissaryInventoryPage = () => {
         setInventoryData(response.items);
     }
 
+    const validateAdding = () => {
+        let valid = true;
+
+        if (!addItemName.trim()) {
+            setAddItemError('Please enter a valid item');
+            valid = false;
+        } else {
+            setAddItemError('');
+        }
+        if (isNaN(addQty) || addQty < 0) {
+            setAddQtyError('Please only enter a positive number');
+            valid = false;
+        } else {
+            setAddQtyError('');
+        }
+        return valid;
+    }
+
     async function createItem(){
+        if (!validateAdding()) {
+            return;
+        }
+
         const requestOptions = {
             method: 'POST',
             headers: {'Content-Type': 'application/json' },
@@ -54,7 +92,7 @@ const CommissaryInventoryPage = () => {
         const data = await response.json();
         
         console.log(data.response);
-        if (data.response == 'Item Created'){
+        if (data.response === 'Item Created'){
             setAddModalVisible(false);
             retrieveInventoryItems();
         }
@@ -72,7 +110,7 @@ const CommissaryInventoryPage = () => {
         const response = await fetch(`http://127.0.0.1:8000/update_item/${requestedItem}`, requestOptions);
         const data = await response.json();
         
-        if (data.response == 'Item Updated'){
+        if (data.response === 'Item Updated'){
             setModalVisible(false);
             retrieveInventoryItems();
         }
@@ -130,8 +168,6 @@ const CommissaryInventoryPage = () => {
                 </Table>
             </TableContainer>
 
-            {/* <Pagination sx={{ marginTop: '2%' }} count={10} /> */}
-
             <Modal
                 open={modalVisible}
                 onClose={() => setModalVisible(false)}
@@ -148,12 +184,30 @@ const CommissaryInventoryPage = () => {
                         type='number' 
                         id="modal-input-field" 
                         size='small' 
-                        onChange={(qty) => setModifyQty(qty.target.value)}
-                    >
-                    </TextField>
+                        onChange={(event) => {
+                            const value = event.target.value;
+                            if (!isNaN(value) && parseInt(value) >= 0) {
+                                setModifyQty(parseInt(value));
+                                setIsEditValid(true);
+                                setAddQtyError('');
+                            } else {
+                                setAddQtyError('Please enter a positive number');
+                                setIsEditValid(false);
+                            }
+                        }}
+                        defaultValue={0}
+                        error={!!addQtyError}
+                        helperText={addQtyError}
+                    />
                     
                     <Box id='modal-buttons-container'>
-                        <Button variant='outlined' onClick={() => addToStock() }>Proceed</Button>
+                        <Button 
+                        variant='outlined' 
+                        onClick={() => addToStock() }
+                        disabled={!isEditValid}
+                        >
+                        Proceed
+                        </Button>
                         <Button variant='outlined' onClick={() => setModalVisible(false) }>Cancel</Button>
                     </Box>
                 </div>
@@ -174,19 +228,22 @@ const CommissaryInventoryPage = () => {
                         label="Enter Name of Item..." 
                         type='text' 
                         size='small'
-                        onChange={(itemName) => setAddItemName(itemName.target.value)}
-                    >
-                    </TextField>
-
+                        value={addItemName}
+                        onChange={(event) => setAddItemName(event.target.value)}
+                        error={!!addItemError}
+                        helperText={addItemError}
+                    />
                     <Typography variant="h6" id='item-title'>Quantity</Typography>
                     <TextField 
                         label="Amount of Items to Add" 
                         type='number' 
                         id="modal-input-field" 
                         size='small' 
-                        onChange={(addQty) => setAddQty(addQty.target.value)}
-                    >
-                    </TextField>
+                        value={addQty}
+                        onChange={(event) => setAddQty(event.target.value)}
+                        error={!!addQtyError}
+                        helperText={addQtyError}
+                    />
                     
                     <Box id='modal-buttons-container'>
                         <Button variant='outlined' onClick={() => createItem() }>Add Item</Button>
