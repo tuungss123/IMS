@@ -1,0 +1,9 @@
+{% extends 'admin/auth/group/add_form.html' %}
+{% load i18n %}
+
+{% block submit_buttons_bottom %}
+    <div class="submit-row">
+        <button type="submit" class="btn btn-success">{% trans 'Save' %}</button>
+        <button type="button" class="btn btn-secondary" onclick="window.history.back();">{% trans 'Cancel' %}</button>
+    </div>
+{% endblock %}

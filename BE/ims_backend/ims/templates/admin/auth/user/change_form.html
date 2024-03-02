@@ -1,0 +1,13 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block submit_buttons_bottom %}
+<div class="submit-row">
+    <input type="submit" value="{% trans "Save" %}" class="default btn btn-success" name="_save">
+    {% if change %}
+        <a href="{% url 'admin:auth_user_delete' original.pk %}" class="deletelink btn btn-danger">
+            {% trans "Delete" %}
+        </a>
+    {% endif %}
+</div>
+{% endblock %}
