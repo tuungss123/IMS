@@ -7,6 +7,9 @@ class Item(models.Model):
     item_name = models.CharField(max_length=64)
     commissary_stock = models.IntegerField()
     cafe_stock = models.IntegerField(default=0)
+    um = models.CharField(max_length=16)
+    um_amount = models.IntegerField()
+    category = models.CharField(max_length=64)
 
     def __str__(self):
         return f'{self.item_name}'
@@ -37,3 +40,13 @@ class SpoiledMaterialReport(models.Model):
 
     def __str__(self):
         return f'{self.date_created} - {self.item.item_name} x {self.spoil_amount}'
+    
+
+class Notification(models.Model):
+    notif_owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notification')
+    text = models.CharField(max_length=128)
+    date = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.notif_owner} - {self.date} - {self.text}'
