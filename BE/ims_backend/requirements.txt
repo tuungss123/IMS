@@ -10,3 +10,4 @@ openpyxl==3.1.2
 pytz==2024.1
 sqlparse==0.4.4
 tzdata==2023.4
+gunicorn==19.7.1
