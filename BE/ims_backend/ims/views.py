@@ -108,6 +108,63 @@ def update_item(request, item_id):
         return Response({'response': 'Item Updated'}, 200)
     except:
         return Response({'response': 'Failed to Update Item'}, 200)
+    
+
+@api_view(['POST'])
+def update_item_um(request, item_id):
+    new_um = request.data.get('um')
+
+    try:
+        item = Item.objects.get(id == item_id).first()
+        item.um = new_um
+
+        item.save()
+        return Response({'response': 'UM updated.', 'status_code': 200})
+    except:
+        return Response({'response': 'Item does not exist.', 'status_code': 400})
+    
+
+@api_view(['POST'])
+def update_item_um_amount(request, item_id):
+    new_um_amount = request.data.get('um_amount')
+
+    try:
+        item = Item.objects.get(id == item_id).first()
+        item.um_amount = new_um_amount
+
+        item.save()
+        return Response({'response': 'UM amount updated.', 'status_code': 200})
+    except:
+        return Response({'response': 'Item does not exist.', 'status_code': 400})
+    
+
+@api_view(['POST'])
+def update_item_category(request, item_id):
+    category = request.data.get('category')
+
+    try:
+        item = Item.objects.get(id == item_id).first()
+        item.category = category
+
+        item.save()
+        return Response({'response': 'Item category updated.', 'status_code': 200})
+    except:
+        return Response({'response': 'Item does not exist.', 'status_code': 400})
+    
+    
+
+@api_view(['POST'])
+def update_item_um(request, item_id):
+    new_um = request.data.get('um')
+
+    try:
+        item = Item.objects.get(id == item_id).first()
+        item.um = new_um
+
+        item.save()
+        return Response({'response': 'UM updated.', 'status_code': 200})
+    except:
+        return Response({'response': 'Item does not exist.', 'status_code': 400})
 
 
 @api_view(['POST'])

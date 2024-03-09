@@ -11,6 +11,11 @@ urlpatterns = [
     path('create_item', views.create_item, name='create_item'),
     path('search_items', views.search_items, name='search_items'),
     path('update_item/<int:item_id>', views.update_item, name='update_item'),
+
+    path('update_item_um/<int:item_id>', views.update_item_um, name='update_item_um'),
+    path('update_item_um_amount/<int:item_id>', views.update_item_um_amount, name='update_item_um_amount'),
+    path('update_item_category/<int:item_id>', views.update_item_category, name='update_item_category'),
+
     path('delete_item/<int:item_id>', views.delete_item, name='delete_item'),
     path('request_item/<int:item_id>', views.request_item, name='request_item'),
     path('retrieve_cafe_critical', views.retrieve_cafe_critical, name='retrieve_cafe_critical'),
