@@ -31,7 +31,8 @@ const TransferHistoryPage = () => {
   }
 
   async function retrieveInventoryItems() {
-    const data = await fetch('https://ims-be-j66p.onrender.com/all_transactions');
+    const data = await fetch('http://127.0.0.1:8000/all_transactions');
+    // const data = await fetch('https://ims-be-j66p.onrender.com/all_transactions');
     const response = await data.json();
     
     console.log(response.transactions);
@@ -44,7 +45,8 @@ const TransferHistoryPage = () => {
       headers: { 'Content-Type': 'application/json' }
     }
 
-    const response = await fetch(`https://ims-be-j66p.onrender.com/delete_transaction/${transaction_id}`, requestOptions);
+    const response = await fetch(`http://127.0.0.1:8000/delete_transaction/${transaction_id}`, requestOptions);
+    // const response = await fetch(`https://ims-be-j66p.onrender.com/delete_transaction/${transaction_id}`, requestOptions);
     const data = await response.json();
 
     console.log(data.response);
@@ -59,7 +61,8 @@ const TransferHistoryPage = () => {
       })
     }
 
-    const response = await fetch(`https://ims-be-j66p.onrender.com/update_transaction/${modId}`, requestOptions);
+    const response = await fetch(`http://127.0.0.1:8000/update_transaction/${modId}`, requestOptions);
+    // const response = await fetch(`https://ims-be-j66p.onrender.com/update_transaction/${modId}`, requestOptions);
     const data = await response.json();
 
     console.log(data.response);
@@ -104,7 +107,8 @@ const TransferHistoryPage = () => {
       })
     }
 
-    const data = await fetch('https://ims-be-j66p.onrender.com/search_transfer_requests', requestOptions);
+    const data = await fetch('http://127.0.0.1:8000/search_transfer_requests', requestOptions);
+    // const data = await fetch('https://ims-be-j66p.onrender.com/search_transfer_requests', requestOptions);
     const response = await data.json();
 
     setTransferData(response.transactions);

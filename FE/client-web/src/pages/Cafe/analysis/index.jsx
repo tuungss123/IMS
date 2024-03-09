@@ -36,7 +36,8 @@ const CafeAnalysis = () => {
             })
         }
 
-        const data = await fetch('https://ims-be-j66p.onrender.com/search_spoilage_reports', requestOptions);
+        const data = await fetch('http://127.0.0.1:8000/search_spoilage_reports', requestOptions);
+        // const data = await fetch('https://ims-be-j66p.onrender.com/search_spoilage_reports', requestOptions);
         const response = await data.json();
         
         setSpoilageData(response.reports);
@@ -56,7 +57,8 @@ const CafeAnalysis = () => {
     }
 
     async function retrieveSpoilageReports(){
-        const data = await fetch('https://ims-be-j66p.onrender.com/retrieve_spoilage_reports');
+        const data = await fetch('http://127.0.0.1:8000/retrieve_spoilage_reports');
+        // const data = await fetch('https://ims-be-j66p.onrender.com/retrieve_spoilage_reports');
         const response = await data.json();
         
         console.log(response.spoilage_reports);
@@ -74,7 +76,8 @@ const CafeAnalysis = () => {
         }
 
         try {
-            const response = await fetch('https://ims-be-j66p.onrender.com/retrieve_transaction_summary', requestOptions);
+            const response = await fetch('http://127.0.0.1:8000/retrieve_transaction_summary', requestOptions);
+            // const response = await fetch('https://ims-be-j66p.onrender.com/retrieve_transaction_summary', requestOptions);
             const blob = await response.blob();
 
             const url = window.URL.createObjectURL(new Blob([blob]));
@@ -95,7 +98,8 @@ const CafeAnalysis = () => {
     }
 
     async function retrieveCafeCritical(){
-        const data = await fetch('https://ims-be-j66p.onrender.com/retrieve_cafe_critical');
+        const data = await fetch('http://127.0.0.1:8000/retrieve_cafe_critical');
+        // const data = await fetch('https://ims-be-j66p.onrender.com/retrieve_cafe_critical');
         const response = await data.json();
         
         setCritStock(response.items);
