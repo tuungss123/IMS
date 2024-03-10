@@ -26,6 +26,7 @@ urlpatterns = [
     path('retrieve_transaction/<int:transaction_id>', views.retrieve_transaction, name='retrieve_transaction'),
     path('update_transaction/<int:transaction_id>', views.update_transaction, name='update_transaction'),
     path('delete_transaction/<int:transaction_id>', views.delete_transaction, name='delete_transaction'),
+    path('substitute_approval/<int:transaction_id>', views.substitute_approval, name='substitute_approval'),
     path('process_transaction/<int:transaction_id>', views.process_transaction, name='process_transaction'),
     path('retrieve_transaction_summary', views.retrieve_transaction_summary, name='retrieve_transaction_summary'),
     path('search_transfer_requests', views.search_transfer_requests, name='search_transfer_requests'),
@@ -33,5 +34,8 @@ urlpatterns = [
     # SPOILAGE ENDPOINTS
     path('retrieve_spoilage_reports', views.retrieve_spoilage_reports, name='retrieve_spoilage_reports'),
     path('report_spoiled/<int:item_id>', views.report_spoiled, name='report_spoiled'),
-    path('search_spoilage_reports', views.search_spoilage_reports, name='search_spoilage_reports')
+    path('search_spoilage_reports', views.search_spoilage_reports, name='search_spoilage_reports'),
+
+    # NOTIFICATION ENDPOINTS
+    path('retrieve_notifications/<str:username>', views.retrieve_notifications, name='retrieve_notifications')
 ]

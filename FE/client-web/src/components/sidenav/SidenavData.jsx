@@ -3,6 +3,7 @@ import WidgetsIcon from '@mui/icons-material/Widgets';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import InventorySharpIcon from '@mui/icons-material/InventorySharp';
 import AccountCircleSharpIcon from '@mui/icons-material/AccountCircleSharp';
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import Build from '@mui/icons-material/Build';
 import Logout from '@mui/icons-material/Logout';
 
@@ -10,17 +11,22 @@ export const SidenavData = [
     {
         title: "Inventory",
         icon: <WidgetsIcon/>,
-        link: "/cafeinventory"
+        link: "cafeinventory"
     },
     {
         title: "Stock Analysis",
         icon: <ReceiptIcon/>,
-        link: "/analysis"
+        link: "analysis"
+    },
+    {
+        title: "Notifications",
+        icon: <NotificationsActiveIcon/>,
+        link: "notifications"
     },
     {
         title: "Transaction History",
         icon: <InventorySharpIcon/>,
-        link: "/transfer_history"
+        link: "transfer_history"
     },
     // {
     //     title: "Profile",
@@ -35,6 +41,6 @@ export const SidenavData = [
     {
         title: "Sign Out",
         icon: <Logout/>,
-        link: "/login"
+        link: "/"
     },
 ]

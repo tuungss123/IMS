@@ -8,7 +8,6 @@ class Item(models.Model):
     commissary_stock = models.IntegerField()
     cafe_stock = models.IntegerField(default=0)
     um = models.CharField(max_length=16)
-    um_amount = models.IntegerField()
     category = models.CharField(max_length=64)
 
     def __str__(self):

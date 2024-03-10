@@ -59,7 +59,7 @@ const SignIn = () => {
       localStorage.setItem('user_data', JSON.stringify(data.user_data));
 
       if (data.user_data === 'Cafe' || data.user_data === 'Intern') {
-        navigate('/cafeinventory');
+        navigate('/cafe/cafeinventory');
       } else if (data.user_data === 'Commissary') {
         navigate('/commissary/inventory');
       }

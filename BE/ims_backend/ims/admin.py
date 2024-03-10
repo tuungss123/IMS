@@ -1,9 +1,10 @@
 from django.contrib import admin
-from .models import Item, Transaction, SpoiledMaterialReport
+from .models import Item, Transaction, SpoiledMaterialReport, Notification
 
 # Register your models here.
 admin.site.register(Item)
 admin.site.register(SpoiledMaterialReport)
+admin.site.register(Notification)
 
 
 class TransactionAdmin(admin.ModelAdmin):

@@ -1,0 +1,16 @@
+#notifications-table {
+    height: 68vh;
+    max-height: 68vh;
+    overflow-y: scroll;
+}
+
+#notifications-table::-webkit-scrollbar {
+    width: 10px;
+    background-color: #FCFCFC;
+    scroll-behavior: smooth;
+}
+
+#notifications-table::-webkit-scrollbar-thumb {
+    background-color: rgb(90, 2, 2);
+    border-radius: 15px;
+}

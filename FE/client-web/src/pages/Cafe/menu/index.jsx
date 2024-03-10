@@ -179,8 +179,6 @@ const CafeInventoryPage = () => {
                         <TableCell align="center" className='table-header'>Item Name</TableCell>
                         <TableCell align="center" className='table-header'>Category</TableCell>
                         <TableCell align="center" className='table-header'>Current Stock</TableCell>
-                        <TableCell align="center" className='table-header'>Unit of Measure</TableCell>
-                        <TableCell align="center" className='table-header'>UM Amount</TableCell>
                         <TableCell align="center" className='table-header'>Request Item</TableCell>
                         <TableCell align="center" className='table-header'>Report Spoil</TableCell>
                     </TableRow>
@@ -193,54 +191,12 @@ const CafeInventoryPage = () => {
                                 {item.item_name}
                             </TableCell>
 
-                            <TableCell align="center" sx={{ width: '12vw' }}>
-                                <FormControl fullWidth>
-                                    <Select
-                                        id={`category-select-${item.id}`}
-                                        labelId={`category-select-label-${item.id}`}
-                                        value={item.category}
-                                        onChange={(changeValue) => update_item_data(changeValue, item.id, 'category')}
-                                    >
-                                        <MenuItem value={'Dry Ingredients'}>Dry Ingredients</MenuItem>
-                                        <MenuItem value={'Proteins'}>Proteins</MenuItem>
-                                        <MenuItem value={'Baking'}>Baking</MenuItem>
-                                        <MenuItem value={'Spices'}>Spices</MenuItem>
-                                        <MenuItem value={'Sauces and Condiments'}>Sauces and Condiments</MenuItem>
-                                        <MenuItem value={'Others (packagings)'}>Others (packagings)</MenuItem>
-                                    </Select>
-                                </FormControl>
+                            <TableCell align="center">
+                                {item.category}
                             </TableCell>
 
                             <TableCell align="center">
-                                {item.cafe_stock}
-                            </TableCell>
-
-                            <TableCell align="center">
-                                <FormControl fullWidth>
-                                    <Select
-                                        id={`um-select-${item.id}`}
-                                        labelId={`um-select-label-${item.id}`}
-                                        value={item.um}
-                                        onChange={(changeValue) => update_item_data(changeValue, item.id, 'um')}
-                                    >
-                                        <MenuItem value={'KG'}>KG</MenuItem>
-                                        <MenuItem value={'g'}>g</MenuItem>
-                                        <MenuItem value={'L'}>L</MenuItem>
-                                        <MenuItem value={'mL'}>mL</MenuItem>
-                                        <MenuItem value={'PC'}>PC</MenuItem>
-                                    </Select>
-                                </FormControl>
-                            </TableCell>
-
-                            <TableCell align="center">
-                                <TextField
-                                    id={`um-amount-select-${item.id}`}
-                                    type='number'
-                                    size='small'
-                                    onChange={(changeValue) => update_item_data(changeValue, item.id, 'um_amount')}
-                                    defaultValue={item.um_amount}
-                                >
-                                </TextField>
+                                {item.cafe_stock}{item.um}
                             </TableCell>
 
                             <TableCell align="center">

@@ -3,13 +3,13 @@ from django.urls import reverse
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from .models import Item, Transaction, SpoiledMaterialReport
+from .models import Item, Transaction, SpoiledMaterialReport, Notification
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.utils import timezone
-from .serializers import ItemSerializer, TransactionSerializer, SpoiledMaterialReportSerializer
+from .serializers import ItemSerializer, TransactionSerializer, SpoiledMaterialReportSerializer, NotificationSerializer
 from datetime import datetime
 from openpyxl import Workbook
 
@@ -74,25 +74,29 @@ def search_items(request):
 def create_item(request):
     item_name = request.data.get('item_name')
     commissary_stock = request.data.get('commissary_stock')
+    category = request.data.get('category')
+    um = request.data.get('um')
 
-    try:
-        item = Item.objects.filter(item_name=item_name).first()
+    # try:
+    item = Item.objects.filter(item_name=item_name).first()
 
-        if item is None:
-            new_item = Item(
-                item_name=item_name,
-                commissary_stock=commissary_stock,
-                cafe_stock=0
-            )
+    if item is None:
+        new_item = Item(
+            item_name=item_name,
+            commissary_stock=commissary_stock,
+            cafe_stock=0,
+            category=category,
+            um=um
+        )
 
-            new_item.save()
-            return Response({'response': 'Item Created'}, 200)
+        new_item.save()
+        return Response({'response': 'Item Created'}, 200)
+    
+    else:
+        return Response({'response': 'Item Already Exists'}, 200)
         
-        else:
-            return Response({'response': 'Item Already Exists'}, 200)
-        
-    except Exception as e:
-        return Response({'response': 'Failed to Create Item'}, 400)
+    # except Exception as e:
+    #     return Response({'response': 'Failed to Create Item'}, 400)
 
     
 
@@ -273,6 +277,31 @@ def delete_transaction(request, transaction_id):
     
 
 @api_view(['POST'])
+def substitute_approval(request, transaction_id):
+    action = request.data.get('action')
+    retrieved_transaction = Transaction.objects.get(id=transaction_id)
+
+    if action == 'Approved':
+        retrieved_transaction.admin_approval = True
+        message = f'Request to transfer {retrieved_transaction.transacted_item.item_name} * {retrieved_transaction.transacted_amount} Approved by Cafe'
+    else:
+        retrieved_transaction.approval = 'Denied'
+        retrieved_transaction.admin_approval = False
+        message = f'Request to transfer {retrieved_transaction.transacted_item.item_name} * {retrieved_transaction.transacted_amount} Denied by Cafe'
+    
+    retrieved_transaction.save()
+
+    intern = User.objects.get(username='Intern')
+    new_notification = Notification(
+        notif_owner=intern,
+        text=message
+    )
+    new_notification.save()
+
+    return Response({ 'response': 'Intern Request Processed.', 'status_code': 200 })
+
+
+@api_view(['POST'])
 def process_transaction(request, transaction_id):
     try:
         action = request.data.get('action')
@@ -294,7 +323,7 @@ def process_transaction(request, transaction_id):
                             Approved {retrieved_transaction.transactor}'s request to transfer item: 
                             {item.item_name} * {retrieved_transaction.transacted_amount}
                         """
-                    
+
                     else:
                         return Response({'response': 'Request Failed. Stock Insufficient'}, 400)
                     
@@ -307,6 +336,15 @@ def process_transaction(request, transaction_id):
 
                 retrieved_transaction.save()
                 item.save()
+
+                # NOTIFY INTERN
+                intern_account = User.objects.get(username='Intern')
+                new_notification = Notification(
+                    notif_owner=intern_account,
+                    text=message
+                )
+                new_notification.save()
+
                 return Response({'response': message, 'date_changed': retrieved_transaction.date_changed }, 200)
             else:
                 return Response({'response': 'Transaction was not approved by the Administrator.'}, 400)
@@ -336,6 +374,14 @@ def process_transaction(request, transaction_id):
 
             retrieved_transaction.save()
             item.save()
+
+            # NOTIFY CAFE
+            cafe_account = User.objects.get(username='Cafe')
+            new_notification = Notification(
+                notif_owner=cafe_account,
+                text=message
+            )
+            new_notification.save()
             return Response({'response': message, 'date_changed': retrieved_transaction.date_changed }, 200)
     except:
         return Response({'response': 'Failed to Process Item Request'}, 200)
@@ -411,6 +457,13 @@ def report_spoiled(request, item_id):
             spoiled_item.cafe_stock -= spoil_amount
             spoiled_item.save()
 
+            commissary_account = User.objects.get(username='Commissary')
+            new_notification = Notification(
+                notif_owner=commissary_account,
+                text=f'{report_creator}: {spoil_amount}{spoiled_item.um} of {spoiled_item.item_name} is spoiled.'
+            )
+            new_notification.save()
+
             return Response({'response': 'Spoil Report Created'}, 200)
         else:
             return Response({'response': 'Invalid Spoil Report'}, 200)
@@ -446,3 +499,17 @@ def retrieve_commissary_critical(request):
     serializer = ItemSerializer(items, many=True)
     
     return Response({'items': serializer.data, 'response': 'Critical Cafe Stock Retrieved'})
+
+
+
+# NOTIFICATION ENDPOINTS 
+@api_view(['GET'])
+def retrieve_notifications(request, username):
+    try:
+        owner = User.objects.get(username=username)
+        notifications = Notification.objects.filter(notif_owner=owner).order_by('-date')[:30]
+
+        serializer = NotificationSerializer(notifications, many=True)
+        return Response({'notifications': serializer.data, 'response': 'Notifications Retrieved'})
+    except:
+        return Response({'response': 'User not found.'})
