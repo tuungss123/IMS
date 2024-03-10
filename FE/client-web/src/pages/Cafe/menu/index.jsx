@@ -195,12 +195,10 @@ const CafeInventoryPage = () => {
 
                             <TableCell align="center" sx={{ width: '12vw' }}>
                                 <FormControl fullWidth>
-                                    <InputLabel id={`category-select-label-${item.id}`}>Category</InputLabel>
                                     <Select
                                         id={`category-select-${item.id}`}
                                         labelId={`category-select-label-${item.id}`}
                                         value={item.category}
-                                        label="Category"
                                         onChange={(changeValue) => update_item_data(changeValue, item.id, 'category')}
                                     >
                                         <MenuItem value={'Dry Ingredients'}>Dry Ingredients</MenuItem>
@@ -219,12 +217,10 @@ const CafeInventoryPage = () => {
 
                             <TableCell align="center">
                                 <FormControl fullWidth>
-                                    <InputLabel id={`um-select-label-${item.id}`}>Unit of Measure</InputLabel>
                                     <Select
                                         id={`um-select-${item.id}`}
                                         labelId={`um-select-label-${item.id}`}
                                         value={item.um}
-                                        label="Unit of Measure"
                                         onChange={(changeValue) => update_item_data(changeValue, item.id, 'um')}
                                     >
                                         <MenuItem value={'KG'}>KG</MenuItem>
