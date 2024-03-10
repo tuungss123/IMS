@@ -20,8 +20,8 @@ const CommissaryTransferHistoryPage = () => {
   }, []);
 
   async function retrieveInventoryItems() {
-    const data = await fetch('http://127.0.0.1:8000/all_transactions');
-    // const data = await fetch('https://ims-be-j66p.onrender.com/all_transactions');
+    // const data = await fetch('http://127.0.0.1:8000/all_transactions');
+    const data = await fetch('https://ims-be-j66p.onrender.com/all_transactions');
     const response = await data.json();
 
     setTransferData(response.transactions);
@@ -64,8 +64,8 @@ const CommissaryTransferHistoryPage = () => {
       }),
     };
 
-    const response = await fetch(`http://127.0.0.1:8000/process_transaction/${transaction_id}`, requestOptions);
-    // const response = await fetch(`https://ims-be-j66p.onrender.com/process_transaction/${transaction_id}`, requestOptions);
+    // const response = await fetch(`http://127.0.0.1:8000/process_transaction/${transaction_id}`, requestOptions);
+    const response = await fetch(`https://ims-be-j66p.onrender.com/process_transaction/${transaction_id}`, requestOptions);
     const data = await response.json();
 
     setModalDate(data.date_changed);
@@ -82,8 +82,8 @@ const CommissaryTransferHistoryPage = () => {
       })
     }
 
-    const data = await fetch('http://127.0.0.1:8000/search_transfer_requests', requestOptions);
-    // const data = await fetch('https://ims-be-j66p.onrender.com/search_transfer_requests', requestOptions);
+    // const data = await fetch('http://127.0.0.1:8000/search_transfer_requests', requestOptions);
+    const data = await fetch('https://ims-be-j66p.onrender.com/search_transfer_requests', requestOptions);
     const response = await data.json();
 
     setTransferData(response.transactions);
