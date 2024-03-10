@@ -112,10 +112,10 @@ def update_item(request, item_id):
 
 @api_view(['POST'])
 def update_item_um(request, item_id):
-    new_um = request.data.get('um')
+    new_um = request.data.get('data')
 
     try:
-        item = Item.objects.get(id == item_id).first()
+        item = Item.objects.get(id=item_id)
         item.um = new_um
 
         item.save()
@@ -126,24 +126,26 @@ def update_item_um(request, item_id):
 
 @api_view(['POST'])
 def update_item_um_amount(request, item_id):
-    new_um_amount = request.data.get('um_amount')
+    new_um_amount = int(request.data.get('data'))
+    print(new_um_amount)
 
-    try:
-        item = Item.objects.get(id == item_id).first()
-        item.um_amount = new_um_amount
+    # try:
+    item = Item.objects.get(id=item_id)
+    item.um_amount = new_um_amount
 
-        item.save()
-        return Response({'response': 'UM amount updated.', 'status_code': 200})
-    except:
-        return Response({'response': 'Item does not exist.', 'status_code': 400})
+    item.save()
+    return Response({'response': 'UM amount updated.', 'status_code': 200})
+    # except:
+    #     return Response({'response': 'Item does not exist.', 'status_code': 400})
     
 
 @api_view(['POST'])
 def update_item_category(request, item_id):
-    category = request.data.get('category')
+    category = request.data.get('data')
 
     try:
-        item = Item.objects.get(id == item_id).first()
+        item = Item.objects.get(id=item_id)
+        print(item)
         item.category = category
 
         item.save()
@@ -151,20 +153,6 @@ def update_item_category(request, item_id):
     except:
         return Response({'response': 'Item does not exist.', 'status_code': 400})
     
-    
-
-@api_view(['POST'])
-def update_item_um(request, item_id):
-    new_um = request.data.get('um')
-
-    try:
-        item = Item.objects.get(id == item_id).first()
-        item.um = new_um
-
-        item.save()
-        return Response({'response': 'UM updated.', 'status_code': 200})
-    except:
-        return Response({'response': 'Item does not exist.', 'status_code': 400})
 
 
 @api_view(['POST'])

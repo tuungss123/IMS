@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Pagination, Modal } from "@mui/material";
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, 
+    TextField, Pagination, Modal, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import './styles.css';
 
 const CafeInventoryPage = () => {
@@ -139,6 +140,29 @@ const CafeInventoryPage = () => {
         setInventoryData(response.items);
     }
 
+    async function update_item_data(event, item_id, selected_column){
+        const requestOptions = {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                'data': event.target.value
+            })
+        }
+
+        const data = await fetch(`http://127.0.0.1:8000/update_item_${selected_column}/${item_id}`, requestOptions);
+        // const data = await fetch('https://ims-be-j66p.onrender.com/search_items', requestOptions);
+        const response = await data.json();
+
+        if (selected_column == 'um_amount'){
+            selected_column = 'um-amount';
+        }
+
+        const selectElement = document.getElementById(`${selected_column}-select-${item_id}`);
+        selectElement.innerHTML = event.target.value;
+
+        console.log(event.target.value);
+    }
+
     return (
         <Box>
             <Typography variant='h5'>Inventory</Typography>
@@ -153,20 +177,76 @@ const CafeInventoryPage = () => {
                 <TableHead>
                     <TableRow id='header-row'>
                         <TableCell align="center" className='table-header'>Item Name</TableCell>
+                        <TableCell align="center" className='table-header'>Category</TableCell>
                         <TableCell align="center" className='table-header'>Current Stock</TableCell>
+                        <TableCell align="center" className='table-header'>Unit of Measure</TableCell>
+                        <TableCell align="center" className='table-header'>UM Amount</TableCell>
                         <TableCell align="center" className='table-header'>Request Item</TableCell>
                         <TableCell align="center" className='table-header'>Report Spoil</TableCell>
                     </TableRow>
                 </TableHead>
+                
                 <TableBody>
                     {inventoryData.map((item) => (
                         <TableRow key={item.id}>
                             <TableCell component="th" scope="row">
                                 {item.item_name}
                             </TableCell>
+
+                            <TableCell align="center" sx={{ width: '12vw' }}>
+                                <FormControl fullWidth>
+                                    <InputLabel id={`category-select-label-${item.id}`}>Category</InputLabel>
+                                    <Select
+                                        id={`category-select-${item.id}`}
+                                        labelId={`category-select-label-${item.id}`}
+                                        value={item.category}
+                                        label="Category"
+                                        onChange={(changeValue) => update_item_data(changeValue, item.id, 'category')}
+                                    >
+                                        <MenuItem value={'Dry Ingredients'}>Dry Ingredients</MenuItem>
+                                        <MenuItem value={'Proteins'}>Proteins</MenuItem>
+                                        <MenuItem value={'Baking'}>Baking</MenuItem>
+                                        <MenuItem value={'Spices'}>Spices</MenuItem>
+                                        <MenuItem value={'Sauces and Condiments'}>Sauces and Condiments</MenuItem>
+                                        <MenuItem value={'Others (packagings)'}>Others (packagings)</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </TableCell>
+
                             <TableCell align="center">
                                 {item.cafe_stock}
                             </TableCell>
+
+                            <TableCell align="center">
+                                <FormControl fullWidth>
+                                    <InputLabel id={`um-select-label-${item.id}`}>Unit of Measure</InputLabel>
+                                    <Select
+                                        id={`um-select-${item.id}`}
+                                        labelId={`um-select-label-${item.id}`}
+                                        value={item.um}
+                                        label="Unit of Measure"
+                                        onChange={(changeValue) => update_item_data(changeValue, item.id, 'um')}
+                                    >
+                                        <MenuItem value={'KG'}>KG</MenuItem>
+                                        <MenuItem value={'g'}>g</MenuItem>
+                                        <MenuItem value={'L'}>L</MenuItem>
+                                        <MenuItem value={'mL'}>mL</MenuItem>
+                                        <MenuItem value={'PC'}>PC</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </TableCell>
+
+                            <TableCell align="center">
+                                <TextField
+                                    id={`um-amount-select-${item.id}`}
+                                    type='number'
+                                    size='small'
+                                    onChange={(changeValue) => update_item_data(changeValue, item.id, 'um_amount')}
+                                    defaultValue={item.um_amount}
+                                >
+                                </TextField>
+                            </TableCell>
+
                             <TableCell align="center">
                                 <Button variant='outlined' onClick={() => setModalDetails(item.id, item.item_name)}>
                                     Request Stock

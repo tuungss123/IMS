@@ -9,6 +9,9 @@ class ItemSerializer(serializers.ModelSerializer):
             'item_name',
             'commissary_stock',
             'cafe_stock',
+            'um',
+            'um_amount',
+            'category'
         ]
 
 
