@@ -49,8 +49,8 @@ const CommissaryInventoryPage = () => {
     }
 
     async function retrieveInventoryItems(){
-        const data = await fetch('http://127.0.0.1:8000/all_items');
-        // const data = await fetch('https://ims-be-j66p.onrender.com/all_items');
+        // const data = await fetch('http://127.0.0.1:8000/all_items');
+        const data = await fetch('https://ims-be-j66p.onrender.com/all_items');
         const response = await data.json();
         
         setInventoryData(response.items);
@@ -112,8 +112,8 @@ const CommissaryInventoryPage = () => {
             })
         }
 
-        const response = await fetch(`http://127.0.0.1:8000/update_item/${requestedItem}`, requestOptions);
-        // const response = await fetch(`https://ims-be-j66p.onrender.com/update_item/${requestedItem}`, requestOptions);
+        // const response = await fetch(`http://127.0.0.1:8000/update_item/${requestedItem}`, requestOptions);
+        const response = await fetch(`https://ims-be-j66p.onrender.com/update_item/${requestedItem}`, requestOptions);
         const data = await response.json();
         
         if (data.response === 'Item Updated'){
@@ -131,8 +131,8 @@ const CommissaryInventoryPage = () => {
             })
         }
 
-        const data = await fetch('http://127.0.0.1:8000/search_items', requestOptions);
-        // const data = await fetch('https://ims-be-j66p.onrender.com/search_items', requestOptions);
+        // const data = await fetch('http://127.0.0.1:8000/search_items', requestOptions);
+        const data = await fetch('https://ims-be-j66p.onrender.com/search_items', requestOptions);
         const response = await data.json();
         
         setInventoryData(response.items);

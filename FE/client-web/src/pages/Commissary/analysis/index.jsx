@@ -41,8 +41,8 @@ const CommissaryAnalyis = () => {
     }
 
     async function retrieveSpoilageReports(){
-        const data = await fetch('http://127.0.0.1:8000/retrieve_spoilage_reports');
-        // const data = await fetch('https://ims-be-j66p.onrender.com/retrieve_spoilage_reports');
+        // const data = await fetch('http://127.0.0.1:8000/retrieve_spoilage_reports');
+        const data = await fetch('https://ims-be-j66p.onrender.com/retrieve_spoilage_reports');
         const response = await data.json();
         
         console.log(response.spoilage_reports);
@@ -60,8 +60,8 @@ const CommissaryAnalyis = () => {
         }
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/retrieve_transaction_summary', requestOptions);
-            // const response = await fetch('https://ims-be-j66p.onrender.com/retrieve_transaction_summary', requestOptions);
+            // const response = await fetch('http://127.0.0.1:8000/retrieve_transaction_summary', requestOptions);
+            const response = await fetch('https://ims-be-j66p.onrender.com/retrieve_transaction_summary', requestOptions);
             const blob = await response.blob();
 
             const url = window.URL.createObjectURL(new Blob([blob]));
@@ -82,8 +82,8 @@ const CommissaryAnalyis = () => {
     }
 
     async function retrieveCommissaryCritical(){
-        const data = await fetch('http://127.0.0.1:8000/retrieve_commissary_critical');
-        // const data = await fetch('https://ims-be-j66p.onrender.com/retrieve_commissary_critical');
+        // const data = await fetch('http://127.0.0.1:8000/retrieve_commissary_critical');
+        const data = await fetch('https://ims-be-j66p.onrender.com/retrieve_commissary_critical');
         const response = await data.json();
         
         setCritStock(response.items);
