@@ -3,6 +3,7 @@ import WidgetsIcon from '@mui/icons-material/Widgets';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import InventorySharpIcon from '@mui/icons-material/InventorySharp';
 import AccountCircleSharpIcon from '@mui/icons-material/AccountCircleSharp';
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import Build from '@mui/icons-material/Build';
 import Logout from '@mui/icons-material/Logout';
 
@@ -16,6 +17,11 @@ export const CommissarySidenavData = [
         title: "Stock Analysis",
         icon: <ReceiptIcon/>,
         link: "/commissary/analysis"
+    },
+    {
+        title: "Notifications",
+        icon: <NotificationsActiveIcon/>,
+        link: "/commissary/notifications"
     },
     {
         title: "Transaction History",
@@ -35,6 +41,6 @@ export const CommissarySidenavData = [
     {
         title: "Sign Out",
         icon: <Logout/>,
-        link: "/login"
+        link: "/"
     },
 ]

@@ -15,6 +15,7 @@ import TransferHistoryPage from './pages/Cafe/transfer_history';
 import ProfilePage from './pages/Cafe/profile';
 import CafeAnalysis from './pages/Cafe/analysis';
 import CafeInventoryPage from './pages/Cafe/menu';
+import CafeNotifications from './pages/Cafe/notifications';
 
 // COMMISSARY
 import CommissaryInventoryPage from './pages/Commissary/commissary_inventory';
@@ -30,9 +31,10 @@ const App = () => {
       <Router>
         <Routes>
           {/* PATHS UNDER LOGGED IN USER */}
-          <Route path="/" element={<RootLayout />}>
+          <Route path="/cafe" element={<RootLayout />}>
             <Route path="transfer_history" element={<TransferHistoryPage />} />
             <Route path="analysis" element={<CafeAnalysis />} />
+            <Route path="notifications" element={<CafeNotifications />} />
             <Route path="cafeinventory" element={<CafeInventoryPage />} />
             <Route path="profile" element={<ProfilePage />} />
           </Route>
@@ -41,12 +43,13 @@ const App = () => {
           <Route path="/commissary" element={<CommissaryLayout />}>
             <Route path="/commissary/transfer_history" element={<CommissaryTransferHistoryPage />} />
             <Route path="/commissary/analysis" element={<CommissaryAnalyis />} />
+            <Route path="/commissary/notifications" element={<CafeNotifications />} />
             <Route path="/commissary/inventory" element={<CommissaryInventoryPage />} />
             <Route path="/commissary/profile" element={<ProfilePage />} />
           </Route>
 
           {/* LOGIN PATH */}
-          <Route path="login" element={<SignIn />} />
+          <Route path="/" element={<SignIn />} />
         </Routes>
       </Router>
     </ThemeProvider>

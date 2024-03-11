@@ -1,6 +1,8 @@
 import { Button, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Modal } from "@mui/material";
 import { useState, useEffect } from "react";
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import CheckIcon from '@mui/icons-material/Check';
+import CancelIcon from '@mui/icons-material/Cancel';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import MuiAlert from '@mui/material/Alert';
 import './styles.css';
@@ -31,7 +33,8 @@ const TransferHistoryPage = () => {
   }
 
   async function retrieveInventoryItems() {
-    const data = await fetch('http://127.0.0.1:8000/all_transactions');
+    // const data = await fetch('http://127.0.0.1:8000/all_transactions');
+    const data = await fetch('https://ims-be-j66p.onrender.com/all_transactions');
     const response = await data.json();
     
     console.log(response.transactions);
@@ -44,7 +47,8 @@ const TransferHistoryPage = () => {
       headers: { 'Content-Type': 'application/json' }
     }
 
-    const response = await fetch(`http://127.0.0.1:8000/delete_transaction/${transaction_id}`, requestOptions);
+    // const response = await fetch(`http://127.0.0.1:8000/delete_transaction/${transaction_id}`, requestOptions);
+    const response = await fetch(`https://ims-be-j66p.onrender.com/delete_transaction/${transaction_id}`, requestOptions);
     const data = await response.json();
 
     console.log(data.response);
@@ -59,7 +63,8 @@ const TransferHistoryPage = () => {
       })
     }
 
-    const response = await fetch(`http://127.0.0.1:8000/update_transaction/${modId}`, requestOptions);
+    // const response = await fetch(`http://127.0.0.1:8000/update_transaction/${modId}`, requestOptions);
+    const response = await fetch(`https://ims-be-j66p.onrender.com/update_transaction/${modId}`, requestOptions);
     const data = await response.json();
 
     console.log(data.response);
@@ -104,10 +109,26 @@ const TransferHistoryPage = () => {
       })
     }
 
-    const data = await fetch('http://127.0.0.1:8000/search_transfer_requests', requestOptions);
+    // const data = await fetch('http://127.0.0.1:8000/search_transfer_requests', requestOptions);
+    const data = await fetch('https://ims-be-j66p.onrender.com/search_transfer_requests', requestOptions);
     const response = await data.json();
 
     setTransferData(response.transactions);
+  }
+
+  async function handle_intern_request(action, transaction_id) {
+    const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        'action': action
+      })
+    }
+
+    const data = await fetch(`http://127.0.0.1:8000/substitute_approval/${transaction_id}`, requestOptions);
+    // const data = await fetch('https://ims-be-j66p.onrender.com/search_transfer_requests', requestOptions);
+    const response = await data.json();
+    retrieveInventoryItems();
   }
 
   return (
@@ -148,12 +169,23 @@ const TransferHistoryPage = () => {
                 <TableCell align="center">{transfer.transactor}</TableCell>
                 <TableCell align="center">{formatDateTime(transfer.date_created)}</TableCell>
                 <TableCell align="center">{transfer.approval}</TableCell>
-                {transfer.approval === 'Pending' && (
+
+                {/* Cafe Substitute Admin Approval */}
+                {transfer.approval === 'Pending' && transfer.admin_approval === false && JSON.parse(localStorage.getItem('user_data')) == 'Cafe' && transfer.transactor === 'Intern' && (
+                  <TableCell align="center">
+                    <CheckIcon onClick={() => handle_intern_request('Approved', transfer.id)} />
+                    <CancelIcon onClick={() => handle_intern_request('Rejected', transfer.id)} />
+                  </TableCell>
+                )}
+
+                {/* Requestor Data Modification Exclusivity */}
+                {transfer.approval === 'Pending' && JSON.parse(localStorage.getItem('user_data')) === transfer.transactor && (
                   <TableCell align="center">
                     <EditOutlinedIcon onClick={() => setModalDetails(transfer.id, transfer.transacted_item.item_name)} />
                     <DeleteOutlineOutlinedIcon onClick={() => handleDeleteConfirmation(transfer.id)} />
                   </TableCell>
                 )}
+
                 {transfer.approval !== 'Pending' && (
                   <TableCell align="center">
                     -
@@ -171,47 +203,45 @@ const TransferHistoryPage = () => {
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
         >
-            <div className='modal'>
-                <Typography variant="h5" id="modal-title">Modify Transaction Quantity Request</Typography>
+          <div className='modal'>
+              <Typography variant="h5" id="modal-title">Modify Transaction Quantity Request</Typography>
 
-                <Typography variant="h6" id='item-title'>{modName}</Typography>
-                <TextField 
-                    label="Change amount" 
-                    type='number' 
-                    id="modal-input-field" 
-                    size='small' 
-                    onChange={(qty) => setModifyQty(qty.target.value)}
-                    defaultValue={0}
-                >
-                </TextField>
+              <Typography variant="h6" id='item-title'>{modName}</Typography>
+              <TextField 
+                  label="Change amount" 
+                  type='number' 
+                  id="modal-input-field" 
+                  size='small' 
+                  onChange={(qty) => setModifyQty(qty.target.value)}
+                  defaultValue={0}
+              >
+              </TextField>
 
-                <Box id='modal-buttons-container'>
-                    <Button variant='outlined' onClick={() => modifyRequestedQty() } disabled={!isModifyQtyValid}>Modify</Button>
-                    <Button variant='outlined' onClick={() => setModalVisible(false) }>Cancel</Button>
-                </Box>
-            </div>
-        </Modal>
+              <Box id='modal-buttons-container'>
+                  <Button variant='outlined' onClick={() => modifyRequestedQty() } disabled={!isModifyQtyValid}>Modify</Button>
+                  <Button variant='outlined' onClick={() => setModalVisible(false) }>Cancel</Button>
+              </Box>
+          </div>
+      </Modal>
 
-        <Dialog
-  open={deleteConfirmationDialogVisible}
-  onClose={() => setDeleteConfirmationDialogVisible(false)}
->
-  <DialogTitle sx={{backgroundColor: '#8F011B ', color: '#fff' }}>
-    Confirm Delete
-  </DialogTitle>
-  <DialogContent>
-    <Typography variant="body1">
-      Are you sure you want to delete this transaction?
-    </Typography>
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={() => handleConfirmDelete()}>Yes</Button>
-    <Button onClick={() => setDeleteConfirmationDialogVisible(false)}>No</Button>
-  </DialogActions>
-</Dialog>
+      <Dialog
+        open={deleteConfirmationDialogVisible}
+        onClose={() => setDeleteConfirmationDialogVisible(false)}
+      >
+        <DialogTitle sx={{backgroundColor: '#8F011B ', color: '#fff' }}>
+          Confirm Delete
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body1">
+            Are you sure you want to delete this transaction?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleConfirmDelete()}>Yes</Button>
+          <Button onClick={() => setDeleteConfirmationDialogVisible(false)}>No</Button>
+        </DialogActions>
+      </Dialog>
 
-
-      
       <Snackbar
         open={Boolean(deleteSuccessMessage)}
         autoHideDuration={3000}

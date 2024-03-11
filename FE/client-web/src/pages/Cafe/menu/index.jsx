@@ -1,18 +1,19 @@
-import { useEffect, useState } from 'react';
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Pagination, Modal } from "@mui/material";
+import React, { useEffect, useState } from 'react';
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, 
+    TextField, Pagination, Modal, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import './styles.css';
 
 const CafeInventoryPage = () => {
     const [inventoryData, setInventoryData] = useState([]);
-
+    
     // stock request
-    const [selectedItem, setSelectedItem] = useState('');
+    const [selectedItem , setSelectedItem] = useState('');
     const [requestedItem, setRequestedItem] = useState(0);
     const [requestedQuantity, setRequestedQuantity] = useState(0);
     const [modalVisible, setModalVisible] = useState(false);
 
     // spoil report
-    const [spoiledItemName, setSpoiledItemName] = useState('');
+    const [spoiledItemName , setSpoiledItemName] = useState('');
     const [spoiledItemId, setSpoiledItemId] = useState(0);
     const [spoiledQty, setSpoiledQty] = useState(0);
     const [spoiledModalVisible, setSpoiledModalVisible] = useState(false);
@@ -25,6 +26,7 @@ const CafeInventoryPage = () => {
     const [reqQuantityError, setReqQuantityError] = useState('');
     const [isReqQtyValid, setIsReqQtyValid] = useState(false);
     const [isReqSpoiledValid, setIsReqSpoiledValid] = useState(false);
+    
 
     useEffect(() => {
         retrieveInventoryItems();
@@ -35,25 +37,26 @@ const CafeInventoryPage = () => {
     }, [requestedQuantity]);
 
     useEffect(() => {
-        setIsReqSpoiledValid(!isNaN(spoiledQty) && spoiledQty >= 1);
-    }, [spoiledQty]);
+        setIsReqSpoiledValid(!isNaN(spoiledQty) && spoiledQty >=1);
+    }, [spoiledQty])
 
     const setModalDetails = (item_id, item_name) => {
         setRequestedItem(item_id);
         setSelectedItem(item_name);
         setModalVisible(true);
-    };
+    }
 
     const setSpoiledModalDetails = (item_id, item_name) => {
         setSpoiledItemId(item_id);
         setSpoiledItemName(item_name);
         setSpoiledModalVisible(true);
-    };
+    }
 
-    async function retrieveInventoryItems() {
-        const data = await fetch('http://127.0.0.1:8000/all_items');
+    async function retrieveInventoryItems(){
+        // const data = await fetch('http://127.0.0.1:8000/all_items');
+        const data = await fetch('https://ims-be-j66p.onrender.com/all_items');
         const response = await data.json();
-
+        
         setInventoryData(response.items);
     }
 
@@ -72,82 +75,92 @@ const CafeInventoryPage = () => {
             setReqQuantityError('');
         }
         return valid;
-    };
+    }
 
-    async function requestItem() {
+    async function requestItem(){
         if (!validateRequest()) {
             return;
         }
-
-        // Check if requested quantity is within the available stock limit
-        const selectedInventoryItem = inventoryData.find(item => item.id === requestedItem);
-        if (selectedInventoryItem && requestedQuantity > selectedInventoryItem.commissary_stock) {
-            setReqQuantityError(`Requested quantity exceeds available stock`);
-            return;
-        }
-
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json' },
             body: JSON.stringify({
                 'item_id': requestedItem,
                 'request_quantity': requestedQuantity,
                 'transactor': JSON.parse(localStorage.getItem('user_data'))
             })
-        };
+        }
 
-        const response = await fetch(`http://127.0.0.1:8000/request_item/${requestedItem}`, requestOptions);
+        // const response = await fetch(`http://127.0.0.1:8000/request_item/${requestedItem}`, requestOptions);
+        const response = await fetch(`https://ims-be-j66p.onrender.com/request_item/${requestedItem}`, requestOptions);
         const data = await response.json();
-
-        if (data.response === 'Request Made.') {
+        
+        if (data.response == 'Request Made.'){
             setModalVisible(false);
         }
     }
 
-    async function reportSpoiledItem() {
+    async function reportSpoiledItem(){
         if (!validateRequest()) {
             return;
         }
-
-        // Check if spoiled quantity is within the available stock limit
-        const selectedInventoryItem = inventoryData.find(item => item.id === spoiledItemId);
-        if (selectedInventoryItem && spoiledQty > selectedInventoryItem.cafe_stock) {
-            setReqQuantityError(`Spoiled quantity exceeds available stock (${selectedInventoryItem.cafe_stock}).`);
-            return;
-        }
-
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json' },
             body: JSON.stringify({
                 'item_id': spoiledItemId,
                 'spoil_amount': spoiledQty,
                 'report_creator': JSON.parse(localStorage.getItem('user_data'))
             })
-        };
+        }
 
-        const response = await fetch(`http://127.0.0.1:8000/report_spoiled/${spoiledItemId}`, requestOptions);
+        // const response = await fetch(`http://127.0.0.1:8000/report_spoiled/${spoiledItemId}`, requestOptions);
+        const response = await fetch(`https://ims-be-j66p.onrender.com/report_spoiled/${spoiledItemId}`, requestOptions);
         const data = await response.json();
-
-        if (data.response === 'Spoil Report Created' || data.response === 'Invalid Spoil Report') {
+        
+        if (data.response == 'Spoil Report Created' || data.response == 'Invalid Spoil Report'){
             setSpoiledModalVisible(false);
             retrieveInventoryItems();
         }
     }
 
-    async function search(searched_item) {
+    async function search(searched_item){
         const requestOptions = {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json' },
             body: JSON.stringify({
                 'search': searched_item
             })
-        };
+        }
 
-        const data = await fetch('http://127.0.0.1:8000/search_items', requestOptions);
+        // const data = await fetch('http://127.0.0.1:8000/search_items', requestOptions);
+        const data = await fetch('https://ims-be-j66p.onrender.com/search_items', requestOptions);
+        const response = await data.json();
+        
+        setInventoryData(response.items);
+    }
+
+    async function update_item_data(event, item_id, selected_column){
+        const requestOptions = {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                'data': event.target.value
+            })
+        }
+
+        // const data = await fetch(`http://127.0.0.1:8000/update_item_${selected_column}/${item_id}`, requestOptions);
+        const data = await fetch('https://ims-be-j66p.onrender.com/search_items', requestOptions);
         const response = await data.json();
 
-        setInventoryData(response.items);
+        if (selected_column == 'um_amount'){
+            selected_column = 'um-amount';
+        }
+
+        const selectElement = document.getElementById(`${selected_column}-select-${item_id}`);
+        selectElement.innerHTML = event.target.value;
+
+        console.log(event.target.value);
     }
 
     return (
@@ -161,38 +174,48 @@ const CafeInventoryPage = () => {
 
             <TableContainer component={Paper} id='inventory-table'>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                    <TableHead>
-                        <TableRow id='header-row'>
-                            <TableCell align="center" className='table-header'>Item Name</TableCell>
-                            <TableCell align="center" className='table-header'>Current Stock</TableCell>
-                            <TableCell align="center" className='table-header'>Request Item</TableCell>
-                            <TableCell align="center" className='table-header'>Report Spoil</TableCell>
+                <TableHead>
+                    <TableRow id='header-row'>
+                        <TableCell align="center" className='table-header'>Item Name</TableCell>
+                        <TableCell align="center" className='table-header'>Category</TableCell>
+                        <TableCell align="center" className='table-header'>Current Stock</TableCell>
+                        <TableCell align="center" className='table-header'>Request Item</TableCell>
+                        <TableCell align="center" className='table-header'>Report Spoil</TableCell>
+                    </TableRow>
+                </TableHead>
+                
+                <TableBody>
+                    {inventoryData.map((item) => (
+                        <TableRow key={item.id}>
+                            <TableCell component="th" scope="row">
+                                {item.item_name}
+                            </TableCell>
+
+                            <TableCell align="center">
+                                {item.category}
+                            </TableCell>
+
+                            <TableCell align="center">
+                                {item.cafe_stock}{item.um}
+                            </TableCell>
+
+                            <TableCell align="center">
+                                <Button variant='outlined' onClick={() => setModalDetails(item.id, item.item_name)}>
+                                    Request Stock
+                                </Button>
+                            </TableCell>
+                            <TableCell align="center">
+                                <Button variant='outlined' onClick={() => setSpoiledModalDetails(item.id, item.item_name)}>
+                                    Report Spoiled Item
+                                </Button>
+                            </TableCell>
                         </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {inventoryData.map((item) => (
-                            <TableRow key={item.id}>
-                                <TableCell component="th" scope="row">
-                                    {item.item_name}
-                                </TableCell>
-                                <TableCell align="center">
-                                    {item.cafe_stock}
-                                </TableCell>
-                                <TableCell align="center">
-                                    <Button variant='outlined' onClick={() => setModalDetails(item.id, item.item_name)}>
-                                        Request Stock
-                                    </Button>
-                                </TableCell>
-                                <TableCell align="center">
-                                    <Button variant='outlined' onClick={() => setSpoiledModalDetails(item.id, item.item_name)}>
-                                        Report Spoiled Item
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
+                    ))}
+                </TableBody>
                 </Table>
             </TableContainer>
+
+            {/* <Pagination sx={{ marginTop: '2%' }} count={10} /> */}
 
             <Modal
                 open={modalVisible}
@@ -205,21 +228,21 @@ const CafeInventoryPage = () => {
                     <Typography variant="h5" id="modal-title">Request Item from Commissary</Typography>
 
                     <Typography variant="h6" id='item-title'>{selectedItem}</Typography>
-                    <TextField
-                        label="Request Quantity"
-                        type='number'
-                        id="modal-input-field"
-                        size='small'
+                    <TextField 
+                        label="Request Quantity" 
+                        type='number' 
+                        id="modal-input-field" 
+                        size='small' 
                         onChange={(qty) => setRequestedQuantity(qty.target.value)}
                         defaultValue={0}
                         error={!!reqQuantityError}
                         helperText={reqQuantityError}
                     >
                     </TextField>
-
+                    
                     <Box id='modal-buttons-container'>
-                        <Button variant='outlined' onClick={() => requestItem()} disabled={!isReqQtyValid}>Proceed</Button>
-                        <Button variant='outlined' onClick={() => setModalVisible(false)}>Cancel</Button>
+                        <Button variant='outlined' onClick={() => requestItem() } disabled={!isReqQtyValid}>Proceed</Button>
+                        <Button variant='outlined' onClick={() => setModalVisible(false) }>Cancel</Button>
                     </Box>
                 </div>
             </Modal>
@@ -235,25 +258,25 @@ const CafeInventoryPage = () => {
                     <Typography variant="h5" id="modal-title">Report Spoiled Item</Typography>
 
                     <Typography variant="h6" id='item-title'>{spoiledItemName}</Typography>
-                    <TextField
-                        label="Amount of Items Spoiled"
-                        type='number'
-                        id="modal-input-field"
-                        size='small'
+                    <TextField 
+                        label="Amount of Items Spoiled" 
+                        type='number' 
+                        id="modal-input-field" 
+                        size='small' 
                         onChange={(spoilQty) => setSpoiledQty(spoilQty.target.value)}
                         defaultValue={0}
                         error={!!reqQuantityError}
                         helperText={reqQuantityError}
                     >
                     </TextField>
-
+                    
                     <Box id='modal-buttons-container'>
-                        <Button
-                            variant='outlined'
-                            onClick={() => reportSpoiledItem()}
-                            disabled={!isReqSpoiledValid}
+                        <Button 
+                        variant='outlined' 
+                        onClick={() => reportSpoiledItem()}
+                        disabled={!isReqSpoiledValid}
                         >Report</Button>
-                        <Button variant='outlined' onClick={() => setSpoiledModalVisible(false)}>Cancel</Button>
+                        <Button variant='outlined' onClick={() => setSpoiledModalVisible(false) }>Cancel</Button>
                     </Box>
                 </div>
             </Modal>
@@ -265,17 +288,17 @@ const CafeInventoryPage = () => {
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
             >
-                <div className='modal'>
+                <div class='modal'>
                     <Typography variant="h5" id="modal-title">Message</Typography>
                     <Typography variant="h6" id='item-title'>{modalMessage}</Typography>
-
+                    
                     <Box id='modal-buttons-container'>
-                        <Button variant='outlined' onClick={() => setIsModalVisible(false)}>Close</Button>
+                        <Button variant='outlined' onClick={() => setIsModalVisible(false) }>Close</Button>
                     </Box>
                 </div>
             </Modal>
         </Box>
-    );
-};
+    )
+}
 
 export default CafeInventoryPage;

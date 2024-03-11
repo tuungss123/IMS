@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Pagination, Modal } from "@mui/material";
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Pagination, Modal, Select, MenuItem, FormControl } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -17,6 +17,8 @@ const CommissaryInventoryPage = () => {
     // add item
     const [addItemName, setAddItemName] = useState('');
     const [addQty, setAddQty] = useState(0);
+    const [category, setCategory] = useState('Dry Ingredients');
+    const [um, setUM] = useState('KG');
     const [addModalVisible, setAddModalVisible] = useState(false);
 
     // add item verification
@@ -47,7 +49,8 @@ const CommissaryInventoryPage = () => {
     }
 
     async function retrieveInventoryItems(){
-        const data = await fetch('http://127.0.0.1:8000/all_items');
+        // const data = await fetch('http://127.0.0.1:8000/all_items');
+        const data = await fetch('https://ims-be-j66p.onrender.com/all_items');
         const response = await data.json();
         
         setInventoryData(response.items);
@@ -81,20 +84,22 @@ const CommissaryInventoryPage = () => {
             headers: {'Content-Type': 'application/json' },
             body: JSON.stringify({
                 'item_name': addItemName,
-                'commissary_stock': addQty
+                'commissary_stock': addQty,
+                'category': category,
+                'um': um
             })
         }
 
-        console.log(addItemName);
-        console.log(addQty);
-
         const response = await fetch(`http://127.0.0.1:8000/create_item`, requestOptions);
+        // const response = await fetch(`https://ims-be-j66p.onrender.com/create_item`, requestOptions);
         const data = await response.json();
         
         console.log(data.response);
         if (data.response === 'Item Created'){
             setAddModalVisible(false);
             retrieveInventoryItems();
+            setCategory('Dry Ingredients');
+            setUM('KG');
         }
     }
 
@@ -107,7 +112,8 @@ const CommissaryInventoryPage = () => {
             })
         }
 
-        const response = await fetch(`http://127.0.0.1:8000/update_item/${requestedItem}`, requestOptions);
+        // const response = await fetch(`http://127.0.0.1:8000/update_item/${requestedItem}`, requestOptions);
+        const response = await fetch(`https://ims-be-j66p.onrender.com/update_item/${requestedItem}`, requestOptions);
         const data = await response.json();
         
         if (data.response === 'Item Updated'){
@@ -125,7 +131,8 @@ const CommissaryInventoryPage = () => {
             })
         }
 
-        const data = await fetch('http://127.0.0.1:8000/search_items', requestOptions);
+        // const data = await fetch('http://127.0.0.1:8000/search_items', requestOptions);
+        const data = await fetch('https://ims-be-j66p.onrender.com/search_items', requestOptions);
         const response = await data.json();
         
         setInventoryData(response.items);
@@ -146,6 +153,7 @@ const CommissaryInventoryPage = () => {
                 <TableHead>
                     <TableRow id='header-row'>
                         <TableCell align="center" className='table-header'>Item Name</TableCell>
+                        <TableCell align="center" className='table-header'>Category</TableCell>
                         <TableCell align="center" className='table-header'>Current Stock</TableCell>
                         <TableCell align="center" className='table-header'>Options</TableCell>
                     </TableRow>
@@ -156,8 +164,11 @@ const CommissaryInventoryPage = () => {
                             <TableCell component="th" scope="row">
                                 {item.item_name}
                             </TableCell>
+                            <TableCell component="th" scope="row">
+                                {item.category}
+                            </TableCell>
                             <TableCell align="center">
-                                {item.commissary_stock}
+                                {item.commissary_stock}{item.um}
                             </TableCell>
                             <TableCell align="center">
                                 <EditIcon onClick={() => setModalDetails(item.id, item.item_name) } />
@@ -233,6 +244,7 @@ const CommissaryInventoryPage = () => {
                         error={!!addItemError}
                         helperText={addItemError}
                     />
+
                     <Typography variant="h6" id='item-title'>Quantity</Typography>
                     <TextField 
                         label="Amount of Items to Add" 
@@ -244,6 +256,35 @@ const CommissaryInventoryPage = () => {
                         error={!!addQtyError}
                         helperText={addQtyError}
                     />
+
+                    <Typography variant="h6" id='item-title'>Category</Typography>
+                    <FormControl fullWidth>
+                        <Select
+                            value={category}
+                            onChange={(changeValue) => setCategory(changeValue.target.value)}
+                        >
+                            <MenuItem value={'Dry Ingredients'}>Dry Ingredients</MenuItem>
+                            <MenuItem value={'Proteins'}>Proteins</MenuItem>
+                            <MenuItem value={'Baking'}>Baking</MenuItem>
+                            <MenuItem value={'Spices'}>Spices</MenuItem>
+                            <MenuItem value={'Sauces and Condiments'}>Sauces and Condiments</MenuItem>
+                            <MenuItem value={'Others (packagings)'}>Others (packagings)</MenuItem>
+                        </Select>
+                    </FormControl>
+                    
+                    <Typography variant="h6" id='item-title'>Unit of Measure</Typography>
+                    <FormControl fullWidth>
+                        <Select
+                            value={um}
+                            onChange={(changeValue) => setUM(changeValue.target.value)}
+                        >
+                            <MenuItem value={'KG'}>KG (Kilogram)</MenuItem>
+                            <MenuItem value={'g'}>g (Gram)</MenuItem>
+                            <MenuItem value={'L'}>L (Liter)</MenuItem>
+                            <MenuItem value={'mL'}>mL (Millileter)</MenuItem>
+                            <MenuItem value={'PC'}>PC (Piece)</MenuItem>
+                        </Select>
+                    </FormControl>
                     
                     <Box id='modal-buttons-container'>
                         <Button variant='outlined' onClick={() => createItem() }>Add Item</Button>
