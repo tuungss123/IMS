@@ -49,8 +49,8 @@ const CommissaryInventoryPage = () => {
     }
 
     async function retrieveInventoryItems(){
-        // const data = await fetch('http://127.0.0.1:8000/all_items');
-        const data = await fetch('https://ims-be-j66p.onrender.com/all_items');
+        const data = await fetch('http://127.0.0.1:8000/all_items');
+        //const data = await fetch('https://ims-be-j66p.onrender.com/all_items');
         const response = await data.json();
         
         setInventoryData(response.items);
@@ -112,8 +112,8 @@ const CommissaryInventoryPage = () => {
             })
         }
 
-        // const response = await fetch(`http://127.0.0.1:8000/update_item/${requestedItem}`, requestOptions);
-        const response = await fetch(`https://ims-be-j66p.onrender.com/update_item/${requestedItem}`, requestOptions);
+        const response = await fetch(`http://127.0.0.1:8000/update_item/${requestedItem}`, requestOptions);
+        //const response = await fetch(`https://ims-be-j66p.onrender.com/update_item/${requestedItem}`, requestOptions);
         const data = await response.json();
         
         if (data.response === 'Item Updated'){
@@ -131,8 +131,8 @@ const CommissaryInventoryPage = () => {
             })
         }
 
-        // const data = await fetch('http://127.0.0.1:8000/search_items', requestOptions);
-        const data = await fetch('https://ims-be-j66p.onrender.com/search_items', requestOptions);
+        const data = await fetch('http://127.0.0.1:8000/search_items', requestOptions);
+        //const data = await fetch('https://ims-be-j66p.onrender.com/search_items', requestOptions);
         const response = await data.json();
         
         setInventoryData(response.items);
@@ -150,32 +150,32 @@ const CommissaryInventoryPage = () => {
 
             <TableContainer component={Paper} id='inventory-table'>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                    <TableRow id='header-row'>
-                        <TableCell align="center" className='table-header'>Item Name</TableCell>
-                        <TableCell align="center" className='table-header'>Category</TableCell>
-                        <TableCell align="center" className='table-header'>Current Stock</TableCell>
-                        <TableCell align="center" className='table-header'>Options</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {inventoryData.map((item) => (
-                        <TableRow key={item.id}>
-                            <TableCell component="th" scope="row">
-                                {item.item_name}
-                            </TableCell>
-                            <TableCell component="th" scope="row">
-                                {item.category}
-                            </TableCell>
-                            <TableCell align="center">
-                                {item.commissary_stock}{item.um}
-                            </TableCell>
-                            <TableCell align="center">
-                                <EditIcon onClick={() => setModalDetails(item.id, item.item_name) } />
-                            </TableCell>
+                    <TableHead>
+                        <TableRow id='header-row'>
+                            <TableCell align="center" className='table-header'>Item Name</TableCell>
+                            <TableCell align="center" className='table-header'>Category</TableCell>
+                            <TableCell align="center" className='table-header'>Current Stock</TableCell>
+                            <TableCell align="center" className='table-header'>Options</TableCell>
                         </TableRow>
-                    ))}
-                </TableBody>
+                    </TableHead>
+                    <TableBody>
+                        {inventoryData.map((item) => (
+                            <TableRow key={item.id}>
+                                <TableCell align="center" component="th" scope="row">
+                                    {item.item_name}
+                                </TableCell>
+                                <TableCell align="center" component="th" scope="row">
+                                    {item.category}
+                                </TableCell>
+                                <TableCell align="center">
+                                    {item.commissary_stock}{item.um}
+                                </TableCell>
+                                <TableCell align="center">
+                                    <EditIcon onClick={() => setModalDetails(item.id, item.item_name) } />
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
                 </Table>
             </TableContainer>
 
@@ -187,11 +187,11 @@ const CommissaryInventoryPage = () => {
                 aria-describedby="modal-modal-description"
             >
                 <div className='modal'>
-                    <Typography variant="h5" id="modal-title">Add Stock</Typography>
+                    <Typography variant="h5" id="modal-title">Edit Stock</Typography>
 
                     <Typography variant="h6" id='item-title'>{selectedItem}</Typography>
                     <TextField 
-                        label="Add Quantity" 
+                        label="Edit Quantity" 
                         type='number' 
                         id="modal-input-field" 
                         size='small' 
@@ -202,11 +202,11 @@ const CommissaryInventoryPage = () => {
                                 setIsEditValid(true);
                                 setAddQtyError('');
                             } else {
-                                setAddQtyError('Please enter a positive number');
+                                setAddQtyError('Enter a positive number');
                                 setIsEditValid(false);
                             }
                         }}
-                        defaultValue={0}
+                   
                         error={!!addQtyError}
                         helperText={addQtyError}
                     />
@@ -281,7 +281,7 @@ const CommissaryInventoryPage = () => {
                             <MenuItem value={'KG'}>KG (Kilogram)</MenuItem>
                             <MenuItem value={'g'}>g (Gram)</MenuItem>
                             <MenuItem value={'L'}>L (Liter)</MenuItem>
-                            <MenuItem value={'mL'}>mL (Millileter)</MenuItem>
+                            <MenuItem value={'mL'}>mL (Milliliter)</MenuItem>
                             <MenuItem value={'PC'}>PC (Piece)</MenuItem>
                         </Select>
                     </FormControl>

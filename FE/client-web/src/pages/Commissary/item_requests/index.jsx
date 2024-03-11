@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Button, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import  { useState, useEffect } from "react";
+import { Button, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Modal } from "@mui/material";
 import CheckIcon from '@mui/icons-material/Check';
 import DoDisturbIcon from '@mui/icons-material/DoDisturb';
 import './styles.css';
@@ -7,6 +7,7 @@ import './styles.css';
 const CommissaryTransferHistoryPage = () => {
   const [transferData, setTransferData] = useState([]);
   const [modalMessage, setModalMessage] = useState('');
+  // eslint-disable-next-line no-unused-vars
   const [modalDate, setModalDate] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [confirmationData, setConfirmationData] = useState({
@@ -14,14 +15,63 @@ const CommissaryTransferHistoryPage = () => {
     action: '',
     transactionId: null,
   });
+  const [isDataRequestModalVisible, setIsDataRequestModalVisible] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   useEffect(() => {
     retrieveInventoryItems();
   }, []);
 
+
+  function resetDataRequestModal() {
+    setStartDate('');
+    setEndDate('');
+  }
+
+  async function requestData(){ 
+    if (!startDate || !endDate) {
+      // Display an error message or handle the case where dates are not provided
+      console.error('Please select both start and end dates.');
+      return;
+    }
+
+    
+    const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            'start_date': startDate,
+            'end_date': endDate
+        })
+    }
+
+    try {
+         const response = await fetch('http://127.0.0.1:8000/retrieve_transaction_summary', requestOptions);
+        //const response = await fetch('https://ims-be-j66p.onrender.com/retrieve_transaction_summary', requestOptions);
+        const blob = await response.blob();
+
+        const url = window.URL.createObjectURL(new Blob([blob]));
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.setAttribute('download', `Transaction Data Request ${new Date()}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+        
+        setStartDate('');
+        setEndDate('');
+        setIsDataRequestModalVisible(false);
+    } catch (error) {
+        console.error('Error downloading file:', error);
+    }
+}
+
+
   async function retrieveInventoryItems() {
-    // const data = await fetch('http://127.0.0.1:8000/all_transactions');
-    const data = await fetch('https://ims-be-j66p.onrender.com/all_transactions');
+    const data = await fetch('http://127.0.0.1:8000/all_transactions');
+    //const data = await fetch('https://ims-be-j66p.onrender.com/all_transactions');
     const response = await data.json();
 
     setTransferData(response.transactions);
@@ -77,14 +127,18 @@ const CommissaryTransferHistoryPage = () => {
       }),
     };
 
-    // const response = await fetch(`http://127.0.0.1:8000/process_transaction/${transaction_id}`, requestOptions);
-    const response = await fetch(`https://ims-be-j66p.onrender.com/process_transaction/${transaction_id}`, requestOptions);
+    const response = await fetch(`http://127.0.0.1:8000/process_transaction/${transaction_id}`, requestOptions);
+    //const response = await fetch(`https://ims-be-j66p.onrender.com/process_transaction/${transaction_id}`, requestOptions);
     const data = await response.json();
 
     setModalDate(data.date_changed);
     setModalMessage(data.response);
     retrieveInventoryItems();
   }
+
+  
+
+  
 
   async function search(searched_item) {
     const requestOptions = {
@@ -95,19 +149,14 @@ const CommissaryTransferHistoryPage = () => {
       })
     }
 
-    // const data = await fetch('http://127.0.0.1:8000/search_transfer_requests', requestOptions);
-    const data = await fetch('https://ims-be-j66p.onrender.com/search_transfer_requests', requestOptions);
+    const data = await fetch('http://127.0.0.1:8000/search_transfer_requests', requestOptions);
+    //const data = await fetch('https://ims-be-j66p.onrender.com/search_transfer_requests', requestOptions);
     const response = await data.json();
 
     setTransferData(response.transactions);
   }
 
-  function convertToPhTime(date_time) {
-    let date = new Date(date_time);
-    let convertedDate = date.toLocaleString('en-US', { timeZone: 'Asia/Manila' });
 
-    return convertedDate;
-  }
 
   return (
     <Box>
@@ -119,7 +168,7 @@ const CommissaryTransferHistoryPage = () => {
           <TextField
             id="outlined-basic"
             variant="outlined"
-            label="Search Transactions..."
+            label="Search By Status"
             size="small"
             sx={{ marginTop: '7.5%', marginLeft: "84%", paddingBottom: "1rem" }}
             onChange={(search_item) => search(search_item.target.value)}
@@ -201,6 +250,48 @@ const CommissaryTransferHistoryPage = () => {
           <Button variant='outlined' onClick={() => setIsModalVisible(false)}>Close</Button>
         </DialogActions>
       </Dialog>
+
+      <Button variant='outlined' onClick={() => setIsDataRequestModalVisible(true)} sx={{ marginTop: '2%' }}>Generate Transaction Reports</Button>
+
+            {/* <Pagination sx={{ marginTop: '2%' }} count={10} /> */}
+
+            <Modal
+                open={isDataRequestModalVisible}
+                onClose={() => {
+                  setIsDataRequestModalVisible(false);resetDataRequestModal()
+                }}
+                sx={{ bgcolor: 'background.Paper', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <div className='modal'>
+                    <Typography variant="h5" id="modal-title">Generate Transaction Reports</Typography>
+
+                    <Box id='date-pickers'>
+                        <Typography variant="h6" id='item-title'>Start Date:</Typography>
+                        <input type='date' onChange={(start_date) => setStartDate(start_date.target.value)}></input>
+
+                        <Typography variant="h6" id='item-title'>End Date:</Typography>
+                        <input type='date' onChange={(end_date) => setEndDate(end_date.target.value)}></input>
+                    </Box>
+                    
+                    <Box id='modal-buttons-container'>
+                    <Button
+                        variant='outlined'
+                        onClick={() => requestData()}
+                        disabled={!startDate || !endDate} 
+                      >
+                        Proceed
+                      </Button>
+                      <Button
+                        variant='outlined'
+                        onClick={() =>{ setIsDataRequestModalVisible(false);resetDataRequestModal()}}
+                      >
+                        Cancel
+                      </Button>
+                    </Box>
+                </div>
+            </Modal>
     </Box>
   );
 }
