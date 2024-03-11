@@ -141,7 +141,7 @@ const TransferHistoryPage = () => {
           <TextField
             id="outlined-basic"
             variant="outlined"
-            label="Search Transactions..."
+            label="Search By Status"
             size="small"
             sx={{ marginTop: '7.5%', marginLeft: "84%", paddingBottom: "1rem" }}
             onChange={(search_item) => search(search_item.target.value)}

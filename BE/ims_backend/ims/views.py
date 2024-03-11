@@ -213,7 +213,7 @@ def search_transfer_requests(request):
     if request.method == 'POST':
         search = request.data.get('search')
 
-        transactions = Transaction.objects.filter(transacted_item__item_name__icontains=f'{search}')
+        transactions = Transaction.objects.filter(approval__icontains=f'{search}')
         serialize_transactions = TransactionSerializer(transactions, many=True)
 
         return Response({'transactions': serialize_transactions.data}, 200)
