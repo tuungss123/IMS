@@ -106,7 +106,7 @@ def update_item(request, item_id):
 
     try:
         item = Item.objects.get(id=item_id)
-        item.commissary_stock += stock_update
+        item.commissary_stock = stock_update
         item.save()
 
         return Response({'response': 'Item Updated'}, 200)
