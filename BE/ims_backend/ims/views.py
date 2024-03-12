@@ -113,6 +113,19 @@ def update_item(request, item_id):
     except:
         return Response({'response': 'Failed to Update Item'}, 200)
     
+@api_view(['POST'])
+def update_cafe_item(request, item_id):
+    stock_update = int(request.data.get('stock_update'))
+
+    try:
+        item = Item.objects.get(id=item_id)
+        item.cafe_stock = stock_update
+        item.save()
+
+        return Response({'response': 'Item Updated'}, 200)
+    except:
+        return Response({'response': 'Failed to Update Item'}, 200)
+    
 
 @api_view(['POST'])
 def update_item_um(request, item_id):

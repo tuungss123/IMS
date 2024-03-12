@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, 
-    TextField, Modal, IconButton } from "@mui/material";
+    TextField, Modal } from "@mui/material";
+import EditIcon from '@mui/icons-material/Edit';
 import './styles.css';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import {ArrowUpward, ArrowDownward} from '@mui/icons-material';
+
 
 const CafeInventoryPage = () => {
     const [inventoryData, setInventoryData] = useState([]);
@@ -11,16 +12,35 @@ const CafeInventoryPage = () => {
     const [requestedItem, setRequestedItem] = useState(0);
     const [requestedQuantity, setRequestedQuantity] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
+    const [editmodalVisible, seteditModalVisible] = useState(false);
     const [spoiledItemName, setSpoiledItemName] = useState('');
     const [spoiledItemId, setSpoiledItemId] = useState(0);
     const [spoiledQty, setSpoiledQty] = useState('');
     const [spoiledModalVisible, setSpoiledModalVisible] = useState(false);
-    const [modalMessage, setModalMessage] = useState('');
-    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [editModifyQty, seteditModifyQty] = useState(0);
     const [reqQuantityError, setReqQuantityError] = useState('');
     const [isReqQtyValid, setIsReqQtyValid] = useState(false);
     const [reqSpoiledError, setReqSpoiledError] = useState('');
     const [isReqSpoiledValid, setIsReqSpoiledValid] = useState('');
+
+    const [addQtyError, setAddQtyError] = useState('');
+
+    // edit item validation
+    const [isEditValid, setIsEditValid] = useState(); 
+    const [editRequestedItem, seteditRequestedItem] = useState();
+    const [editSelectedItem, seteditSelectedItem] = useState();
+    const setModalDetails = (item_id, item_name) => {
+        setRequestedItem(item_id);
+        setSelectedItem(item_name);
+        setModalVisible(true);
+    }
+    const seteditModalDetails = (item_id, item_name) => {
+        seteditRequestedItem(item_id);
+        seteditSelectedItem(item_name);
+        seteditModalVisible(true);
+    }
+
+
     const [sortOrder, setSortOrder] = useState({
         field: '',
         ascending: true,
@@ -39,12 +59,6 @@ const CafeInventoryPage = () => {
         setIsReqSpoiledValid(!isNaN(spoiledQty) && spoiledQty >= 1 && spoiledQty <= inventoryData.find(item => item.id === spoiledItemId)?.commissary_stock);
         setReqSpoiledError(validateQuantity(spoiledQty, spoiledItemId));
     }, [spoiledQty, spoiledItemId, inventoryData]);
-
-    const setModalDetails = (item_id, item_name) => {
-        setRequestedItem(item_id);
-        setSelectedItem(item_name);
-        setModalVisible(true);
-    };
 
     const setSpoiledModalDetails = (item_id, item_name) => {
         setSpoiledItemId(item_id);
@@ -160,12 +174,55 @@ const CafeInventoryPage = () => {
             setSpoiledModalVisible(false);
             retrieveInventoryItems();
         }
+
     }
+
+    async function search(searched_item){
+        const requestOptions = {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                'search': searched_item
+            })
+        }
+
+        const data = await fetch('http://127.0.0.1:8000/search_items', requestOptions);
+        //const data = await fetch('https://ims-be-j66p.onrender.com/search_items', requestOptions);
+        const response = await data.json();
+        
+        setInventoryData(response.items);
+    }
+
+    async function addToStock(){
+        const requestOptions = {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                'stock_update': editModifyQty
+            })
+        }
+
+        const response = await fetch(`http://127.0.0.1:8000/update_cafe_item/${editRequestedItem}`, requestOptions);
+        //const response = await fetch(`https://ims-be-j66p.onrender.com/update_cafe_item/${requestedItem}`, requestOptions);
+        const data = await response.json();
+        
+        if (data.response === 'Item Updated'){
+            setModalVisible(false);
+            retrieveInventoryItems();
+        }
+    }
+
 
     return (
         <Box>
             <Typography variant='h5'>Inventory</Typography>
             <Typography variant='body1'>Listed below are all the inventory items within the system.</Typography>
+
+            
+
+            <Box id='search-box-container'>
+                <TextField label='Search Inventory' id='search-box' size="small" onChange={(search_item) => search(search_item.target.value)}>Search</TextField>
+            </Box>
 
             <TableContainer component={Paper} id='inventory-table'>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -176,14 +233,15 @@ const CafeInventoryPage = () => {
         </TableCell>
         <TableCell align="center" onClick={() => handleSort('category')}>
             Category
-            {sortOrder.field === 'category' && sortOrder.ascending ? <ArrowDropDownIcon /> : <ArrowDropUpIcon />}
+            {sortOrder.field === 'category' && sortOrder.ascending ? <ArrowDownward /> : <ArrowUpward />}
         </TableCell>
         <TableCell align="center" onClick={() => handleSort('um')}>
     Current Stock
-    {sortOrder.field === 'um' && sortOrder.ascending ? <ArrowDropDownIcon /> : <ArrowDropUpIcon />}
+    {sortOrder.field === 'um' && sortOrder.ascending ? <ArrowDownward /> : <ArrowUpward />}
 </TableCell>
         <TableCell align="center">Request Item</TableCell>
         <TableCell align="center">Report Spoil</TableCell>
+        <TableCell align="center" className='table-header'>Options</TableCell>
     </TableRow>
 </TableHead>
 
@@ -208,6 +266,9 @@ const CafeInventoryPage = () => {
                                     <Button variant='outlined' onClick={() => setSpoiledModalDetails(item.id, item.item_name)}>
                                         Report Spoiled Item
                                     </Button>
+                                </TableCell>
+                                <TableCell align="center">
+                                    <EditIcon onClick={() => seteditModalDetails(item.id, item.item_name) } />
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -246,6 +307,51 @@ const CafeInventoryPage = () => {
                 </div>
             </Modal>
 
+
+            <Modal
+                open={editmodalVisible}
+                onClose={() => seteditModalVisible(false)}
+                sx={{ bgcolor: 'background.Paper', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <div className='modal'>
+                    <Typography variant="h5" id="modal-title">Edit Stock</Typography>
+
+                    <Typography variant="h6" id='item-title'>{editSelectedItem}</Typography>
+                    <TextField 
+                        label="Edit Quantity" 
+                        type='number' 
+                        id="modal-input-field" 
+                        size='small' 
+                        onChange={(event) => {
+                            const value = event.target.value;
+                            if (!isNaN(value) && parseInt(value) >= 0) {
+                                seteditModifyQty(parseInt(value));
+                                setIsEditValid(true);
+                                setAddQtyError('');
+                            } else {
+                                setAddQtyError('Enter a positive number');
+                                setIsEditValid(false);
+                            }
+                        }}
+                   
+                        error={!!addQtyError}
+                        helperText={addQtyError}
+                    />
+                    
+                    <Box id='modal-buttons-container'>
+                        <Button 
+                        variant='outlined' 
+                        onClick={() => {addToStock(); seteditModalVisible(false)} }
+                        disabled={!isEditValid}
+                        >
+                        Proceed
+                        </Button>
+                        <Button variant='outlined' onClick={() => seteditModalVisible(false) }>Cancel</Button>
+                    </Box>
+                </div>
+            </Modal>
             <Modal
                 open={spoiledModalVisible}
                 onClose={() => setSpoiledModalVisible(false)}
