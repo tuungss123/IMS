@@ -121,6 +121,7 @@ const CafeAnalysis = () => {
                 <TableHead>
                     <TableRow id='header-row'>
                         <TableCell align="center" className='table-header'>Item Name</TableCell>
+                        <TableCell align="center" className='table-header'>Category</TableCell>
                         <TableCell align="center" className='table-header'>Amount Left</TableCell>
                     </TableRow>
                 </TableHead>
@@ -130,7 +131,8 @@ const CafeAnalysis = () => {
                             <TableCell component="th" scope="row">
                                 {stock.item_name}
                             </TableCell>
-                            <TableCell align="center">{stock.cafe_stock}</TableCell>
+                            <TableCell align="center">{stock.category}</TableCell>
+                            <TableCell align="center">{stock.cafe_stock}{stock.um}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
@@ -143,6 +145,7 @@ const CafeAnalysis = () => {
                 <TableHead>
                     <TableRow id='header-row'>
                         <TableCell align="center" className='table-header'>Item Name</TableCell>
+                        <TableCell align="center" className='table-header'>Category</TableCell>
                         <TableCell align="center" className='table-header'>Spoiled Amount</TableCell>
                         <TableCell align="center" className='table-header'>Incident Reporter</TableCell>
                         <TableCell align="center" className='table-header'>Date Reported</TableCell>
@@ -154,7 +157,8 @@ const CafeAnalysis = () => {
                             <TableCell component="th" scope="row">
                                 {spoilage.item.item_name}
                             </TableCell>
-                            <TableCell align="center">{spoilage.spoil_amount}</TableCell>
+                            <TableCell align="center">{spoilage.item.category}</TableCell>
+                            <TableCell align="center">{spoilage.spoil_amount}{spoilage.item.um}</TableCell>
                             <TableCell align="center">{spoilage.report_creator}</TableCell>
                             <TableCell align="center">{formatDateTime(spoilage.date_created)}</TableCell>
                         </TableRow>

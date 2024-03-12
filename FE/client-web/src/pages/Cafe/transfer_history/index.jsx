@@ -153,6 +153,7 @@ const TransferHistoryPage = () => {
           <TableHead>
             <TableRow id='header-row'>
               <TableCell align="center" className='table-header'>Requested Item</TableCell>
+              <TableCell align="center" className='table-header'>Category</TableCell>
               <TableCell align="center" className='table-header'>Quantity</TableCell>
               <TableCell align="center" className='table-header'>Transactor</TableCell>
               <TableCell align="center" className='table-header'>Request Date</TableCell>
@@ -165,7 +166,8 @@ const TransferHistoryPage = () => {
             {transferData.map((transfer) => (
               <TableRow key={transfer.id}>
                 <TableCell component="th" align="center">{transfer.transacted_item.item_name}</TableCell>
-                <TableCell align="center">{transfer.transacted_amount}</TableCell>
+                <TableCell align="center">{transfer.transacted_item.category}</TableCell>
+                <TableCell align="center">{transfer.transacted_amount}{transfer.transacted_item.um}</TableCell>
                 <TableCell align="center">{transfer.transactor}</TableCell>
                 <TableCell align="center">{formatDateTime(transfer.date_created)}</TableCell>
                 <TableCell align="center">{transfer.approval}</TableCell>
