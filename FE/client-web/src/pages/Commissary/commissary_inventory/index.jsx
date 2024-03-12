@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Pagination, Modal, Select, MenuItem, FormControl } from "@mui/material";
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Pagination, Modal, Select, MenuItem, FormControl, IconButton } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import './styles.css';
+import ArrowDownward from '@mui/icons-material/ArrowDownward';
+import ArrowUpward from '@mui/icons-material/ArrowUpward';
 
 const CommissaryInventoryPage = () => {
     const [inventoryData, setInventoryData] = useState([]);
-    
+    const [sortOrder, setSortOrder] = useState({ column: '', direction: 'asc' });
+
     // modify item quantity
     const [selectedItem, setSelectedItem] = useState('');
     const [requestedItem, setRequestedItem] = useState(0);
@@ -65,8 +70,14 @@ const CommissaryInventoryPage = () => {
         } else {
             setAddItemError('');
         }
-        if (isNaN(addQty) || addQty < 0) {
-            setAddQtyError('Please only enter a positive number');
+        
+        const itemExists = inventoryData.some(item => item.item_name === addItemName);
+        if (itemExists) {
+            setAddItemError('Item name already exists');
+            valid = false;
+        }
+        if (isNaN(addQty) || addQty <= 0) {
+            setAddQtyError('Please enter a positive number');
             valid = false;
         } else {
             setAddQtyError('');
@@ -138,6 +149,30 @@ const CommissaryInventoryPage = () => {
         setInventoryData(response.items);
     }
 
+    const sortInventoryData = (column) => {
+        let direction = 'asc';
+        if (sortOrder.column === column && sortOrder.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortOrder({ column, direction });
+
+        const sortedData = [...inventoryData].sort((a, b) => {
+            if (column === 'commissary_stock') {
+                // First, sort by unit of measurement
+                if (a.um !== b.um) {
+                    return a.um.localeCompare(b.um);
+                } else {
+                    // Within each group of items with the same unit of measurement, sort by the number of stock
+                    return (sortOrder.direction === 'asc' ? a.commissary_stock - b.commissary_stock : b.commissary_stock - a.commissary_stock);
+                }
+            } else if (column === 'category') {
+                return (sortOrder.direction === 'asc' ? a.category.localeCompare(b.category) : b.category.localeCompare(a.category));
+            }
+            return 0;
+        });
+        setInventoryData(sortedData);
+    };
+
     return (
         <Box>
             <Typography variant='h5'>Commissary Inventory</Typography>
@@ -152,9 +187,27 @@ const CommissaryInventoryPage = () => {
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
                         <TableRow id='header-row'>
-                            <TableCell align="center" className='table-header'>Item Name</TableCell>
-                            <TableCell align="center" className='table-header'>Category</TableCell>
-                            <TableCell align="center" className='table-header'>Current Stock</TableCell>
+                            <TableCell align="center" className='table-header'>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    Item Name
+                                </div>
+                            </TableCell>
+                            <TableCell align="center" className='table-header'>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    Category
+                                    <IconButton onClick={() => sortInventoryData('category')}>
+                                        {sortOrder.column === 'category' && sortOrder.direction === 'asc' ? <ArrowUpward fontSize="small" /> : <ArrowDownward fontSize="small" />}
+                                    </IconButton>
+                                </div>
+                            </TableCell>
+                            <TableCell align="center" className='table-header'>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    Current Stock
+                                    <IconButton onClick={() => sortInventoryData('commissary_stock')}>
+                                        {sortOrder.column === 'commissary_stock' && sortOrder.direction === 'asc' ? <ArrowUpward fontSize="small" /> : <ArrowDownward fontSize="small" />}
+                                    </IconButton>
+                                </div>
+                            </TableCell>
                             <TableCell align="center" className='table-header'>Options</TableCell>
                         </TableRow>
                     </TableHead>
@@ -168,10 +221,10 @@ const CommissaryInventoryPage = () => {
                                     {item.category}
                                 </TableCell>
                                 <TableCell align="center">
-                                    {item.commissary_stock}{item.um}
+                                    {item.commissary_stock} {item.um}
                                 </TableCell>
                                 <TableCell align="center">
-                                    <EditIcon onClick={() => setModalDetails(item.id, item.item_name) } />
+                                    <EditIcon onClick={() => setModalDetails(item.id, item.item_name)} fontSize="small" />
                                 </TableCell>
                             </TableRow>
                         ))}
@@ -195,6 +248,7 @@ const CommissaryInventoryPage = () => {
                         type='number' 
                         id="modal-input-field" 
                         size='small' 
+                        placeholder='0'
                         onChange={(event) => {
                             const value = event.target.value;
                             if (!isNaN(value) && parseInt(value) >= 0) {
@@ -251,7 +305,8 @@ const CommissaryInventoryPage = () => {
                         type='number' 
                         id="modal-input-field" 
                         size='small' 
-                        value={addQty}
+                        placeholder='0'
+                        
                         onChange={(event) => setAddQty(event.target.value)}
                         error={!!addQtyError}
                         helperText={addQtyError}
