@@ -9,8 +9,8 @@ const SignIn = () => {
   const [password, setPassword] = useState('');
   const [usernameError, setUsernameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const [loading, setLoading] = useState(false); // New state for loading indicator
-  const [openErrorDialog, setOpenErrorDialog] = useState(false); // State for error dialog
+  const [loading, setLoading] = useState(false); 
+  const [openErrorDialog, setOpenErrorDialog] = useState(false); 
 
   const validateForm = () => {
     let valid = true;
@@ -37,7 +37,7 @@ const SignIn = () => {
       return;
     }
 
-    setLoading(true); // Set loading state to true when login is initiated
+    setLoading(true); 
 
     const requestOptions = {
       method: 'POST',
@@ -53,7 +53,7 @@ const SignIn = () => {
     const data = await response.json();
     console.log(data.response);
 
-    setLoading(false); // Set loading state to false after response is received
+    setLoading(false); 
 
     if (data.response === 'Login successful') {
       localStorage.setItem('user_data', JSON.stringify(data.user_data));
@@ -64,7 +64,7 @@ const SignIn = () => {
         navigate('/commissary/inventory');
       }
     } else {
-      setOpenErrorDialog(true); // Open error dialog if login fails
+      setOpenErrorDialog(true);
     }
   };
 
@@ -75,7 +75,7 @@ const SignIn = () => {
   };
 
   const handleCloseErrorDialog = () => {
-    setOpenErrorDialog(false); // Close error dialog
+    setOpenErrorDialog(false); 
   };
 
   return (

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Modal, IconButton } from "@mui/material";
+import  { useEffect, useState } from 'react';
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, IconButton } from "@mui/material";
 import {ArrowDownward, ArrowUpward} from '@mui/icons-material';
 import './styles.css';
 
@@ -8,27 +8,12 @@ const CafeAnalysis = () => {
     const [spoilageData, setSpoilageData] = useState([]);
     const [critStock, setCritStock] = useState([]);
     const [sortOrder, setSortOrder] = useState({ column: '', direction: 'asc' });
-    
-    // stock request
-    const [selectedItem , setSelectedItem] = useState('');
-    const [requestedItem, setRequestedItem] = useState(0);
-    const [requestedQuantity, setRequestedQuantity] = useState(0);
-    const [modalVisible, setModalVisible] = useState(false);
-
-    const [isDataRequestModalVisible, setIsDataRequestModalVisible] = useState(false);
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-
     useEffect(() => {
         retrieveCafeCritical();
         retrieveSpoilageReports();
     }, []);
 
-    const setModalDetails = (item_id, item_name) => {
-        setRequestedItem(item_id);
-        setSelectedItem(item_name);
-        setModalVisible(true);
-    }
+  
 
     async function search(searched_item){
         const requestOptions = {
@@ -68,37 +53,6 @@ const CafeAnalysis = () => {
         setSpoilageData(response.spoilage_reports);
     }
 
-    async function requestData(){
-        const requestOptions = {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                'start_date': startDate,
-                'end_date': endDate
-            })
-        }
-
-        try {
-             const response = await fetch('http://127.0.0.1:8000/retrieve_transaction_summary', requestOptions);
-            //const response = await fetch('https://ims-be-j66p.onrender.com/retrieve_transaction_summary', requestOptions);
-            const blob = await response.blob();
-
-            const url = window.URL.createObjectURL(new Blob([blob]));
-            const link = document.createElement('a');
-
-            link.href = url;
-            link.setAttribute('download', `Transaction Data Request ${new Date()}.xlsx`);
-            document.body.appendChild(link);
-            link.click();
-            link.parentNode.removeChild(link);
-            
-            setStartDate('');
-            setEndDate('');
-            setIsDataRequestModalVisible(false);
-        } catch (error) {
-            console.error('Error downloading file:', error);
-        }
-    }
 
     async function retrieveCafeCritical(){
          const data = await fetch('http://127.0.0.1:8000/retrieve_cafe_critical');
@@ -201,34 +155,6 @@ const CafeAnalysis = () => {
                 </TableBody>
                 </Table>
             </TableContainer>
-            <Button variant='outlined' onClick={() => setIsDataRequestModalVisible(true)} sx={{ marginTop: '2%' }}>Request Split Data</Button>
-
-            {/* <Pagination sx={{ marginTop: '2%' }} count={10} /> */}
-
-            <Modal
-                open={isDataRequestModalVisible}
-                onClose={() => setIsDataRequestModalVisible(false)}
-                sx={{ bgcolor: 'background.Paper', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-            >
-                <div class='modal'>
-                    <Typography variant="h5" id="modal-title">Request Transaction Data</Typography>
-
-                    <Box id='date-pickers'>
-                        <Typography variant="h6" id='item-title'>Start Date:</Typography>
-                        <input type='date' onChange={(start_date) => setStartDate(start_date.target.value)}></input>
-
-                        <Typography variant="h6" id='item-title'>End Date:</Typography>
-                        <input type='date' onChange={(end_date) => setEndDate(end_date.target.value)}></input>
-                    </Box>
-                    
-                    <Box id='modal-buttons-container'>
-                        <Button variant='outlined' onClick={() => requestData() }>Proceed</Button>
-                        <Button variant='outlined' onClick={() => setIsDataRequestModalVisible(false) }>Cancel</Button>
-                    </Box>
-                </div>
-            </Modal>
         </Box>
     )
 }

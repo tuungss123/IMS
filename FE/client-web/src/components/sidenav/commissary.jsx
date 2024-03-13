@@ -14,12 +14,12 @@ function CommissarySidenav() {
   return (
     <div className='side-bar'>
         <Box id='system-profile'>
-          <Typography variant="h5">Cafe Juan</Typography>
+          <Typography variant="h5">Commissary</Typography>
 
-          {/* INSERT IMAGE HERE */}
+          
           <Box id='profile'></Box>
-          <Typography variant='h6'>{JSON.parse(localStorage.getItem('user_data'))}</Typography>
-          <Typography variant='subtitle1'>Commissary User</Typography>
+
+
         </Box>
 
         <ul className='side-bar-links'>

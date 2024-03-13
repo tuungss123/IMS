@@ -24,6 +24,43 @@ const TransferHistoryPage = () => {
   const [deleteConfirmationDialogVisible, setDeleteConfirmationDialogVisible] = useState(false);
   const [deleteSuccessMessage, setDeleteSuccessMessage] = useState('');
 
+
+  const [isDataRequestModalVisible, setIsDataRequestModalVisible] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const [approvalModalVisible, setApprovalModalVisible] = useState(false);
+  const [selectedTransactionId, setSelectedTransactionId] = useState(null);
+  const [approvalAction, setApprovalAction] = useState('');
+
+  const showApprovalModal = (transactionId, action) => {
+    setSelectedTransactionId(transactionId);
+    setApprovalAction(action);
+    setApprovalModalVisible(true);
+  };
+  
+  const hideApprovalModal = () => {
+    setSelectedTransactionId(null);
+    setApprovalAction('');
+    setApprovalModalVisible(false);
+  };
+  
+
+  const handleApproval = async () => {
+    if (approvalAction === 'Approve') {
+      await handle_intern_request('Approved', selectedTransactionId);
+    } else if (approvalAction === 'Reject') {
+      await handle_intern_request('Rejected', selectedTransactionId);
+    }
+    hideApprovalModal();
+  };
+  
+  
+  const handleDenial = () => {
+    hideApprovalModal();
+  };
+  
+
   useEffect(() => {
     retrieveInventoryItems();
   }, []);
@@ -172,6 +209,43 @@ const TransferHistoryPage = () => {
     retrieveInventoryItems();
   }
 
+  function resetDataRequestModal() {
+    setStartDate('');
+    setEndDate('');
+  }
+
+  async function requestData(){
+    const requestOptions = {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            'start_date': startDate,
+            'end_date': endDate
+        })
+    }
+
+    try {
+         const response = await fetch('http://127.0.0.1:8000/retrieve_transaction_summary', requestOptions);
+        //const response = await fetch('https://ims-be-j66p.onrender.com/retrieve_transaction_summary', requestOptions);
+        const blob = await response.blob();
+
+        const url = window.URL.createObjectURL(new Blob([blob]));
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.setAttribute('download', `Transaction Data Request ${new Date()}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+        
+        setStartDate('');
+        setEndDate('');
+        setIsDataRequestModalVisible(false);
+    } catch (error) {
+        console.error('Error downloading file:', error);
+    }
+}
+
   return (
     <Box>
       <Typography variant="h5">Transfer Requests</Typography>
@@ -237,8 +311,9 @@ const TransferHistoryPage = () => {
                 {/* Cafe Substitute Admin Approval */}
                 {transfer.approval === 'Pending' && transfer.admin_approval === false && JSON.parse(localStorage.getItem('user_data')) == 'Cafe' && transfer.transactor === 'Intern' && (
                   <TableCell align="center">
-                    <CheckIcon onClick={() => handle_intern_request('Approved', transfer.id)} />
-                    <CancelIcon onClick={() => handle_intern_request('Rejected', transfer.id)} />
+                    <CheckIcon onClick={() => showApprovalModal(transfer.id, 'Approve')} />
+                    <CancelIcon onClick={() => showApprovalModal(transfer.id, 'Reject')} />
+
                   </TableCell>
                 )}
 
@@ -309,6 +384,62 @@ const TransferHistoryPage = () => {
           {deleteSuccessMessage}
         </MuiAlert>
       </Snackbar>
+
+      <Button variant='outlined' onClick={() => setIsDataRequestModalVisible(true)} sx={{ marginTop: '2%' }}>Generate Transaction Reports</Button>
+
+            {/* <Pagination sx={{ marginTop: '2%' }} count={10} /> */}
+
+            <Modal
+                open={isDataRequestModalVisible}
+                onClose={() => {
+                  setIsDataRequestModalVisible(false);resetDataRequestModal()
+                }}
+                sx={{ bgcolor: 'background.Paper', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <div className='modal'>
+                    <Typography variant="h5" id="modal-title">Generate Transaction Reports</Typography>
+
+                    <Box id='date-pickers'>
+                        <Typography variant="h6" id='item-title'>Start Date:</Typography>
+                        <input type='date' onChange={(start_date) => setStartDate(start_date.target.value)}></input>
+
+                        <Typography variant="h6" id='item-title'>End Date:</Typography>
+                        <input type='date' onChange={(end_date) => setEndDate(end_date.target.value)}></input>
+                    </Box>
+                    
+                    <Box id='modal-buttons-container'>
+                    <Button
+                        variant='outlined'
+                        onClick={() => requestData()}
+                        disabled={!startDate || !endDate} 
+                      >
+                        Proceed
+                      </Button>
+                      <Button
+                        variant='outlined'
+                        onClick={() =>{ setIsDataRequestModalVisible(false);resetDataRequestModal()}}
+                      >
+                        Cancel
+                      </Button>
+                    </Box>
+                </div>
+            </Modal>
+
+            <Dialog
+              open={approvalModalVisible}
+              onClose={hideApprovalModal}
+            >
+              <DialogTitle id="dialog-title" style={{ backgroundColor: approvalAction === 'Approve' ? '#75975e' : '#8F011B', color: 'white' }}>
+                {`Are you sure you want to ${approvalAction.toLowerCase()} this request?`}
+              </DialogTitle>
+              <DialogActions>
+                <Button onClick={handleApproval}>Yes</Button>
+                <Button onClick={handleDenial}>No</Button>
+              </DialogActions>
+            </Dialog>
+
     </Box>
   );
 };

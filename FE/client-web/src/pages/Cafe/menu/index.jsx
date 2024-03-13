@@ -20,7 +20,6 @@ const CafeInventoryPage = () => {
     const [editModifyQty, seteditModifyQty] = useState(0);
     const [reqQuantityError, setReqQuantityError] = useState('');
     const [isReqQtyValid, setIsReqQtyValid] = useState(false);
-    const [reqSpoiledError, setReqSpoiledError] = useState('');
     const [isReqSpoiledValid, setIsReqSpoiledValid] = useState('');
 
     const [addQtyError, setAddQtyError] = useState('');
@@ -56,8 +55,7 @@ const CafeInventoryPage = () => {
     }, [requestedQuantity, requestedItem, inventoryData]);
 
     useEffect(() => {
-        setIsReqSpoiledValid(!isNaN(spoiledQty) && spoiledQty >= 1 && spoiledQty <= inventoryData.find(item => item.id === spoiledItemId)?.commissary_stock);
-        setReqSpoiledError(validateQuantity(spoiledQty, spoiledItemId));
+        setIsReqSpoiledValid(!isNaN(spoiledQty) && spoiledQty >= 1 && spoiledQty <= inventoryData.find(item => item.id === spoiledItemId)?.cafe_stock);
     }, [spoiledQty, spoiledItemId, inventoryData]);
 
     const setSpoiledModalDetails = (item_id, item_name) => {
@@ -212,6 +210,7 @@ const CafeInventoryPage = () => {
         }
     }
 
+    
 
     return (
         <Box>
@@ -374,8 +373,7 @@ const CafeInventoryPage = () => {
                         size='small' 
                         placeholder='0' 
                         onChange={(spoilQty) => setSpoiledQty(spoilQty.target.value)}
-                        error={!!reqSpoiledError}
-                        helperText={reqSpoiledError}
+
                     />
                     <Box id='modal-buttons-container'>
                         <Button 

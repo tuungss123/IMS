@@ -33,6 +33,8 @@ const CommissaryInventoryPage = () => {
     // edit item validation
     const [isEditValid, setIsEditValid] = useState(false); // changed to false initially
 
+    
+
     useEffect(() => {
         retrieveInventoryItems();
     }, []);
@@ -45,7 +47,12 @@ const CommissaryInventoryPage = () => {
             setAddItemError('');
             setAddQtyError('');
         }
-    }, [addModalVisible]);
+        if (modalVisible) {
+            setModifyQty(0);
+            setIsEditValid(false);
+            setAddQtyError('');
+        }
+    }, [addModalVisible, modalVisible]);
 
     const setModalDetails = (item_id, item_name) => {
         setRequestedItem(item_id);
