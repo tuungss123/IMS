@@ -76,7 +76,7 @@ const CommissaryInventoryPage = () => {
             setAddItemError('Item name already exists');
             valid = false;
         }
-        if (isNaN(addQty) || addQty <= 0) {
+        if (isNaN(addQty) || addQty < 0) {
             setAddQtyError('Please enter a positive number');
             valid = false;
         } else {
@@ -158,11 +158,11 @@ const CommissaryInventoryPage = () => {
 
         const sortedData = [...inventoryData].sort((a, b) => {
             if (column === 'commissary_stock') {
-                // First, sort by unit of measurement
+               
                 if (a.um !== b.um) {
                     return a.um.localeCompare(b.um);
                 } else {
-                    // Within each group of items with the same unit of measurement, sort by the number of stock
+                    
                     return (sortOrder.direction === 'asc' ? a.commissary_stock - b.commissary_stock : b.commissary_stock - a.commissary_stock);
                 }
             } else if (column === 'category') {

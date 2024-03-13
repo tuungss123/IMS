@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Modal } from "@mui/material";
+import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, TextField, Modal, IconButton } from "@mui/material";
+import {ArrowDownward, ArrowUpward} from '@mui/icons-material';
 import './styles.css';
+
 
 const CafeAnalysis = () => {
     const [spoilageData, setSpoilageData] = useState([]);
     const [critStock, setCritStock] = useState([]);
+    const [sortOrder, setSortOrder] = useState({ column: '', direction: 'asc' });
     
     // stock request
     const [selectedItem , setSelectedItem] = useState('');
@@ -104,6 +107,28 @@ const CafeAnalysis = () => {
         
         setCritStock(response.items);
     }
+    const sortCritStock = (column) => {
+        let direction = 'asc';
+        if (sortOrder.column === column && sortOrder.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortOrder({ column, direction });
+    
+        const sortedData = [...critStock].sort((a, b) => {
+            if (column === 'category') {
+                return sortOrder.direction === 'asc' ? a.category.localeCompare(b.category) : b.category.localeCompare(a.category);
+            } else if (column === 'cafe_stock') {
+                if (a.um === b.um) {
+                    return sortOrder.direction === 'asc' ? a.cafe_stock - b.cafe_stock : b.cafe_stock - a.cafe_stock;
+                } else {
+                    return sortOrder.direction === 'asc' ? a.um.localeCompare(b.um) : b.um.localeCompare(a.um);
+                }
+            }
+            return 0;
+        });
+        setCritStock(sortedData);
+    };
+    
 
     return (
         <Box>
@@ -121,14 +146,24 @@ const CafeAnalysis = () => {
                 <TableHead>
                     <TableRow id='header-row'>
                         <TableCell align="center" className='table-header'>Item Name</TableCell>
-                        <TableCell align="center" className='table-header'>Category</TableCell>
-                        <TableCell align="center" className='table-header'>Amount Left</TableCell>
+                        <TableCell align="center" className='table-header'>
+                            Category
+                            <IconButton onClick={() => sortCritStock('category')}>
+                                {sortOrder.column === 'category' && sortOrder.direction === 'asc' ? <ArrowUpward fontSize="small" /> : <ArrowDownward fontSize="small" />}
+                            </IconButton>
+                        </TableCell>
+                        <TableCell align="center" className='table-header'>
+                            Amount Left
+                            <IconButton onClick={() => sortCritStock('cafe_stock')}>
+                                {sortOrder.column === 'cafe_stock' && sortOrder.direction === 'asc' ? <ArrowUpward fontSize="small" /> : <ArrowDownward fontSize="small" />}
+                            </IconButton>
+                        </TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {critStock.map((stock) => (
                         <TableRow key={stock.id}>
-                            <TableCell component="th" scope="row">
+                            <TableCell component="th" scope="row" align='center'>
                                 {stock.item_name}
                             </TableCell>
                             <TableCell align="center">{stock.category}</TableCell>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, 
-    TextField, Modal } from "@mui/material";
+    TextField, Modal, IconButton } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import './styles.css';
 import {ArrowUpward, ArrowDownward} from '@mui/icons-material';
@@ -231,14 +231,19 @@ const CafeInventoryPage = () => {
         <TableCell align="center">
             Item Name
         </TableCell>
-        <TableCell align="center" onClick={() => handleSort('category')}>
+        <TableCell align="center">
             Category
-            {sortOrder.field === 'category' && sortOrder.ascending ? <ArrowDownward /> : <ArrowUpward />}
+    <IconButton onClick={() => handleSort('category')}>
+        {sortOrder.field === 'category' && sortOrder.ascending ? <ArrowDownward fontSize='small' /> : <ArrowUpward fontSize='small' />}
+    </IconButton>
         </TableCell>
-        <TableCell align="center" onClick={() => handleSort('um')}>
-    Current Stock
-    {sortOrder.field === 'um' && sortOrder.ascending ? <ArrowDownward /> : <ArrowUpward />}
-</TableCell>
+    <TableCell align="center">
+            Current Stock
+    <IconButton onClick={() => handleSort('um')}>
+        {sortOrder.field === 'um' && sortOrder.ascending ? <ArrowDownward fontSize='small'/> : <ArrowUpward fontSize='small' />}
+    </IconButton>
+        </TableCell>
+
         <TableCell align="center">Request Item</TableCell>
         <TableCell align="center">Report Spoil</TableCell>
         <TableCell align="center" className='table-header'>Options</TableCell>
