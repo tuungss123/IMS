@@ -16,10 +16,8 @@ function SideNav() {
         <Box id='system-profile'>
           <Typography variant="h5">Cafe Juan</Typography>
 
-          {/* INSERT IMAGE HERE */}
           <Box id='profile'></Box>
           <Typography variant='h6'>{JSON.parse(localStorage.getItem('user_data'))}</Typography>
-          <Typography variant='subtitle1'>System {JSON.parse(localStorage.getItem('user_data'))} User</Typography>
         </Box>
 
         <ul className='side-bar-links'>
