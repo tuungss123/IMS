@@ -95,6 +95,7 @@ const CafeInventoryPage = () => {
 
     async function retrieveInventoryItems() {
         const data = await fetch('http://127.0.0.1:8000/all_items');
+        //const data = await fetch('https://ims-be-j66p.onrender.com/search_items', requestOptions);
         const response = await data.json();
         setInventoryData(response.items);
     }
@@ -143,6 +144,7 @@ const CafeInventoryPage = () => {
         };
 
         const response = await fetch(`http://127.0.0.1:8000/request_item/${requestedItem}`, requestOptions);
+        //const data = await fetch('https://ims-be-j66p.onrender.com/request_item/${requestedItem}', requestOptions);
         const data = await response.json();
         
         if (data.response === 'Request Made.'){
@@ -166,6 +168,7 @@ const CafeInventoryPage = () => {
         };
 
         const response = await fetch(`http://127.0.0.1:8000/report_spoiled/${spoiledItemId}`, requestOptions);
+        //const data = await fetch('https://ims-be-j66p.onrender.com/report_spoiled/${spoiledItemId}', requestOptions);
         const data = await response.json();
         
         if (data.response === 'Spoil Report Created' || data.response === 'Invalid Spoil Report'){
