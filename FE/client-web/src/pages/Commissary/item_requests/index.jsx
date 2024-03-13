@@ -1,12 +1,16 @@
 import  { useState, useEffect } from "react";
-import { Button, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Modal } from "@mui/material";
+import { Button, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Modal,IconButton } from "@mui/material";
 import CheckIcon from '@mui/icons-material/Check';
 import DoDisturbIcon from '@mui/icons-material/DoDisturb';
 import './styles.css';
+import {ArrowUpward, ArrowDownward} from  '@mui/icons-material'
 
 const CommissaryTransferHistoryPage = () => {
   const [transferData, setTransferData] = useState([]);
   const [modalMessage, setModalMessage] = useState('');
+  const [sortOrder, setSortOrder] = useState({
+    field: '',
+    ascending: true });
   // eslint-disable-next-line no-unused-vars
   const [modalDate, setModalDate] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -14,7 +18,47 @@ const CommissaryTransferHistoryPage = () => {
     isOpen: false,
     action: '',
     transactionId: null,
+    
   });
+
+  const handleSort = (field) => {
+    let direction = 'asc';
+    if (sortOrder.field === field && sortOrder.direction === 'asc') {
+        direction = 'desc';
+    }
+    setSortOrder({ field, direction });
+  
+    const sortedData = [...transferData].sort((a, b) => {
+      let aValue, bValue;
+  
+      switch (field) {
+        case 'Category':
+          aValue = a.transacted_item.category.toLowerCase();
+          bValue = b.transacted_item.category.toLowerCase();
+          break;
+        case 'Quantity':
+          aValue = a.transacted_amount;
+          bValue = b.transacted_amount;
+          break;
+        case 'Approval Status':
+          aValue = a.approval.toLowerCase();
+          bValue = b.approval.toLowerCase();
+          break;
+        default:
+          return 0;
+      }
+  
+      if (field !== 'Quantity') {
+        return direction === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+      }
+  
+      return direction === 'asc' ? aValue - bValue : bValue - aValue;
+    });
+  
+    setTransferData(sortedData);
+  };
+  
+
   const [isDataRequestModalVisible, setIsDataRequestModalVisible] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -180,11 +224,30 @@ const CommissaryTransferHistoryPage = () => {
           <TableHead>
             <TableRow id='header-row'>
               <TableCell align="center" className='table-header'>Requested Item</TableCell>
-              <TableCell align="center" className='table-header'>Category</TableCell>
-              <TableCell align="center" className='table-header'>Quantity</TableCell>
+              <TableCell align="center" className='table-header'>
+      Category
+      <IconButton onClick={() => handleSort('Category')}>
+        {sortOrder.field === 'Category' && sortOrder.ascending ? <ArrowUpward /> : <ArrowDownward />}
+      </IconButton>
+    </TableCell>
+    <TableCell align="center" className='table-header'>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        Quantity
+        <IconButton onClick={() => handleSort('Quantity')}>
+          {sortOrder.field === 'Quantity' && sortOrder.ascending ? <ArrowUpward /> : <ArrowDownward />}
+        </IconButton>
+      </div>
+    </TableCell>
               <TableCell align="center" className='table-header'>Transactor</TableCell>
               <TableCell align="center" className='table-header'>Request Date</TableCell>
-              <TableCell align="center" className='table-header'>Approval Status</TableCell>
+              <TableCell align="center" className='table-header'>
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    Approval Status
+    <IconButton onClick={() => handleSort('Approval Status')}>
+      {sortOrder.field === 'Approval Status' && sortOrder.ascending ? <ArrowUpward /> : <ArrowDownward />}
+    </IconButton>
+  </div>
+</TableCell>
               <TableCell align="center" className='table-header'>Options</TableCell>
             </TableRow>
           </TableHead>
