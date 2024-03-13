@@ -1,10 +1,12 @@
-import { Button, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Modal } from "@mui/material";
+import { Button, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Modal, IconButton } from "@mui/material";
 import { useState, useEffect } from "react";
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import CheckIcon from '@mui/icons-material/Check';
 import CancelIcon from '@mui/icons-material/Cancel';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import MuiAlert from '@mui/material/Alert';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import './styles.css';
 
 const TransferHistoryPage = () => {
@@ -14,6 +16,10 @@ const TransferHistoryPage = () => {
   const [modName, setModName] = useState('');
   const [modifyQty, setModifyQty] = useState(0);
   const [isModifyQtyValid, setIsModifyQtyValid] = useState(false);
+  const [sortOrder, setSortOrder] = useState({
+    field: '',
+    ascending: true,
+  });
 
   const [deleteConfirmationDialogVisible, setDeleteConfirmationDialogVisible] = useState(false);
   const [deleteSuccessMessage, setDeleteSuccessMessage] = useState('');
@@ -87,6 +93,41 @@ const TransferHistoryPage = () => {
     retrieveInventoryItems(); 
   };
 
+  const handleSort = (field) => {
+    const isAsc = sortOrder.field === field ? !sortOrder.ascending : true;
+    setSortOrder({ field, ascending: isAsc });
+  
+    const sortedData = [...transferData];
+  
+    sortedData.sort((a, b) => {
+      let aValue, bValue;
+  
+      switch (field) {
+        case 'Category':
+          aValue = a.transacted_item.category.toLowerCase();
+          bValue = b.transacted_item.category.toLowerCase();
+          break;
+        case 'Quantity':
+          aValue = `${a.transacted_amount}`;
+          bValue = `${b.transacted_amount}`;
+          break;
+        case 'Approval Status':
+          aValue = a.approval.toLowerCase();
+          bValue = b.approval.toLowerCase();
+          break;
+        default:
+          return 0;
+      }
+  
+      return isAsc ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+    });
+  
+    setTransferData(sortedData);
+  };
+  
+  
+  
+
   function formatDateTime(dateTimeString) {
     const date = new Date(dateTimeString);
 
@@ -150,17 +191,38 @@ const TransferHistoryPage = () => {
       </div>
       <TableContainer component={Paper} id='transfers-table'>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow id='header-row'>
-              <TableCell align="center" className='table-header'>Requested Item</TableCell>
-              <TableCell align="center" className='table-header'>Category</TableCell>
-              <TableCell align="center" className='table-header'>Quantity</TableCell>
-              <TableCell align="center" className='table-header'>Transactor</TableCell>
-              <TableCell align="center" className='table-header'>Request Date</TableCell>
-              <TableCell align="center" className='table-header'>Approval Status</TableCell>
-              <TableCell align="center" className='table-header'>Options</TableCell>
-            </TableRow>
-          </TableHead>
+        <TableHead>
+  <TableRow id='header-row'>
+    <TableCell align="center" className='table-header'>Requested Item</TableCell>
+    <TableCell align="center" className='table-header'>
+      Category
+      <IconButton onClick={() => handleSort('Category')}>
+        {sortOrder.field === 'Category' && sortOrder.ascending ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
+      </IconButton>
+    </TableCell>
+    <TableCell align="center" className='table-header'>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        Quantity
+        <IconButton onClick={() => handleSort('Quantity')}>
+          {sortOrder.field === 'Quantity' && sortOrder.ascending ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
+        </IconButton>
+      </div>
+    </TableCell>
+    <TableCell align="center" className='table-header'>Transactor</TableCell>
+    <TableCell align="center" className='table-header'>Request Date</TableCell>
+    <TableCell align="center" className='table-header'>
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    Approval Status
+    <IconButton onClick={() => handleSort('Approval Status')}>
+      {sortOrder.field === 'Approval Status' && sortOrder.ascending ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
+    </IconButton>
+  </div>
+</TableCell>
+
+    <TableCell align="center" className='table-header'>Options</TableCell>
+  </TableRow>
+</TableHead>
+
 
           <TableBody>
             {transferData.map((transfer) => (
@@ -189,9 +251,7 @@ const TransferHistoryPage = () => {
                 )}
 
                 {transfer.approval !== 'Pending' && (
-                  <TableCell align="center">
-                    -
-                  </TableCell>
+                  <TableCell align="center">-</TableCell>
                 )}
               </TableRow>
             ))}
@@ -199,33 +259,29 @@ const TransferHistoryPage = () => {
         </Table>
       </TableContainer>
       <Modal
-            open={modalVisible}
-            onClose={() => setModalVisible(false)}
-            sx={{ bgcolor: 'background.Paper', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-        >
-          <div className='modal'>
-              <Typography variant="h5" id="modal-title">Modify Transaction Quantity Request</Typography>
-
-              <Typography variant="h6" id='item-title'>{modName}</Typography>
-              <TextField 
-                  label="Change amount" 
-                  type='number'
-                  placeholder="0" 
-                  id="modal-input-field" 
-                  size='small' 
-                  onChange={(qty) => setModifyQty(qty.target.value)}
-              >
-              </TextField>
-
-              <Box id='modal-buttons-container'>
-                  <Button variant='outlined' onClick={() => modifyRequestedQty() } disabled={!isModifyQtyValid}>Modify</Button>
-                  <Button variant='outlined' onClick={() => setModalVisible(false) }>Cancel</Button>
-              </Box>
-          </div>
+        open={modalVisible}
+        onClose={() => setModalVisible(false)}
+        sx={{ bgcolor: 'background.Paper', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <div className='modal'>
+          <Typography variant="h5" id="modal-title">Modify Transaction Quantity Request</Typography>
+          <Typography variant="h6" id='item-title'>{modName}</Typography>
+          <TextField
+            label="Change amount"
+            type='number'
+            placeholder="0"
+            id="modal-input-field"
+            size='small'
+            onChange={(qty) => setModifyQty(qty.target.value)}
+          />
+          <Box id='modal-buttons-container'>
+            <Button variant='outlined' onClick={() => modifyRequestedQty()} disabled={!isModifyQtyValid}>Modify</Button>
+            <Button variant='outlined' onClick={() => setModalVisible(false)}>Cancel</Button>
+          </Box>
+        </div>
       </Modal>
-
       <Dialog
         open={deleteConfirmationDialogVisible}
         onClose={() => setDeleteConfirmationDialogVisible(false)}
@@ -243,7 +299,6 @@ const TransferHistoryPage = () => {
           <Button onClick={() => setDeleteConfirmationDialogVisible(false)}>No</Button>
         </DialogActions>
       </Dialog>
-
       <Snackbar
         open={Boolean(deleteSuccessMessage)}
         autoHideDuration={3000}
