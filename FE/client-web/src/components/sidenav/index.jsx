@@ -1,6 +1,7 @@
 import { SidenavData } from './SidenavData';
 import { Box, Paper, TextField, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import "./styles.css";
 
 
@@ -10,6 +11,19 @@ function SideNav() {
   function changePageContent(page){
     navigate(page);
   }
+
+  useEffect(() => {
+    const newSocket = new WebSocket('ws://127.0.0.1:8000/ws/ims/1');
+
+    newSocket.onmessage = (event) => {
+      const newMessage = JSON.parse(event.data);
+      console.log(newMessage);
+    };
+
+    newSocket.onopen = () => {
+      console.log('WebSocket connection established.');
+    };
+  }, []);
 
   return (
     <div className='side-bar'>

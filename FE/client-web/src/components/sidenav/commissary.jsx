@@ -15,11 +15,7 @@ function CommissarySidenav() {
     <div className='side-bar'>
         <Box id='system-profile'>
           <Typography variant="h5">Commissary</Typography>
-
-          
           <Box id='profile'></Box>
-
-
         </Box>
 
         <ul className='side-bar-links'>
