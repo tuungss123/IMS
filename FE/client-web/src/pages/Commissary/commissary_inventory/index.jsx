@@ -247,11 +247,11 @@ const CommissaryInventoryPage = () => {
                 aria-describedby="modal-modal-description"
             >
                 <div className='modal'>
-                    <Typography variant="h5" id="modal-title">Edit Stock</Typography>
+                    <Typography variant="h5" id="modal-title">Update Stock</Typography>
 
                     <Typography variant="h6" id='item-title'>{selectedItem}</Typography>
                     <TextField 
-                        label="Edit Quantity" 
+                        label="Update Quantity" 
                         type='number' 
                         id="modal-input-field" 
                         size='small' 
