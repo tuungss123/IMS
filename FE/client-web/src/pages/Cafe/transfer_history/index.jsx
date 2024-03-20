@@ -10,6 +10,8 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import './styles.css';
 
 const TransferHistoryPage = () => {
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [transferData, setTransferData] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [modId, setModId] = useState(0);
@@ -26,8 +28,7 @@ const TransferHistoryPage = () => {
 
 
   const [isDataRequestModalVisible, setIsDataRequestModalVisible] = useState(false);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+
 
   const [approvalModalVisible, setApprovalModalVisible] = useState(false);
   const [selectedTransactionId, setSelectedTransactionId] = useState(null);
@@ -62,6 +63,8 @@ const TransferHistoryPage = () => {
   
 
   useEffect(() => {
+    setStartDate(getCurrentDate());
+    setEndDate(getTomorrowDate());
     retrieveInventoryItems();
   }, []);
 
@@ -76,12 +79,19 @@ const TransferHistoryPage = () => {
   }
 
   async function retrieveInventoryItems() {
-     const data = await fetch('http://127.0.0.1:8000/all_transactions');
+    const data = await fetch('http://127.0.0.1:8000/all_transactions');
     //const data = await fetch('https://ims-be-j66p.onrender.com/all_transactions');
     const response = await data.json();
-    
+  
     console.log(response.transactions);
     setTransferData(response.transactions);
+    const sortedData = response.transactions.slice().sort((a, b) => {
+      if (a.approval.toLowerCase() === 'pending' && b.approval.toLowerCase() !== 'pending') return -1;
+      if (a.approval.toLowerCase() !== 'pending' && b.approval.toLowerCase() === 'pending') return 1;
+      return 0;
+    });
+  
+    setTransferData(sortedData);
   }
 
   async function deleteTransaction(transaction_id) {
@@ -162,7 +172,22 @@ const TransferHistoryPage = () => {
     setTransferData(sortedData);
   };
   
-  
+   const getCurrentDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const getTomorrowDate = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const year = tomorrow.getFullYear();
+    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const day = String(tomorrow.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
   
 
   function formatDateTime(dateTimeString) {
@@ -402,12 +427,12 @@ const TransferHistoryPage = () => {
                     <Typography variant="h5" id="modal-title">Generate Transaction Reports</Typography>
 
                     <Box id='date-pickers'>
-                        <Typography variant="h6" id='item-title'>Start Date:</Typography>
-                        <input type='date' onChange={(start_date) => setStartDate(start_date.target.value)}></input>
+      <Typography variant="h6" id='item-title'>Start Date:</Typography>
+      <input type='date' value={startDate} onChange={(event) => setStartDate(event.target.value)}></input>
 
-                        <Typography variant="h6" id='item-title'>End Date:</Typography>
-                        <input type='date' onChange={(end_date) => setEndDate(end_date.target.value)}></input>
-                    </Box>
+      <Typography variant="h6" id='item-title'>End Date:</Typography>
+      <input type='date' value={endDate} onChange={(event) => setEndDate(event.target.value)}></input>
+    </Box>
                     
                     <Box id='modal-buttons-container'>
                     <Button
