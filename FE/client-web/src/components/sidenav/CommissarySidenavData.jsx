@@ -14,7 +14,7 @@ export const CommissarySidenavData = [
         link: "/commissary/inventory"
     },
     {
-        title: "Stock Analysis",
+        title: "Critical Stocks",
         icon: <ReceiptIcon/>,
         link: "/commissary/analysis"
     },
