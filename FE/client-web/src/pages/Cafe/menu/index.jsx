@@ -23,6 +23,7 @@ const CafeInventoryPage = () => {
     const [isReqSpoiledValid, setIsReqSpoiledValid] = useState('');
 
     const [addQtyError, setAddQtyError] = useState('');
+    const [stockDifference, setStockDifference] = useState(0);
 
     // edit item validation
     const [isEditValid, setIsEditValid] = useState(); 
@@ -201,6 +202,9 @@ const CafeInventoryPage = () => {
             setIsEditValid(false);
             return;
         } else {
+            const currentStock = inventoryData.find(item => item.id === editRequestedItem)?.cafe_stock;
+            const difference = currentStock - editModifyQty;
+            setStockDifference(difference);
             setAddQtyError('');
             setIsEditValid(true);
         }
@@ -361,6 +365,7 @@ const CafeInventoryPage = () => {
                         error={!!addQtyError}
                         helperText={addQtyError}
                     />
+                    <Typography variant="body2" color="textSecondary" sx={{paddingTop:"2rem"}}>{`Used ${stockDifference} of the amount today`}</Typography>
                     
                     <Box id='modal-buttons-container'>
                         <Button 
