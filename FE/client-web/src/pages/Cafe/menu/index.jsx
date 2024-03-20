@@ -195,6 +195,16 @@ const CafeInventoryPage = () => {
     }
 
     async function addToStock(){
+        
+        if (editModifyQty > inventoryData.find(item => item.id === editRequestedItem)?.cafe_stock) {
+            setAddQtyError('Entered quantity exceeds current stock');
+            setIsEditValid(false);
+            return;
+        } else {
+            setAddQtyError('');
+            setIsEditValid(true);
+        }
+        
         const requestOptions = {
             method: 'POST',
             headers: {'Content-Type': 'application/json' },
@@ -335,8 +345,13 @@ const CafeInventoryPage = () => {
                             const value = event.target.value;
                             if (!isNaN(value) && parseInt(value) >= 0) {
                                 seteditModifyQty(parseInt(value));
-                                setIsEditValid(true);
-                                setAddQtyError('');
+                                if (parseInt(value) > inventoryData.find(item => item.id === editRequestedItem)?.cafe_stock) {
+                                    setAddQtyError('Entered quantity exceeds current stock');
+                                    setIsEditValid(false);
+                                } else {
+                                    setAddQtyError('');
+                                    setIsEditValid(true);
+                                }
                             } else {
                                 setAddQtyError('Enter a positive number');
                                 setIsEditValid(false);
