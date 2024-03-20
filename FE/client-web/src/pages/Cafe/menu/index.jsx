@@ -229,28 +229,28 @@ const CafeInventoryPage = () => {
             <TableContainer component={Paper} id='inventory-table'>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
-    <TableRow>
-        <TableCell align="center">
-            Item Name
-        </TableCell>
-        <TableCell align="center">
-            Category
-    <IconButton onClick={() => handleSort('category')}>
-        {sortOrder.field === 'category' && sortOrder.ascending ? <ArrowDownward fontSize='small' /> : <ArrowUpward fontSize='small' />}
-    </IconButton>
-        </TableCell>
-    <TableCell align="center">
-            Current Stock
-    <IconButton onClick={() => handleSort('um')}>
-        {sortOrder.field === 'um' && sortOrder.ascending ? <ArrowDownward fontSize='small'/> : <ArrowUpward fontSize='small' />}
-    </IconButton>
-        </TableCell>
+                <TableRow>
+                    <TableCell align="center">
+                        Item Name
+                    </TableCell>
+                    <TableCell align="center">
+                        Category
+                <IconButton onClick={() => handleSort('category')}>
+                    {sortOrder.field === 'category' && sortOrder.ascending ? <ArrowDownward fontSize='small' /> : <ArrowUpward fontSize='small' />}
+                </IconButton>
+                    </TableCell>
+                <TableCell align="center">
+                        Current Stock
+                <IconButton onClick={() => handleSort('um')}>
+                    {sortOrder.field === 'um' && sortOrder.ascending ? <ArrowDownward fontSize='small'/> : <ArrowUpward fontSize='small' />}
+                </IconButton>
+                    </TableCell>
 
-        <TableCell align="center">Request Item</TableCell>
-        <TableCell align="center">Report Spoil</TableCell>
-        <TableCell align="center" className='table-header'>Options</TableCell>
-    </TableRow>
-</TableHead>
+                    <TableCell align="center">Request Item</TableCell>
+                    <TableCell align="center">Report Spoil</TableCell>
+                    <TableCell align="center" className='table-header'>Options</TableCell>
+                </TableRow>
+            </TableHead>
 
                     <TableBody>
                         {inventoryData.map((item) => (
@@ -323,11 +323,11 @@ const CafeInventoryPage = () => {
                 aria-describedby="modal-modal-description"
             >
                 <div className='modal'>
-                    <Typography variant="h5" id="modal-title">Edit Stock</Typography>
+                    <Typography variant="h5" id="modal-title">Update Stock</Typography>
 
                     <Typography variant="h6" id='item-title'>{editSelectedItem}</Typography>
                     <TextField 
-                        label="Edit Quantity" 
+                        label="Update Quantity" 
                         type='number' 
                         id="modal-input-field" 
                         size='small' 
