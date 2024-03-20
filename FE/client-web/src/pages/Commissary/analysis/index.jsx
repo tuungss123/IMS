@@ -51,8 +51,8 @@ const CommissaryAnalyis = () => {
 
     return (
         <Box>
-            <Typography variant='h5'>Stock Analysis</Typography>
-            <Typography variant='body1'>A summative report on Critical Stocks and Spoilage.</Typography>
+            <Typography variant='h5'>Critical Stocks</Typography>
+            <Typography variant='body1' sx={{paddingBottom: "2rem"}}>A summative report on Critical Stocks.</Typography>
 
             
             <Typography variant='h6'>Items with Critical Stock</Typography>
