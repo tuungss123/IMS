@@ -58,10 +58,12 @@ const SignIn = () => {
     if (data.response === 'Login successful') {
       localStorage.setItem('user_data', JSON.stringify(data.user_data));
 
+      localStorage.setItem('password', password);
+
       if (data.user_data === 'Cafe' || data.user_data === 'Intern') {
-        navigate('/cafe/cafeinventory');
+        navigate('/cafe/analysis');
       } else if (data.user_data === 'Commissary') {
-        navigate('/commissary/inventory');
+        navigate('/commissary/analysis');
       }
     } else {
       setOpenErrorDialog(true);

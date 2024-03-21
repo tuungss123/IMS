@@ -51,13 +51,9 @@ const CommissaryAnalyis = () => {
 
     return (
         <Box>
-            <Typography variant='h5'>Stock Analysis</Typography>
-            <Typography variant='body1'>A summative report on transactions and items within the system.</Typography>
+            <Typography variant='h5'>Critical Stocks</Typography>
+            <Typography variant='body1' sx={{paddingBottom: "2rem"}}>A summative report on Critical Stocks.</Typography>
 
-            <Box id='search-box-container'>
-                <TextField label='Search Critical Item' id='search-box' size="small" onChange={(search_item) => search(search_item.target.value)}>Search</TextField>
-            </Box>
-            
             
             <Typography variant='h6'>Items with Critical Stock</Typography>
             <TableContainer component={Paper} id='spoilage-table'>

@@ -6,6 +6,9 @@ import './styles.css';
 import {ArrowUpward, ArrowDownward} from  '@mui/icons-material'
 
 const CommissaryTransferHistoryPage = () => {
+  const [startDate, setStartDate] = useState(getTodayDate());
+  const [endDate, setEndDate] = useState(getTomorrowDate());
+
   const [transferData, setTransferData] = useState([]);
   const [modalMessage, setModalMessage] = useState('');
   const [sortOrder, setSortOrder] = useState({
@@ -57,11 +60,27 @@ const CommissaryTransferHistoryPage = () => {
   
     setTransferData(sortedData);
   };
+
+  function getTodayDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  function getTomorrowDate() {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const year = tomorrow.getFullYear();
+    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const day = String(tomorrow.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  
+  
   
 
   const [isDataRequestModalVisible, setIsDataRequestModalVisible] = useState(false);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
 
   useEffect(() => {
     retrieveInventoryItems();
@@ -69,9 +88,10 @@ const CommissaryTransferHistoryPage = () => {
 
 
   function resetDataRequestModal() {
-    setStartDate('');
-    setEndDate('');
+    setStartDate(getTodayDate());
+    setEndDate(getTomorrowDate());
   }
+  
 
   async function requestData(){ 
     if (!startDate || !endDate) {
@@ -113,13 +133,26 @@ const CommissaryTransferHistoryPage = () => {
 }
 
 
-  async function retrieveInventoryItems() {
+async function retrieveInventoryItems() {
+  try {
     const data = await fetch('http://127.0.0.1:8000/all_transactions');
-    //const data = await fetch('https://ims-be-j66p.onrender.com/all_transactions');
     const response = await data.json();
-
-    setTransferData(response.transactions);
+  
+   
+    const sortedData = response.transactions.sort((a, b) => {
+     
+      if (a.approval.toLowerCase() === 'pending' && b.approval.toLowerCase() !== 'pending') return -1;
+      if (a.approval.toLowerCase() !== 'pending' && b.approval.toLowerCase() === 'pending') return 1;
+      
+      return new Date(b.date_created) - new Date(a.date_created);
+    });
+  
+    setTransferData(sortedData);
+  } catch (error) {
+    console.error('Error retrieving transaction data:', error);
   }
+}
+
 
   async function processTransaction(transaction_id, action) {
     setConfirmationData({
@@ -334,10 +367,10 @@ const CommissaryTransferHistoryPage = () => {
 
                     <Box id='date-pickers'>
                         <Typography variant="h6" id='item-title'>Start Date:</Typography>
-                        <input type='date' onChange={(start_date) => setStartDate(start_date.target.value)}></input>
+                        <input type='date' onChange={(start_date) => setStartDate(start_date.target.value)} value={startDate}></input>
 
                         <Typography variant="h6" id='item-title'>End Date:</Typography>
-                        <input type='date' onChange={(end_date) => setEndDate(end_date.target.value)}></input>
+                        <input type='date' onChange={(end_date) => setEndDate(end_date.target.value)} value={endDate}></input>
                     </Box>
                     
                     <Box id='modal-buttons-container'>

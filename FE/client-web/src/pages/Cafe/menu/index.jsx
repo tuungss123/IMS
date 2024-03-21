@@ -4,6 +4,7 @@ import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, Ta
 import EditIcon from '@mui/icons-material/Edit';
 import './styles.css';
 import {ArrowUpward, ArrowDownward} from '@mui/icons-material';
+import { useLocation } from 'react-router-dom';
 
 
 const CafeInventoryPage = () => {
@@ -23,11 +24,28 @@ const CafeInventoryPage = () => {
     const [isReqSpoiledValid, setIsReqSpoiledValid] = useState('');
 
     const [addQtyError, setAddQtyError] = useState('');
+    const [stockDifference, setStockDifference] = useState(0);
+
+    const [code, setCode] = useState('');
+    const [codeModalVisible, setCodeModalVisible] = useState(false);
+
 
     // edit item validation
     const [isEditValid, setIsEditValid] = useState(); 
     const [editRequestedItem, seteditRequestedItem] = useState();
     const [editSelectedItem, seteditSelectedItem] = useState();
+
+    const location = useLocation();
+    const [password, setPassword] = useState('');
+
+    useEffect(() => {
+        // Retrieve password from local storage when the component mounts
+        const storedPassword = localStorage.getItem('password');
+        if (storedPassword) {
+          setPassword(storedPassword);
+        }
+    }, []);
+
     const setModalDetails = (item_id, item_name) => {
         setRequestedItem(item_id);
         setSelectedItem(item_name);
@@ -36,7 +54,7 @@ const CafeInventoryPage = () => {
     const seteditModalDetails = (item_id, item_name) => {
         seteditRequestedItem(item_id);
         seteditSelectedItem(item_name);
-        seteditModalVisible(true);
+        setCodeModalVisible(true);
     }
 
 
@@ -195,6 +213,19 @@ const CafeInventoryPage = () => {
     }
 
     async function addToStock(){
+        
+        if (editModifyQty > inventoryData.find(item => item.id === editRequestedItem)?.cafe_stock) {
+            setAddQtyError('Entered quantity exceeds current stock');
+            setIsEditValid(false);
+            return;
+        } else {
+            const currentStock = inventoryData.find(item => item.id === editRequestedItem)?.cafe_stock;
+            const difference = currentStock - editModifyQty;
+            setStockDifference(difference);
+            setAddQtyError('');
+            setIsEditValid(true);
+        }
+        
         const requestOptions = {
             method: 'POST',
             headers: {'Content-Type': 'application/json' },
@@ -213,6 +244,19 @@ const CafeInventoryPage = () => {
         }
     }
 
+    const handleCodeVerification = () => {
+        if (code === password) {
+            seteditModalVisible(true);
+            setCodeModalVisible(false);
+            setCode('');
+        } else {
+            // You can show an error message or take other actions
+            // Here, I'm just resetting the code
+            setCode('');
+        }
+    };
+    
+
     
 
     return (
@@ -229,28 +273,28 @@ const CafeInventoryPage = () => {
             <TableContainer component={Paper} id='inventory-table'>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                 <TableHead>
-    <TableRow>
-        <TableCell align="center">
-            Item Name
-        </TableCell>
-        <TableCell align="center">
-            Category
-    <IconButton onClick={() => handleSort('category')}>
-        {sortOrder.field === 'category' && sortOrder.ascending ? <ArrowDownward fontSize='small' /> : <ArrowUpward fontSize='small' />}
-    </IconButton>
-        </TableCell>
-    <TableCell align="center">
-            Current Stock
-    <IconButton onClick={() => handleSort('um')}>
-        {sortOrder.field === 'um' && sortOrder.ascending ? <ArrowDownward fontSize='small'/> : <ArrowUpward fontSize='small' />}
-    </IconButton>
-        </TableCell>
+                <TableRow>
+                    <TableCell align="center">
+                        Item Name
+                    </TableCell>
+                    <TableCell align="center">
+                        Category
+                <IconButton onClick={() => handleSort('category')}>
+                    {sortOrder.field === 'category' && sortOrder.ascending ? <ArrowDownward fontSize='small' /> : <ArrowUpward fontSize='small' />}
+                </IconButton>
+                    </TableCell>
+                <TableCell align="center">
+                        Current Stock
+                <IconButton onClick={() => handleSort('um')}>
+                    {sortOrder.field === 'um' && sortOrder.ascending ? <ArrowDownward fontSize='small'/> : <ArrowUpward fontSize='small' />}
+                </IconButton>
+                    </TableCell>
 
-        <TableCell align="center">Request Item</TableCell>
-        <TableCell align="center">Report Spoil</TableCell>
-        <TableCell align="center" className='table-header'>Options</TableCell>
-    </TableRow>
-</TableHead>
+                    <TableCell align="center">Request Item</TableCell>
+                    <TableCell align="center">Report Spoil</TableCell>
+                    <TableCell align="center" className='table-header'>Options</TableCell>
+                </TableRow>
+            </TableHead>
 
                     <TableBody>
                         {inventoryData.map((item) => (
@@ -323,11 +367,11 @@ const CafeInventoryPage = () => {
                 aria-describedby="modal-modal-description"
             >
                 <div className='modal'>
-                    <Typography variant="h5" id="modal-title">Edit Stock</Typography>
+                    <Typography variant="h5" id="modal-title">Update Stock</Typography>
 
                     <Typography variant="h6" id='item-title'>{editSelectedItem}</Typography>
                     <TextField 
-                        label="Edit Quantity" 
+                        label="Update Quantity" 
                         type='number' 
                         id="modal-input-field" 
                         size='small' 
@@ -335,8 +379,13 @@ const CafeInventoryPage = () => {
                             const value = event.target.value;
                             if (!isNaN(value) && parseInt(value) >= 0) {
                                 seteditModifyQty(parseInt(value));
-                                setIsEditValid(true);
-                                setAddQtyError('');
+                                if (parseInt(value) > inventoryData.find(item => item.id === editRequestedItem)?.cafe_stock) {
+                                    setAddQtyError('Entered quantity exceeds current stock');
+                                    setIsEditValid(false);
+                                } else {
+                                    setAddQtyError('');
+                                    setIsEditValid(true);
+                                }
                             } else {
                                 setAddQtyError('Enter a positive number');
                                 setIsEditValid(false);
@@ -346,6 +395,7 @@ const CafeInventoryPage = () => {
                         error={!!addQtyError}
                         helperText={addQtyError}
                     />
+                    <Typography variant="body2" color="textSecondary" sx={{paddingTop:"2rem"}}>{`Used ${stockDifference} of the amount today`}</Typography>
                     
                     <Box id='modal-buttons-container'>
                         <Button 
@@ -389,6 +439,29 @@ const CafeInventoryPage = () => {
                         <Button variant='outlined' onClick={() => setSpoiledModalVisible(false) }>
                             Cancel
                         </Button>
+                    </Box>
+                </div>
+            </Modal>
+            <Modal
+                open={codeModalVisible}
+                onClose={() => setCodeModalVisible(false)}
+                sx={{ bgcolor: 'background.Paper', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <div className='modal'>
+                    <Typography variant="h5" id="modal-title">Enter Code</Typography>
+                    <TextField
+                        label="Code"
+                        type='password'
+                        id="modal-input-field"
+                        size='small'
+                        value={code}
+                        onChange={(event) => setCode(event.target.value)}
+                    />
+                    <Box id='modal-buttons-container'>
+                        <Button variant='outlined' onClick={handleCodeVerification}>Submit</Button>
+                        <Button variant='outlined' onClick={() => setCodeModalVisible(false)}>Cancel</Button>
                     </Box>
                 </div>
             </Modal>
