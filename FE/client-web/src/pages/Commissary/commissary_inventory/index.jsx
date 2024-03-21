@@ -8,6 +8,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import './styles.css';
 import ArrowDownward from '@mui/icons-material/ArrowDownward';
 import ArrowUpward from '@mui/icons-material/ArrowUpward';
+import { useLocation } from 'react-router-dom';
 
 const CommissaryInventoryPage = () => {
     const [inventoryData, setInventoryData] = useState([]);
@@ -33,7 +34,20 @@ const CommissaryInventoryPage = () => {
     // edit item validation
     const [isEditValid, setIsEditValid] = useState(false); // changed to false initially
 
-    
+    const [code, setCode] = useState('');
+    const [codeModalVisible, setCodeModalVisible] = useState(false);
+    const [isAddAction, setIsAddAction] = useState(false);
+
+    const location = useLocation();
+    const [password, setPassword] = useState('');
+
+    useEffect(() => {
+        // Retrieve password from local storage when the component mounts
+        const storedPassword = localStorage.getItem('password');
+        if (storedPassword) {
+          setPassword(storedPassword);
+        }
+    }, []);
 
     useEffect(() => {
         retrieveInventoryItems();
@@ -57,7 +71,8 @@ const CommissaryInventoryPage = () => {
     const setModalDetails = (item_id, item_name) => {
         setRequestedItem(item_id);
         setSelectedItem(item_name);
-        setModalVisible(true);
+        setCodeModalVisible(true);
+        setIsAddAction(false);
     }
 
     async function retrieveInventoryItems(){
@@ -180,13 +195,29 @@ const CommissaryInventoryPage = () => {
         setInventoryData(sortedData);
     };
 
+    const handleCodeVerification = () => {
+        if (code === password) {
+            setCodeModalVisible(false); // Close code modal
+            setCode('');
+            if (isAddAction) {
+                setAddModalVisible(true); // Open add modal
+            } else {
+                setModalVisible(true); // Open update modal
+            }
+        } else {
+            // You can show an error message or take other actions
+            // Here, I'm just resetting the code
+            setCode('');
+        }
+    };
+
     return (
         <Box>
             <Typography variant='h5'>Commissary Inventory</Typography>
             <Typography variant='body1'>Listed below are all the inventory items within the system.</Typography>
 
             <Box id='search-box-container'>
-                <Button variant='outlined' sx={{ marginRight: '2%' }} onClick={() => {setAddModalVisible(true)}}>Add Item</Button>
+                <Button variant='outlined' sx={{ marginRight: '2%' }} onClick={() => {setIsAddAction(true);setCodeModalVisible(true)}}>Add Item</Button>
                 <TextField label='Search Inventory' id='search-box' size="small" onChange={(search_item) => search(search_item.target.value)}>Search</TextField>
             </Box>
 
@@ -351,6 +382,29 @@ const CommissaryInventoryPage = () => {
                     <Box id='modal-buttons-container'>
                         <Button variant='outlined' onClick={() => createItem() }>Add Item</Button>
                         <Button variant='outlined' onClick={() => setAddModalVisible(false) }>Cancel</Button>
+                    </Box>
+                </div>
+            </Modal>
+                        <Modal
+                open={codeModalVisible}
+                onClose={() => setCodeModalVisible(false)}
+                sx={{ bgcolor: 'background.Paper', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <div className='modal'>
+                    <Typography variant="h5" id="modal-title">Enter Code</Typography>
+                    <TextField
+                        label="Code"
+                        type='password'
+                        id="modal-input-field"
+                        size='small'
+                        value={code}
+                        onChange={(event) => setCode(event.target.value)}
+                    />
+                    <Box id='modal-buttons-container'>
+                        <Button variant='outlined' onClick={handleCodeVerification}>Submit</Button>
+                        <Button variant='outlined' onClick={() => setCodeModalVisible(false)}>Cancel</Button>
                     </Box>
                 </div>
             </Modal>
