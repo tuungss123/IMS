@@ -5,8 +5,8 @@ from django.contrib.auth.models import User
 # Create your models here.
 class Item(models.Model):
     item_name = models.CharField(max_length=64)
-    commissary_stock = models.IntegerField()
-    cafe_stock = models.IntegerField(default=0)
+    commissary_stock = models.FloatField()
+    cafe_stock = models.FloatField(default=0)
     um = models.CharField(max_length=16)
     category = models.CharField(max_length=64)
 

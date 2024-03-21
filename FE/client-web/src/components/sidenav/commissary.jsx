@@ -11,6 +11,28 @@ function CommissarySidenav() {
     navigate(page);
   }
 
+  async function retrieveNotifsCount(){
+    let username = JSON.parse(localStorage.getItem('user_data'));
+    console.log('Retrieving notifs count...');
+
+    const data = await fetch(`http://127.0.0.1:8000/retrieve_notifications/${username}`);
+    const response = await data.json();
+    console.log(response);
+    setNewNotifsCount(response.new_notifs);
+  }
+
+  useEffect(() => {
+    retrieveNotifsCount();
+
+    const new_interval = setInterval(() => {
+      retrieveNotifsCount();
+    } , 15000)
+
+    return () => {
+      clearInterval(new_interval);
+    }
+  }, []);
+
   return (
     <div className='side-bar'>
         <Box id='system-profile'>
@@ -28,7 +50,13 @@ function CommissarySidenav() {
                   onClick={() => changePageContent(val.link)}
                 >
                     <div id='icon'>{val.icon}</div>
-                    <div id='title'>{val.title}</div>
+                    <div id='title'>
+                      {val.title === "Notifications" ? (
+                        <>{val.title} <span id="notifs-count">{newNotifsCount}</span></>
+                      ) : (
+                        val.title
+                      )}
+                    </div>
                 </li>
             )
         })}

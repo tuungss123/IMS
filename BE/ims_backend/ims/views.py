@@ -413,12 +413,11 @@ def retrieve_transaction_summary(request):
         except ValueError:
             return Response({'response': 'Invalid date format. Please use YYYY-MM-DD.'}, status=400)
 
-        # Assuming Transaction has a date_created field
         transactions = Transaction.objects.filter(date_created__range=[start_date, end_date])
 
         wb = Workbook()
         ws = wb.active
-        ws.append(['Item', 'Amount', 'Transaction Status', 'Transactor', 'Date Transacted'])  # Add headers
+        ws.append(['Item', 'Amount', 'Transaction Status', 'Transactor', 'Date Transacted'])
 
         for transaction in transactions:
             print(transaction)
@@ -430,11 +429,9 @@ def retrieve_transaction_summary(request):
             date_created = transaction.date_created.strftime('%Y-%m-%d %H:%M:%S')
             ws.append([transaction.transacted_item.item_name, transaction.transacted_amount, transaction.approval, transaction.transactor, date_created])
 
-        # Save the Excel file
         excel_filename = f'transactions.xlsx'
         wb.save(excel_filename)
 
-        # Prepare the response to return the Excel file for download
         with open(excel_filename, 'rb') as excel_file:
             response = HttpResponse(excel_file.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
             response['Content-Disposition'] = f'attachment; filename={excel_filename}'
@@ -449,6 +446,37 @@ def retrieve_spoilage_reports(request):
         serialize_spoilage_reports = SpoiledMaterialReportSerializer(spoilage_reports, many=True)
 
         return Response({'spoilage_reports': serialize_spoilage_reports.data}, 200)
+    
+    
+@api_view(['GET'])
+def retrieve_spoilage_report_summary(request):
+    spoiled_material_reports = SpoiledMaterialReport.objects.all()
+
+    wb = Workbook()
+    ws = wb.active
+    ws.append(['Item', 'Amount', 'Spoil Report Creator', 'Date Reported'])
+
+    for spoiled_material_report in spoiled_material_reports:
+        print(spoiled_material_report.item.item_name)
+        print(spoiled_material_report.spoil_amount)
+        print(spoiled_material_report.report_creator)
+        print(spoiled_material_report.date_created)
+
+        date_created = spoiled_material_report.date_created.strftime('%Y-%m-%d %H:%M:%S')
+        ws.append([
+            spoiled_material_report.item.item_name, 
+            spoiled_material_report.spoil_amount, 
+            spoiled_material_report.report_creator, 
+            date_created
+        ])
+
+    excel_filename = f'spoil_reports.xlsx'
+    wb.save(excel_filename)
+
+    with open(excel_filename, 'rb') as excel_file:
+        response = HttpResponse(excel_file.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename={excel_filename}'
+        return response
 
 
 @api_view(['POST'])
@@ -469,13 +497,6 @@ def report_spoiled(request, item_id):
 
             spoiled_item.cafe_stock -= spoil_amount
             spoiled_item.save()
-
-            commissary_account = User.objects.get(username='Commissary')
-            new_notification = Notification(
-                notif_owner=commissary_account,
-                text=f'{report_creator}: {spoil_amount}{spoiled_item.um} of {spoiled_item.item_name} is spoiled.'
-            )
-            new_notification.save()
 
             return Response({'response': 'Spoil Report Created'}, 200)
         else:
@@ -521,8 +542,28 @@ def retrieve_notifications(request, username):
     try:
         owner = User.objects.get(username=username)
         notifications = Notification.objects.filter(notif_owner=owner).order_by('-date')[:30]
+        
+        new_notifs_count = 0
+        for notif in notifications:
+            if notif.is_read == False:
+                new_notifs_count += 1
 
         serializer = NotificationSerializer(notifications, many=True)
-        return Response({'notifications': serializer.data, 'response': 'Notifications Retrieved'})
+        return Response({'notifications': serializer.data, 'response': 'Notifications Retrieved', 'new_notifs': new_notifs_count})
+    except:
+        return Response({'response': 'User not found.'})
+    
+    
+@api_view(['GET'])
+def set_notifs_as_seen(request, username):
+    try:
+        owner = User.objects.get(username=username)
+        notifications = Notification.objects.filter(notif_owner=owner).order_by('-date')[:30]
+        
+        for notif in notifications:
+            notif.is_read = True
+            notif.save()
+
+        return Response({'response': 'Notifications Marked Seen'})
     except:
         return Response({'response': 'User not found.'})

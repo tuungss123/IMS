@@ -34,9 +34,11 @@ urlpatterns = [
 
     # SPOILAGE ENDPOINTS
     path('retrieve_spoilage_reports', views.retrieve_spoilage_reports, name='retrieve_spoilage_reports'),
+    path('retrieve_spoilage_report_summary', views.retrieve_spoilage_report_summary, name='retrieve_spoilage_report_summary'),
     path('report_spoiled/<int:item_id>', views.report_spoiled, name='report_spoiled'),
     path('search_spoilage_reports', views.search_spoilage_reports, name='search_spoilage_reports'),
 
     # NOTIFICATION ENDPOINTS
-    path('retrieve_notifications/<str:username>', views.retrieve_notifications, name='retrieve_notifications')
+    path('retrieve_notifications/<str:username>', views.retrieve_notifications, name='retrieve_notifications'),
+    path('set_notifs_as_seen/<str:username>', views.set_notifs_as_seen, name='set_notifs_as_seen')
 ]

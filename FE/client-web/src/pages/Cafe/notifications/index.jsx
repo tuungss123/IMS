@@ -9,6 +9,14 @@ const CafeNotifications = () => {
 
   useEffect(() => {
     retrieve_notifications();
+
+    const new_interval = setInterval(() => {
+      retrieve_notifications();
+    }, 15000)
+
+    return () => {
+      clearInterval(new_interval);
+    }
   }, []);
 
   async function retrieve_notifications() {
@@ -18,6 +26,9 @@ const CafeNotifications = () => {
     const data = await fetch(`http://127.0.0.1:8000/retrieve_notifications/${username}`);
     // const data = await fetch('https://ims-be-j66p.onrender.com/all_transactions');
     const response = await data.json();
+
+    const processed_data = await fetch(`http://127.0.0.1:8000/set_notifs_as_seen/${username}`);
+    const processed_response = await processed_data.json();
     
     setNotifications(response.notifications);
   }

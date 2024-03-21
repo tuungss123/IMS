@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     'jazzmin',
     'corsheaders',
     'rest_framework',
-    'daphne',
-    'channels',
+    # 'daphne',
+    # 'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -81,7 +81,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ims_backend.wsgi.application'
-ASGI_APPLICATION = 'ims_backend.asgi.application'
+# ASGI_APPLICATION = 'ims_backend.asgi.application'
 
 
 # Database
