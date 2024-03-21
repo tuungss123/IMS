@@ -112,15 +112,37 @@ def update_item(request, item_id):
         return Response({'response': 'Item Updated'}, 200)
     except:
         return Response({'response': 'Failed to Update Item'}, 200)
-    
+
+
 @api_view(['POST'])
 def update_cafe_item(request, item_id):
     stock_update = int(request.data.get('stock_update'))
 
     try:
         item = Item.objects.get(id=item_id)
-        item.cafe_stock = stock_update
-        item.save()
+        
+        if stock_update <= item.cafe_stock:
+            item.cafe_stock = stock_update
+            item.save()
+        else:
+            return Response({'response': 'Transaction Invalid'}, 403)
+        
+        if item.cafe_stock <= 10:
+            cafe = User.objects.get(username='Cafe')
+            intern = User.objects.get(username='Intern')
+            
+            cafe_notif = Notification(
+                notif_owner=cafe,
+                text=f'The stock of {item.item_name} has reached CRITICAL status.'
+            )
+            
+            intern_notif = Notification(
+                notif_owner=intern,
+                text=f'The stock of {item.item_name} has reached CRITICAL status.'
+            )
+
+            cafe_notif.save()
+            intern_notif.save()
 
         return Response({'response': 'Item Updated'}, 200)
     except:
