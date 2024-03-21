@@ -58,6 +58,8 @@ const SignIn = () => {
     if (data.response === 'Login successful') {
       localStorage.setItem('user_data', JSON.stringify(data.user_data));
 
+      localStorage.setItem('password', password);
+
       if (data.user_data === 'Cafe' || data.user_data === 'Intern') {
         navigate('/cafe/analysis');
       } else if (data.user_data === 'Commissary') {
