@@ -269,7 +269,27 @@ const TransferHistoryPage = () => {
     } catch (error) {
         console.error('Error downloading file:', error);
     }
-}
+  }
+
+  async function requestSpoilageReportData(){
+    try {
+        const response = await fetch('http://127.0.0.1:8000/retrieve_spoilage_report_summary');
+        //const response = await fetch('https://ims-be-j66p.onrender.com/retrieve_transaction_summary', requestOptions);
+        const blob = await response.blob();
+
+        const url = window.URL.createObjectURL(new Blob([blob]));
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.setAttribute('download', `Spoilage Reports Data Request ${new Date()}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+
+    } catch (error) {
+        console.error('Error downloading file:', error);
+    }
+  }
 
   return (
     <Box>
@@ -358,6 +378,7 @@ const TransferHistoryPage = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
       <Modal
         open={modalVisible}
         onClose={() => setModalVisible(false)}
@@ -411,60 +432,59 @@ const TransferHistoryPage = () => {
       </Snackbar>
 
       <Button variant='outlined' onClick={() => setIsDataRequestModalVisible(true)} sx={{ marginTop: '2%' }}>Generate Transaction Reports</Button>
+      <Button variant='outlined' onClick={() => requestSpoilageReportData()} sx={{ marginTop: '2%', marginLeft: '3%' }}>Generate Spoilage Reports Summary</Button>
 
-            {/* <Pagination sx={{ marginTop: '2%' }} count={10} /> */}
+      <Modal
+          open={isDataRequestModalVisible}
+          onClose={() => {
+            setIsDataRequestModalVisible(false);resetDataRequestModal()
+          }}
+          sx={{ bgcolor: 'background.Paper', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+      >
+        <div className='modal'>
+          <Typography variant="h5" id="modal-title">Generate Transaction Reports</Typography>
 
-            <Modal
-                open={isDataRequestModalVisible}
-                onClose={() => {
-                  setIsDataRequestModalVisible(false);resetDataRequestModal()
-                }}
-                sx={{ bgcolor: 'background.Paper', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-            >
-                <div className='modal'>
-                    <Typography variant="h5" id="modal-title">Generate Transaction Reports</Typography>
+          <Box id='date-pickers'>
+            <Typography variant="h6" id='item-title'>Start Date:</Typography>
+            <input type='date' value={startDate} onChange={(event) => setStartDate(event.target.value)}></input>
 
-                    <Box id='date-pickers'>
-      <Typography variant="h6" id='item-title'>Start Date:</Typography>
-      <input type='date' value={startDate} onChange={(event) => setStartDate(event.target.value)}></input>
-
-      <Typography variant="h6" id='item-title'>End Date:</Typography>
-      <input type='date' value={endDate} onChange={(event) => setEndDate(event.target.value)}></input>
-    </Box>
+            <Typography variant="h6" id='item-title'>End Date:</Typography>
+            <input type='date' value={endDate} onChange={(event) => setEndDate(event.target.value)}></input>
+          </Box>
                     
-                    <Box id='modal-buttons-container'>
-                    <Button
-                        variant='outlined'
-                        onClick={() => requestData()}
-                        disabled={!startDate || !endDate} 
-                      >
-                        Proceed
-                      </Button>
-                      <Button
-                        variant='outlined'
-                        onClick={() =>{ setIsDataRequestModalVisible(false);resetDataRequestModal()}}
-                      >
-                        Cancel
-                      </Button>
-                    </Box>
-                </div>
-            </Modal>
-
-            <Dialog
-              open={approvalModalVisible}
-              onClose={hideApprovalModal}
+          <Box id='modal-buttons-container'>
+            <Button
+                variant='outlined'
+                onClick={() => requestData()}
+                disabled={!startDate || !endDate} 
+              >
+                Proceed
+            </Button>
+            <Button
+              variant='outlined'
+              onClick={() =>{ setIsDataRequestModalVisible(false);resetDataRequestModal()}}
             >
-              <DialogTitle id="dialog-title" style={{ backgroundColor: approvalAction === 'Approve' ? '#75975e' : '#8F011B', color: 'white' }}>
-                {`Are you sure you want to ${approvalAction.toLowerCase()} this request?`}
-              </DialogTitle>
-              <DialogActions>
-                <Button onClick={handleApproval}>Yes</Button>
-                <Button onClick={handleDenial}>No</Button>
-              </DialogActions>
-            </Dialog>
+              Cancel
+            </Button>
+          </Box>
+        </div>
+      </Modal>
 
+      <Dialog
+        open={approvalModalVisible}
+        onClose={hideApprovalModal}
+      >
+        <DialogTitle id="dialog-title" style={{ backgroundColor: approvalAction === 'Approve' ? '#75975e' : '#8F011B', color: 'white' }}>
+          {`Are you sure you want to ${approvalAction.toLowerCase()} this request?`}
+        </DialogTitle>
+
+        <DialogActions>
+          <Button onClick={handleApproval}>Yes</Button>
+          <Button onClick={handleDenial}>No</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'jazzmin',
     'corsheaders',
     'rest_framework',
+    # 'daphne',
+    # 'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -79,6 +81,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ims_backend.wsgi.application'
+# ASGI_APPLICATION = 'ims_backend.asgi.application'
 
 
 # Database
@@ -89,7 +92,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ims',
         'USER': 'root',
-        'PASSWORD': '123456789',
+        'PASSWORD': '',
         'HOST': 'localhost',  # Set to the MySQL server host (usually 'localhost' during development)
         'PORT': '3306',  # Set to the MySQL server host (usually 'localhost' during development)
     }

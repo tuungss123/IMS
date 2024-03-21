@@ -8,12 +8,11 @@ const CafeAnalysis = () => {
     const [spoilageData, setSpoilageData] = useState([]);
     const [critStock, setCritStock] = useState([]);
     const [sortOrder, setSortOrder] = useState({ column: '', direction: 'asc' });
+
     useEffect(() => {
         retrieveCafeCritical();
         retrieveSpoilageReports();
     }, []);
-
-  
 
     async function search(searched_item){
         const requestOptions = {
