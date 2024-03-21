@@ -454,7 +454,7 @@ def retrieve_spoilage_report_summary(request):
 
     wb = Workbook()
     ws = wb.active
-    ws.append(['Item', 'Amount', 'Spoil Report Creator', 'Date Reported'])
+    ws.append(['Item', 'Item UM', 'Amount', 'Spoil Report Creator', 'Date Reported'])
 
     for spoiled_material_report in spoiled_material_reports:
         print(spoiled_material_report.item.item_name)
@@ -465,6 +465,7 @@ def retrieve_spoilage_report_summary(request):
         date_created = spoiled_material_report.date_created.strftime('%Y-%m-%d %H:%M:%S')
         ws.append([
             spoiled_material_report.item.item_name, 
+            spoiled_material_report.item.um, 
             spoiled_material_report.spoil_amount, 
             spoiled_material_report.report_creator, 
             date_created
