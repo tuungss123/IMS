@@ -1,11 +1,13 @@
 import { CommissarySidenavData } from './CommissarySidenavData';
 import { Box, Paper, TextField, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import "./styles.css";
 
 
 function CommissarySidenav() {
   const navigate = useNavigate();
+  const [newNotifsCount, setNewNotifsCount] = useState(0);
 
   function changePageContent(page){
     navigate(page);

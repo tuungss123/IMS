@@ -195,6 +195,24 @@ def request_item(request, item_id):
             )
 
         new_transaction.save()
+        
+        commissary = User.objects.get(username='Commissary')
+        new_notification = Notification(
+            notif_owner=commissary,
+            text=f'{transactor} has requested the transfer of {request_quantity}{requested_id.um} worth of {requested_id.item_name}'
+        )
+        
+        new_notification.save()
+        
+        if transactor == 'Intern':
+            cafe = User.objects.get(username='Cafe')
+            cafe_notification = Notification(
+                notif_owner=cafe,
+                text=f'{transactor} has requested the transfer of {request_quantity}{requested_id.um} worth of {requested_id.item_name}'
+            )
+        
+            cafe_notification.save()
+        
         return Response({'response': 'Request Made.'}, 200)
     except:
         return Response({'response': 'Failed to Create Item Request'}, 200)
@@ -337,6 +355,14 @@ def process_transaction(request, transaction_id):
                             {item.item_name} * {retrieved_transaction.transacted_amount}
                         """
 
+                        if item.commissary_stock <= 10:
+                            commissary = User.objects.get(username='Commissary')
+                            
+                            critical_stock_notif = Notification(
+                                notif_owner=commissary,
+                                text=f'Stock for {item.item_name} has reached CRITICAL status.'
+                            )
+                            critical_stock_notif.save()
                     else:
                         return Response({'response': 'Request Failed. Stock Insufficient'}, 400)
                     
@@ -375,6 +401,14 @@ def process_transaction(request, transaction_id):
                         {item.item_name} * {retrieved_transaction.transacted_amount}
                     """
 
+                    if item.commissary_stock <= 10:
+                        commissary = User.objects.get(username='Commissary')
+                        
+                        critical_stock_notif = Notification(
+                            notif_owner=commissary,
+                            text=f'Stock for {item.item_name} has reached CRITICAL status.'
+                        )
+                        critical_stock_notif.save()
                 else:
                     return Response({'response': 'Request Failed. Stock Insufficient'}, 400)
             
