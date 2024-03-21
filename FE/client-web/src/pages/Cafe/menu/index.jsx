@@ -4,6 +4,7 @@ import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, Ta
 import EditIcon from '@mui/icons-material/Edit';
 import './styles.css';
 import {ArrowUpward, ArrowDownward} from '@mui/icons-material';
+import { useLocation } from 'react-router-dom';
 
 
 const CafeInventoryPage = () => {
@@ -25,10 +26,26 @@ const CafeInventoryPage = () => {
     const [addQtyError, setAddQtyError] = useState('');
     const [stockDifference, setStockDifference] = useState(0);
 
+    const [code, setCode] = useState('');
+    const [codeModalVisible, setCodeModalVisible] = useState(false);
+
+
     // edit item validation
     const [isEditValid, setIsEditValid] = useState(); 
     const [editRequestedItem, seteditRequestedItem] = useState();
     const [editSelectedItem, seteditSelectedItem] = useState();
+
+    const location = useLocation();
+    const [password, setPassword] = useState('');
+
+    useEffect(() => {
+        // Retrieve password from local storage when the component mounts
+        const storedPassword = localStorage.getItem('password');
+        if (storedPassword) {
+          setPassword(storedPassword);
+        }
+    }, []);
+
     const setModalDetails = (item_id, item_name) => {
         setRequestedItem(item_id);
         setSelectedItem(item_name);
@@ -37,7 +54,7 @@ const CafeInventoryPage = () => {
     const seteditModalDetails = (item_id, item_name) => {
         seteditRequestedItem(item_id);
         seteditSelectedItem(item_name);
-        seteditModalVisible(true);
+        setCodeModalVisible(true);
     }
 
 
@@ -227,6 +244,19 @@ const CafeInventoryPage = () => {
         }
     }
 
+    const handleCodeVerification = () => {
+        if (code === password) {
+            seteditModalVisible(true);
+            setCodeModalVisible(false);
+            setCode('');
+        } else {
+            // You can show an error message or take other actions
+            // Here, I'm just resetting the code
+            setCode('');
+        }
+    };
+    
+
     
 
     return (
@@ -409,6 +439,29 @@ const CafeInventoryPage = () => {
                         <Button variant='outlined' onClick={() => setSpoiledModalVisible(false) }>
                             Cancel
                         </Button>
+                    </Box>
+                </div>
+            </Modal>
+            <Modal
+                open={codeModalVisible}
+                onClose={() => setCodeModalVisible(false)}
+                sx={{ bgcolor: 'background.Paper', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <div className='modal'>
+                    <Typography variant="h5" id="modal-title">Enter Code</Typography>
+                    <TextField
+                        label="Code"
+                        type='password'
+                        id="modal-input-field"
+                        size='small'
+                        value={code}
+                        onChange={(event) => setCode(event.target.value)}
+                    />
+                    <Box id='modal-buttons-container'>
+                        <Button variant='outlined' onClick={handleCodeVerification}>Submit</Button>
+                        <Button variant='outlined' onClick={() => setCodeModalVisible(false)}>Cancel</Button>
                     </Box>
                 </div>
             </Modal>
