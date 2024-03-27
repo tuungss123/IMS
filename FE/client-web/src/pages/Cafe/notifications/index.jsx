@@ -12,7 +12,7 @@ const CafeNotifications = () => {
 
     const new_interval = setInterval(() => {
       retrieve_notifications();
-    }, 15000)
+    }, 2000)
 
     return () => {
       clearInterval(new_interval);

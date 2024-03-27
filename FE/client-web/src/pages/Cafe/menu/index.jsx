@@ -142,7 +142,7 @@ const CafeInventoryPage = () => {
         const currentStock = inventoryData.find(item => item.id === itemId)?.commissary_stock;
 
         if (quantity > 0 && quantity > currentStock) {
-            return 'Requested quantity exceeds available stock.';
+            return 'Please enter a quantity within the allowable limit.';
         }
 
         return '';
@@ -252,8 +252,6 @@ const CafeInventoryPage = () => {
             setCodeModalVisible(false);
             setCode('');
         } else {
-            // You can show an error message or take other actions
-            // Here, I'm just resetting the code
             setErrorMessage('Incorrect password. Please try again.');
             setCode('');
             
@@ -337,7 +335,7 @@ const CafeInventoryPage = () => {
 
             <Modal
                 open={modalVisible}
-                onClose={() => setModalVisible(false)}
+                onClose={() => {setModalVisible(false); setRequestedQuantity('0');}}
                 sx={{ bgcolor: 'background.Paper', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
@@ -359,7 +357,7 @@ const CafeInventoryPage = () => {
                         <Button variant='outlined' onClick={() => requestItem() } disabled={!isReqQtyValid}>
                             Proceed
                         </Button>
-                        <Button variant='outlined' onClick={() => setModalVisible(false) }>
+                        <Button variant='outlined' onClick={() => {setModalVisible(false); setRequestedQuantity('0');} }>
                             Cancel
                         </Button>
                     </Box>

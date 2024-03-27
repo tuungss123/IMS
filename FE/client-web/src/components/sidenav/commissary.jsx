@@ -28,7 +28,7 @@ function CommissarySidenav() {
 
     const new_interval = setInterval(() => {
       retrieveNotifsCount();
-    } , 15000)
+    } , 2000)
 
     return () => {
       clearInterval(new_interval);
