@@ -16,7 +16,7 @@ class Item(models.Model):
 
 class Transaction(models.Model):
     transacted_item = models.ForeignKey(Item, on_delete=models.CASCADE)
-    transacted_amount = models.IntegerField()
+    transacted_amount = models.FloatField()
     transactor = models.CharField(max_length=64)
     date_created = models.DateTimeField(default=timezone.now, editable=False)
     date_changed = models.DateTimeField(default=timezone.now)
@@ -33,7 +33,7 @@ class Transaction(models.Model):
 
 class SpoiledMaterialReport(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
-    spoil_amount = models.IntegerField()
+    spoil_amount = models.FloatField()
     report_creator = models.CharField(max_length=64)
     date_created = models.DateTimeField(auto_now_add=True)
 

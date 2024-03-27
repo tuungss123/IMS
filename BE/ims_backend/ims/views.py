@@ -102,7 +102,7 @@ def create_item(request):
 
 @api_view(['POST'])
 def update_item(request, item_id):
-    stock_update = int(request.data.get('stock_update'))
+    stock_update = float(request.data.get('stock_update'))
 
     try:
         item = Item.objects.get(id=item_id)
@@ -116,7 +116,7 @@ def update_item(request, item_id):
 
 @api_view(['POST'])
 def update_cafe_item(request, item_id):
-    stock_update = int(request.data.get('stock_update'))
+    stock_update = float(request.data.get('stock_update'))
 
     try:
         item = Item.objects.get(id=item_id)
@@ -165,7 +165,7 @@ def update_item_um(request, item_id):
 
 @api_view(['POST'])
 def update_item_um_amount(request, item_id):
-    new_um_amount = int(request.data.get('data'))
+    new_um_amount = float(request.data.get('data'))
     print(new_um_amount)
 
     # try:
@@ -196,7 +196,7 @@ def update_item_category(request, item_id):
 
 @api_view(['POST'])
 def request_item(request, item_id):
-    request_quantity = int(request.data.get('request_quantity'))
+    request_quantity = float(request.data.get('request_quantity'))
     transactor = request.data.get('transactor')
 
     try:
@@ -538,7 +538,7 @@ def retrieve_spoilage_report_summary(request):
 
 @api_view(['POST'])
 def report_spoiled(request, item_id):
-    spoil_amount = int(request.data.get('spoil_amount'))
+    spoil_amount = float(request.data.get('spoil_amount'))
     report_creator = request.data.get('report_creator')
 
     try:
