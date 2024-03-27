@@ -75,7 +75,7 @@ const CafeInventoryPage = () => {
     }, [requestedQuantity, requestedItem, inventoryData]);
 
     useEffect(() => {
-        setIsReqSpoiledValid(!isNaN(spoiledQty) && spoiledQty >= 1 && spoiledQty <= inventoryData.find(item => item.id === spoiledItemId)?.cafe_stock);
+        setIsReqSpoiledValid(!isNaN(spoiledQty) && spoiledQty >= 0.1 && spoiledQty <= inventoryData.find(item => item.id === spoiledItemId)?.cafe_stock);
     }, [spoiledQty, spoiledItemId, inventoryData]);
 
     const setSpoiledModalDetails = (item_id, item_name) => {
@@ -385,9 +385,9 @@ const CafeInventoryPage = () => {
                         size='small' 
                         onChange={(event) => {
                             const value = event.target.value;
-                            if (!isNaN(value) && parseInt(value) >= 0) {
-                                seteditModifyQty(parseInt(value));
-                                if (parseInt(value) > inventoryData.find(item => item.id === editRequestedItem)?.cafe_stock) {
+                            if (!isNaN(value) && parseFloat(value) >= 0) {
+                                seteditModifyQty(parseFloat(value));
+                                if (parseFloat(value) > inventoryData.find(item => item.id === editRequestedItem)?.cafe_stock) {
                                     setAddQtyError('Entered quantity exceeds current stock');
                                     setIsEditValid(false);
                                 } else {

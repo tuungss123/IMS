@@ -296,8 +296,8 @@ const CommissaryInventoryPage = () => {
                         placeholder='0'
                         onChange={(event) => {
                             const value = event.target.value;
-                            if (!isNaN(value) && parseInt(value) >= 0) {
-                                setModifyQty(parseInt(value));
+                            if (!isNaN(value) && parseFloat(value) >= 0) {
+                                setModifyQty(parseFloat(value));
                                 setIsEditValid(true);
                                 setAddQtyError('');
                             } else {
