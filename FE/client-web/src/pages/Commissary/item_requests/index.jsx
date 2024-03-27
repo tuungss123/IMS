@@ -78,6 +78,18 @@ const CommissaryTransferHistoryPage = () => {
   }
   
   
+  useEffect(() => {
+    retrieveInventoryItems(); // Initial data fetch
+  
+    const fetchDataInterval = setInterval(() => {
+      retrieveInventoryItems(); // Fetch data at regular intervals
+    }, 3000); // Interval set to 10 seconds (10000 milliseconds)
+  
+    // Cleanup function to clear the interval when the component unmounts
+    return () => {
+      clearInterval(fetchDataInterval);
+    };
+  }, []);
   
 
   const [isDataRequestModalVisible, setIsDataRequestModalVisible] = useState(false);
