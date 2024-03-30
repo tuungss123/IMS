@@ -1,4 +1,4 @@
-import { Button, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Modal, IconButton } from "@mui/material";
+import { Button, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Modal, IconButton, Pagination } from "@mui/material";
 import { useState, useEffect } from "react";
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import CheckIcon from '@mui/icons-material/Check';
@@ -80,20 +80,36 @@ const TransferHistoryPage = () => {
 
   async function retrieveInventoryItems() {
     const data = await fetch('http://127.0.0.1:8000/all_transactions');
-    //const data = await fetch('https://ims-be-j66p.onrender.com/all_transactions');
     const response = await data.json();
   
     console.log(response.transactions);
-    setTransferData(response.transactions);
-    const sortedData = response.transactions.slice().sort((a, b) => {
-      if (a.approval.toLowerCase() === 'pending' && b.approval.toLowerCase() !== 'pending') return -1;
-      if (a.approval.toLowerCase() !== 'pending' && b.approval.toLowerCase() === 'pending') return 1;
-      return 0;
+  
+    // Separate transactions by approval status
+    const pendingTransactions = [];
+    const approvedOrDeniedTransactions = [];
+  
+    response.transactions.forEach(transaction => {
+      if (transaction.approval.toLowerCase() === 'pending') {
+        pendingTransactions.push(transaction);
+      } else {
+        approvedOrDeniedTransactions.push(transaction);
+      }
     });
   
+    // Sort pending transactions by date_created in descending order
+    pendingTransactions.sort((a, b) => new Date(b.date_created) - new Date(a.date_created));
+    
+    // Sort approved and denied transactions together by date_created in descending order
+    approvedOrDeniedTransactions.sort((a, b) => new Date(b.date_created) - new Date(a.date_created));
+  
+    // Combine sorted transactions
+    const sortedData = [...pendingTransactions, ...approvedOrDeniedTransactions];
+  
     setTransferData(sortedData);
+    setCurrentPage(1);
   }
-
+  
+  
   async function deleteTransaction(transaction_id) {
     const requestOptions = {
       method: 'DELETE',
@@ -291,6 +307,22 @@ const TransferHistoryPage = () => {
     }
   }
 
+  //pagination
+    const [displayedData, setDisplayedData] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1); 
+    const [itemsPerPage] = useState(10); 
+
+    useEffect(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const slicedData = transferData.slice(startIndex, endIndex);
+        setDisplayedData(slicedData);
+    }, [currentPage, transferData, itemsPerPage]);    
+    
+    const handlePageChange = (event, value) => {
+        setCurrentPage(value);
+    };    
+
   return (
     <Box>
       <Typography variant="h5">Transfer Requests</Typography>
@@ -344,7 +376,7 @@ const TransferHistoryPage = () => {
 
 
           <TableBody>
-            {transferData.map((transfer) => (
+            {displayedData.map((transfer) => (
               <TableRow key={transfer.id}>
                 <TableCell component="th" align="center">{transfer.transacted_item.item_name}</TableCell>
                 <TableCell align="center">{transfer.transacted_item.category}</TableCell>
@@ -378,6 +410,14 @@ const TransferHistoryPage = () => {
           </TableBody>
         </Table>
       </TableContainer>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                <Pagination
+                count={Math.ceil(transferData.length / itemsPerPage)}
+                page={currentPage}
+                onChange={handlePageChange}
+                color="primary"
+            />
+            </Box>
 
       <Modal
         open={modalVisible}
