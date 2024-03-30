@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, 
-    TextField, Modal, IconButton } from "@mui/material";
+    TextField, Modal, IconButton, Pagination } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import './styles.css';
 import {ArrowUpward, ArrowDownward} from '@mui/icons-material';
@@ -30,6 +30,23 @@ const CafeInventoryPage = () => {
     const [codeModalVisible, setCodeModalVisible] = useState(false);
 
 
+    //pagination
+    const [displayedData, setDisplayedData] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1); // Define currentPage state
+    const [itemsPerPage] = useState(10); // Define itemsPerPage constant
+
+    useEffect(() => {
+        // Logic to slice the inventory data based on the current page and items per page
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const slicedData = inventoryData.slice(startIndex, endIndex);
+        setDisplayedData(slicedData);
+    }, [currentPage, inventoryData, itemsPerPage]);    
+    
+    const handlePageChange = (event, value) => {
+        setCurrentPage(value);
+    };    
+    
     // edit item validation
     const [isEditValid, setIsEditValid] = useState(); 
     const [editRequestedItem, seteditRequestedItem] = useState();
@@ -75,7 +92,7 @@ const CafeInventoryPage = () => {
     }, [requestedQuantity, requestedItem, inventoryData]);
 
     useEffect(() => {
-        setIsReqSpoiledValid(!isNaN(spoiledQty) && spoiledQty >= 0.1 && spoiledQty <= inventoryData.find(item => item.id === spoiledItemId)?.cafe_stock);
+        setIsReqSpoiledValid(!isNaN(spoiledQty) && spoiledQty >= 1 && spoiledQty <= inventoryData.find(item => item.id === spoiledItemId)?.cafe_stock);
     }, [spoiledQty, spoiledItemId, inventoryData]);
 
     const setSpoiledModalDetails = (item_id, item_name) => {
@@ -118,7 +135,11 @@ const CafeInventoryPage = () => {
         //const data = await fetch('https://ims-be-j66p.onrender.com/search_items', requestOptions);
         const response = await data.json();
         setInventoryData(response.items);
+    
+        // Update the currentPage state to 1 after fetching new data
+        setCurrentPage(1);
     }
+    
 
     const validateRequest = (quantity, itemId) => {
         let valid = true;
@@ -142,7 +163,7 @@ const CafeInventoryPage = () => {
         const currentStock = inventoryData.find(item => item.id === itemId)?.commissary_stock;
 
         if (quantity > 0 && quantity > currentStock) {
-            return 'Please enter a quantity within the allowable limit.';
+            return 'Requested quantity exceeds available stock.';
         }
 
         return '';
@@ -252,6 +273,8 @@ const CafeInventoryPage = () => {
             setCodeModalVisible(false);
             setCode('');
         } else {
+            // You can show an error message or take other actions
+            // Here, I'm just resetting the code
             setErrorMessage('Incorrect password. Please try again.');
             setCode('');
             
@@ -303,7 +326,7 @@ const CafeInventoryPage = () => {
             </TableHead>
 
                     <TableBody>
-                        {inventoryData.map((item) => (
+                        {displayedData.map((item) => (
                             <TableRow key={item.id}>
                                 <TableCell component="th" align='center' scope="row">
                                     {item.item_name}
@@ -335,7 +358,7 @@ const CafeInventoryPage = () => {
 
             <Modal
                 open={modalVisible}
-                onClose={() => {setModalVisible(false); setRequestedQuantity('0');}}
+                onClose={() => setModalVisible(false)}
                 sx={{ bgcolor: 'background.Paper', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
@@ -357,7 +380,7 @@ const CafeInventoryPage = () => {
                         <Button variant='outlined' onClick={() => requestItem() } disabled={!isReqQtyValid}>
                             Proceed
                         </Button>
-                        <Button variant='outlined' onClick={() => {setModalVisible(false); setRequestedQuantity('0');} }>
+                        <Button variant='outlined' onClick={() => setModalVisible(false) }>
                             Cancel
                         </Button>
                     </Box>
@@ -383,9 +406,9 @@ const CafeInventoryPage = () => {
                         size='small' 
                         onChange={(event) => {
                             const value = event.target.value;
-                            if (!isNaN(value) && parseFloat(value) >= 0) {
-                                seteditModifyQty(parseFloat(value));
-                                if (parseFloat(value) > inventoryData.find(item => item.id === editRequestedItem)?.cafe_stock) {
+                            if (!isNaN(value) && parseInt(value) >= 0) {
+                                seteditModifyQty(parseInt(value));
+                                if (parseInt(value) > inventoryData.find(item => item.id === editRequestedItem)?.cafe_stock) {
                                     setAddQtyError('Entered quantity exceeds current stock');
                                     setIsEditValid(false);
                                 } else {
@@ -472,6 +495,15 @@ const CafeInventoryPage = () => {
                     </Box>
                 </div>
             </Modal>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                <Pagination
+                count={Math.ceil(inventoryData.length / itemsPerPage)}
+                page={currentPage}
+                onChange={handlePageChange}
+                color="primary"
+            />
+            </Box>
+
         </Box>
     );
 };

@@ -83,6 +83,7 @@ const CommissaryInventoryPage = () => {
         const response = await data.json();
         
         setInventoryData(response.items);
+        setCurrentPage(1)
     }
 
     const validateAdding = () => {
@@ -218,6 +219,21 @@ const CommissaryInventoryPage = () => {
         }
     };
 
+    //pagination
+    const [displayedData, setDisplayedData] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1); 
+    const [itemsPerPage] = useState(10); 
+
+    useEffect(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const slicedData = inventoryData.slice(startIndex, endIndex);
+        setDisplayedData(slicedData);
+    }, [currentPage, inventoryData, itemsPerPage]);    
+    
+    const handlePageChange = (event, value) => {
+        setCurrentPage(value);
+    };    
     return (
         <Box>
             <Typography variant='h5'>Commissary Inventory</Typography>
@@ -257,7 +273,7 @@ const CommissaryInventoryPage = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {inventoryData.map((item) => (
+                        {displayedData.map((item) => (
                             <TableRow key={item.id}>
                                 <TableCell align="center" component="th" scope="row">
                                     {item.item_name}
@@ -416,6 +432,14 @@ const CommissaryInventoryPage = () => {
                     </Box>
                 </div>
             </Modal>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                <Pagination
+                count={Math.ceil(inventoryData.length / itemsPerPage)}
+                page={currentPage}
+                onChange={handlePageChange}
+                color="primary"
+            />
+            </Box>
         </Box>
     )
 }

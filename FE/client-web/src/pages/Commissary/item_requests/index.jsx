@@ -1,5 +1,5 @@
 import  { useState, useEffect } from "react";
-import { Button, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Modal,IconButton } from "@mui/material";
+import { Button, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Modal,IconButton, Pagination } from "@mui/material";
 import CheckIcon from '@mui/icons-material/Check';
 import DoDisturbIcon from '@mui/icons-material/DoDisturb';
 import './styles.css';
@@ -80,17 +80,11 @@ const CommissaryTransferHistoryPage = () => {
   
   useEffect(() => {
     retrieveInventoryItems(); // Initial data fetch
-  
-    const fetchDataInterval = setInterval(() => {
-      retrieveInventoryItems(); // Fetch data at regular intervals
-    }, 3000); // Interval set to 10 seconds (10000 milliseconds)
-  
-    // Cleanup function to clear the interval when the component unmounts
-    return () => {
-      clearInterval(fetchDataInterval);
-    };
   }, []);
   
+  async function updateTable() {
+    retrieveInventoryItems();
+  }
 
   const [isDataRequestModalVisible, setIsDataRequestModalVisible] = useState(false);
 
@@ -163,6 +157,7 @@ async function retrieveInventoryItems() {
   } catch (error) {
     console.error('Error retrieving transaction data:', error);
   }
+  setCurrentPage(1)
 }
 
 
@@ -246,23 +241,45 @@ async function retrieveInventoryItems() {
   }
 
 
+  //pagination
+  const [displayedData, setDisplayedData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1); 
+  const [itemsPerPage] = useState(10); 
 
+  useEffect(() => {
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      const slicedData = transferData.slice(startIndex, endIndex);
+      setDisplayedData(slicedData);
+  }, [currentPage, transferData, itemsPerPage]);    
+  
+  const handlePageChange = (event, value) => {
+      setCurrentPage(value);
+  };    
   return (
     <Box>
       <Typography variant="h5">Transfer Requests</Typography>
       <Typography variant='body1'>Listed below are all the transfer requests made within the system.</Typography>
 
       <div className="main">
-        <div className="search">
-          <TextField
-            id="outlined-basic"
-            variant="outlined"
-            label="Search By Status"
-            size="small"
-            sx={{ marginTop: '7.5%', marginLeft: "84%", paddingBottom: "1rem" }}
-            onChange={(search_item) => search(search_item.target.value)}
-          />
-        </div>
+      <div className="search" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+        <Button
+          variant="outlined"
+          onClick={updateTable}
+          sx={{ marginRight: '1rem', marginBottom: '1rem'}}
+        >
+          Update Table
+        </Button>
+        <TextField
+          id="outlined-basic"
+          variant="outlined"
+          label="Search By Status"
+          size="small"
+          sx={{ marginRight: '1rem',marginBottom: '1rem' }}
+          onChange={(search_item) => search(search_item.target.value)}
+        />
+      </div>
+
       </div>
       <TableContainer component={Paper} id='transfers-table'>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -298,7 +315,7 @@ async function retrieveInventoryItems() {
           </TableHead>
 
           <TableBody>
-            {transferData.map((transfer) => (
+            {displayedData.map((transfer) => (
               <TableRow key={transfer.id}>
                 <TableCell component="th" align="center">{transfer.transacted_item.item_name}</TableCell>
                 <TableCell component="th" align="center">{transfer.transacted_item.category}</TableCell>
@@ -327,6 +344,14 @@ async function retrieveInventoryItems() {
           </TableBody>
         </Table>
       </TableContainer>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                <Pagination
+                count={Math.ceil(transferData.length / itemsPerPage)}
+                page={currentPage}
+                onChange={handlePageChange}
+                color="primary"
+            />
+            </Box>
 
       <Dialog
         open={confirmationData.isOpen}
