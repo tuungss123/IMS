@@ -9,10 +9,12 @@ class Item(models.Model):
     cafe_stock = models.FloatField(default=0)
     um = models.CharField(max_length=16)
     category = models.CharField(max_length=64)
+    par_stock = models.FloatField(default=0)
 
     def __str__(self):
         return f'{self.item_name}'
     
+
 
 class Transaction(models.Model):
     transacted_item = models.ForeignKey(Item, on_delete=models.CASCADE)
