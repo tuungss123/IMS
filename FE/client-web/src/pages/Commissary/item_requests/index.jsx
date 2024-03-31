@@ -1,19 +1,17 @@
 import  { useState, useEffect } from "react";
-import { Button, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Modal,IconButton, Pagination } from "@mui/material";
+import { Button, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Modal,Pagination, Select, MenuItem } from "@mui/material";
 import CheckIcon from '@mui/icons-material/Check';
 import DoDisturbIcon from '@mui/icons-material/DoDisturb';
 import './styles.css';
-import {ArrowUpward, ArrowDownward} from  '@mui/icons-material'
 
 const CommissaryTransferHistoryPage = () => {
   const [startDate, setStartDate] = useState(getTodayDate());
   const [endDate, setEndDate] = useState(getTomorrowDate());
+  const [selectedCategory, setSelectedCategory] = useState('All Categories');
 
   const [transferData, setTransferData] = useState([]);
   const [modalMessage, setModalMessage] = useState('');
-  const [sortOrder, setSortOrder] = useState({
-    field: '',
-    ascending: true });
+ 
   // eslint-disable-next-line no-unused-vars
   const [modalDate, setModalDate] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -24,42 +22,25 @@ const CommissaryTransferHistoryPage = () => {
     
   });
 
-  const handleSort = (field) => {
-    let direction = 'asc';
-    if (sortOrder.field === field && sortOrder.direction === 'asc') {
-        direction = 'desc';
-    }
-    setSortOrder({ field, direction });
-  
-    const sortedData = [...transferData].sort((a, b) => {
-      let aValue, bValue;
-  
-      switch (field) {
-        case 'Category':
-          aValue = a.transacted_item.category.toLowerCase();
-          bValue = b.transacted_item.category.toLowerCase();
-          break;
-        case 'Quantity':
-          aValue = a.transacted_amount;
-          bValue = b.transacted_amount;
-          break;
-        case 'Approval Status':
-          aValue = a.approval.toLowerCase();
-          bValue = b.approval.toLowerCase();
-          break;
-        default:
-          return 0;
-      }
-  
-      if (field !== 'Quantity') {
-        return direction === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
-      }
-  
-      return direction === 'asc' ? aValue - bValue : bValue - aValue;
-    });
-  
-    setTransferData(sortedData);
+  const handleCategoryChange = (event) => {
+    setSelectedCategory(event.target.value);
+    filterByCategory(event.target.value);
   };
+  const categories = ['Dry Ingredients', 'Proteins', 'Baking', 'Spices', 'Sauces and Condiments','Others (packagings)'];
+
+  const filterByCategory = (category) => {
+    if (category === 'All Categories') {
+      
+      retrieveInventoryItems();
+    } else 
+    {
+      const filteredData = transferData.filter(transfer => transfer.transacted_item.category === category);
+      setDisplayedData(filteredData); // Update displayed data instead of transferData
+    }
+  };
+  
+
+  
 
   function getTodayDate() {
     const today = new Date();
@@ -260,8 +241,24 @@ async function retrieveInventoryItems() {
     <Box>
       <Typography variant="h5">Transfer Requests</Typography>
       <Typography variant='body1'>Listed below are all the transfer requests made within the system.</Typography>
+      
+      <div className="main" style={{ display: 'flex', justifyContent: 'space-between'}}>
+      <div >
+      <Select
+          value={selectedCategory}
+          onChange={handleCategoryChange}
+          variant="outlined"
+          size="small"
+          
+          sx={{ marginRight: '1rem', marginBottom: '1rem', marginTop:'1rem' }}
+        >
+          <MenuItem value="All Categories">All Categories</MenuItem>
+          {categories.map((category, index) => (
+            <MenuItem key={index} value={category}>{category}</MenuItem>
+          ))}
+        </Select>
 
-      <div className="main">
+      </div>
       <div className="search" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
         <Button
           variant="outlined"
@@ -287,27 +284,20 @@ async function retrieveInventoryItems() {
             <TableRow id='header-row'>
               <TableCell align="center" className='table-header'>Requested Item</TableCell>
               <TableCell align="center" className='table-header'>
-      Category
-      <IconButton onClick={() => handleSort('Category')}>
-        {sortOrder.field === 'Category' && sortOrder.ascending ? <ArrowUpward /> : <ArrowDownward />}
-      </IconButton>
+              Category
+      
+    
     </TableCell>
     <TableCell align="center" className='table-header'>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        Quantity
-        <IconButton onClick={() => handleSort('Quantity')}>
-          {sortOrder.field === 'Quantity' && sortOrder.ascending ? <ArrowUpward /> : <ArrowDownward />}
-        </IconButton>
-      </div>
+            Quantity
+          </div>
     </TableCell>
               <TableCell align="center" className='table-header'>Transactor</TableCell>
               <TableCell align="center" className='table-header'>Request Date</TableCell>
               <TableCell align="center" className='table-header'>
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    Approval Status
-    <IconButton onClick={() => handleSort('Approval Status')}>
-      {sortOrder.field === 'Approval Status' && sortOrder.ascending ? <ArrowUpward /> : <ArrowDownward />}
-    </IconButton>
+              Approval Status
   </div>
 </TableCell>
               <TableCell align="center" className='table-header'>Options</TableCell>
