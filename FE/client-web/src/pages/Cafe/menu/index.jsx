@@ -268,6 +268,11 @@ const CafeInventoryPage = () => {
                     <TableCell align="center">
                         Item Name
                     </TableCell>
+                    <TableCell align="center" className='table-header'>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            Par Stock
+                        </div>
+                    </TableCell>
                     <TableCell align="center">
                         Category
                 <IconButton onClick={() => handleSort('category')}>
@@ -280,7 +285,6 @@ const CafeInventoryPage = () => {
                     {sortOrder.field === 'um' && sortOrder.ascending ? <ArrowDownward fontSize='small'/> : <ArrowUpward fontSize='small' />}
                 </IconButton>
                     </TableCell>
-
                     <TableCell align="center">Request Item</TableCell>
                     <TableCell align="center">Report Spoil</TableCell>
                     <TableCell align="center" className='table-header'>Options</TableCell>
@@ -294,12 +298,15 @@ const CafeInventoryPage = () => {
                                     {item.item_name}
                                 </TableCell>
                                 <TableCell align="center">
+                                    {item.par_stock}
+                                </TableCell>
+                                <TableCell align="center">
                                     {item.category}
                                 </TableCell>
                                 <TableCell align="center">
                                     {item.cafe_stock} {item.um}
                                 </TableCell>
-                                <TableCell align="center">
+                                <TableCell align="center" width={'45px'}>
                                     <Button variant='outlined' onClick={() => setModalDetails(item.id, item.item_name)}>
                                         Request Stock
                                     </Button>
