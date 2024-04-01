@@ -99,7 +99,7 @@ def create_item(request):
     #     return Response({'response': 'Failed to Create Item'}, 400)
 
     
-
+#Commissary Update Item
 @api_view(['POST'])
 def update_item(request, item_id):
     stock_update = float(request.data.get('stock_update'))
@@ -109,11 +109,19 @@ def update_item(request, item_id):
         item.commissary_stock = stock_update
         item.save()
 
+        if item.commissary_stock <= item.par_stock:
+            commissary = User.objects.get(username='Commissary')
+            notification = Notification.objects.create(
+                notif_owner=commissary,
+                text=f'The stock of {item.item_name} has reached CRITICAL status.'
+            )
+            notification.save()
+
         return Response({'response': 'Item Updated'}, 200)
     except:
         return Response({'response': 'Failed to Update Item'}, 200)
 
-
+#Cafe Update Item
 @api_view(['POST'])
 def update_cafe_item(request, item_id):
     stock_update = float(request.data.get('stock_update'))
@@ -127,7 +135,7 @@ def update_cafe_item(request, item_id):
         else:
             return Response({'response': 'Transaction Invalid'}, 403)
         
-        if item.cafe_stock <= 10:
+        if item.cafe_stock <= item.par_stock:
             cafe = User.objects.get(username='Cafe')
             intern = User.objects.get(username='Intern')
             
@@ -377,7 +385,7 @@ def process_transaction(request, transaction_id):
                             {item.item_name} * {retrieved_transaction.transacted_amount}
                         """
 
-                        if item.commissary_stock <= 10:
+                        if item.commissary_stock <= item.par_stock:
                             commissary = User.objects.get(username='Commissary')
                             
                             critical_stock_notif = Notification(
@@ -423,7 +431,7 @@ def process_transaction(request, transaction_id):
                         {item.item_name} * {retrieved_transaction.transacted_amount}
                     """
 
-                    if item.commissary_stock <= 10:
+                    if item.commissary_stock <= item.par_stock:
                         commissary = User.objects.get(username='Commissary')
                         
                         critical_stock_notif = Notification(
@@ -555,6 +563,24 @@ def report_spoiled(request, item_id):
             spoiled_item.cafe_stock -= spoil_amount
             spoiled_item.save()
 
+            if spoiled_item.cafe_stock <= spoiled_item.par_stock:
+                # Create critical notifications for Cafe and Intern entities
+                cafe = User.objects.get(username='Cafe')
+                intern = User.objects.get(username='Intern')
+
+                cafe_notification = Notification.objects.create(
+                    notif_owner=cafe,
+                    text=f'The stock of {spoiled_item.item_name} has reached CRITICAL status after a spoilage report by {report_creator}.'
+                )
+                intern_notification = Notification.objects.create(
+                    notif_owner=intern,
+                    text=f'The stock of {spoiled_item.item_name} has reached CRITICAL status after a spoilage report by {report_creator}.'
+                )
+
+                cafe_notification.save()
+                intern_notification.save()
+
+
             return Response({'response': 'Spoil Report Created'}, 200)
         else:
             return Response({'response': 'Invalid Spoil Report'}, 200)
@@ -573,24 +599,48 @@ def search_spoilage_reports(request):
         return Response({'reports': serialize_reports.data}, 200)
     
 
+#PAR STOCK UPDATE
+@api_view(['PUT'])
+def update_item_par_stock(request, item_id):
+    try:
+        item = Item.objects.get(pk=item_id)
+        new_par_stock = request.data.get('par_stock')
+        item.par_stock = new_par_stock
+        item.save()
+        return Response({'response': 'Par Stock Updated'})
+    except Item.DoesNotExist:
+        return Response({'error': 'Item not found'}, status=404)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
 
 # STOCK TRANSFER ANALYSIS ENDPOINTS
 @api_view(['GET'])
 def retrieve_cafe_critical(request):
-    items = Item.objects.filter(cafe_stock__lt=10)
-    serializer = ItemSerializer(items, many=True)
+    items = Item.objects.all()
+
+    critical_items = []
+
+    for item in items:
+        if item.cafe_stock < item.par_stock:
+            critical_items.append(item)
+
+    serializer = ItemSerializer(critical_items, many=True)
 
     return Response({'items': serializer.data, 'response': 'Critical Cafe Stock Retrieved'})
-
-
 
 @api_view(['GET'])
 def retrieve_commissary_critical(request):
-    items = Item.objects.filter(commissary_stock__lt=10)
-    serializer = ItemSerializer(items, many=True)
-    
-    return Response({'items': serializer.data, 'response': 'Critical Cafe Stock Retrieved'})
+    items = Item.objects.all()
 
+    critical_items = []
+
+    for item in items:
+        if item.commissary_stock < item.par_stock:
+            critical_items.append(item)
+
+    serializer = ItemSerializer(critical_items, many=True)
+
+    return Response({'items': serializer.data, 'response': 'Critical Commissary Stock Retrieved'})
 
 
 # NOTIFICATION ENDPOINTS 
