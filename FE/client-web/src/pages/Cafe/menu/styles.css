@@ -4,44 +4,48 @@
     width: 100%;
     margin-top: 2%;
     margin-bottom: 2%;
-}
-
-#search-box {
+    }
+    
+    #search-box {
     width: 20vw;
-}
-
-#pagination-container {
+    }
+    
+    #pagination-container {
     margin-top: 2%;
-}
-
-#inventory-table {
+    }
+    
+    #inventory-table {
     height: 68vh;
     max-height: 68vh;
-}
-
-#inventory-table::-webkit-scrollbar {
+    }
+    
+    #inventory-table::-webkit-scrollbar {
     width: 10px;
     background-color: #FCFCFC;
     scroll-behavior: smooth;
-}
-
-#inventory-table::-webkit-scrollbar-thumb {
+    }
+    
+    #inventory-table::-webkit-scrollbar-thumb {
     background-color: rgb(90, 2, 2);
     border-radius: 15px;
-}
-
-#header-row {
+    }
+    
+    #header-row {
     background-color: white;
-}
-
-.table-header {
+    }
+    
+    .table-header {
     background-color: white;
     position: sticky;
     top: 0;
-    z-index: 10;
-}
-
-#modal-container {
+    z-index: 999;
+    }
+    .table-header th {
+    position: sticky;
+    top: 0;
+    background-color: white;}
+    
+    #modal-container {
     height: 100vh;
     width: 100vw;
     position: absolute;
@@ -50,9 +54,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.modal {
+    }
+    
+    .modal {
     position: absolute;
     background-color: white;
     border-radius: 15px;
@@ -63,28 +67,28 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-}
-
-#modal-title {
+    }
+    
+    #modal-title {
     margin-bottom: 5%;
-}
-
-#item-title {
+    }
+    
+    #item-title {
     margin-bottom: 2%;
-}
-
-#modal-input-field {
+    }
+    
+    #modal-input-field {
     width: 30vw;
-}
-
-#modal-buttons-container {
+    }
+    
+    #modal-buttons-container {
     width: 100%;
     margin-top: 7.5%;
     display: flex;
     justify-content: flex-end;
-}
-
-#modal-buttons-container button {
+    }
+    
+    #modal-buttons-container button {
     margin-left: 2%;
     margin-right: 2%;
-}
+    }

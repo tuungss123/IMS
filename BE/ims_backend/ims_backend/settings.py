@@ -92,12 +92,20 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ims',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': '12345',
         'HOST': 'localhost',  # Set to the MySQL server host (usually 'localhost' during development)
         'PORT': '3306',  # Set to the MySQL server host (usually 'localhost' during development)
     }
 }
 
+# Email Settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'allizalibu27@gmail.com'
+EMAIL_HOST_USER = 'allizalibu27@gmail.com'
+EMAIL_HOST_PASSWORD = 'kclu sjgc engb ysnw'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

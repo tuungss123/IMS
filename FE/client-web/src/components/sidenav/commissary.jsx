@@ -1,5 +1,5 @@
 import { CommissarySidenavData } from './CommissarySidenavData';
-import { Box, Paper, TextField, Button, Typography } from '@mui/material';
+import { Box, Paper, TextField, Button, Typography, Avatar } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import "./styles.css";
@@ -28,7 +28,7 @@ function CommissarySidenav() {
 
     const new_interval = setInterval(() => {
       retrieveNotifsCount();
-    } , 15000)
+    } , 2000)
 
     return () => {
       clearInterval(new_interval);
@@ -39,7 +39,9 @@ function CommissarySidenav() {
     <div className='side-bar'>
         <Box id='system-profile'>
           <Typography variant="h5">Commissary</Typography>
-          <Box id='profile'></Box>
+          <Box id='profile' sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <Avatar sx={{ width: 100, height: 100 }} src="https://github.com/tuungss123/IMS/blob/dev/commissary.jpg?raw=true" alt="Profile Picture" ></Avatar>
+          </Box>
         </Box>
 
         <ul className='side-bar-links'>

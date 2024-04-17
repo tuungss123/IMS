@@ -12,6 +12,7 @@ from django.utils import timezone
 from .serializers import ItemSerializer, TransactionSerializer, SpoiledMaterialReportSerializer, NotificationSerializer
 from datetime import datetime
 from openpyxl import Workbook
+from django.core.mail import send_mail
 
 
 # Create your views here.
@@ -90,6 +91,13 @@ def create_item(request):
         )
 
         new_item.save()
+        send_mail(
+        'New Item',
+        f'A new item is added by the Commissary: ({new_item}) ',
+        'notif.inventory@gmail.com',
+        ['mjtungul21@gmail.com'],
+        fail_silently=False,
+        )
         return Response({'response': 'Item Created'}, 200)
     
     else:
@@ -99,24 +107,39 @@ def create_item(request):
     #     return Response({'response': 'Failed to Create Item'}, 400)
 
     
-
+#Commissary Update Item
 @api_view(['POST'])
 def update_item(request, item_id):
-    stock_update = int(request.data.get('stock_update'))
+    stock_update = float(request.data.get('stock_update'))
 
     try:
         item = Item.objects.get(id=item_id)
         item.commissary_stock = stock_update
         item.save()
 
+        if item.commissary_stock <= item.par_stock:
+            commissary = User.objects.get(username='Commissary')
+            notification = Notification.objects.create(
+                notif_owner=commissary,
+                text=f'The stock of {item.item_name} has insufficient stocks.'
+            )
+            notification.save()
+            send_mail(
+            'Low Stock Alert',
+            f'{item.item_name} has insufficient stocks.',
+            'notif.inventory@gmail.com',
+            ['kempay12345@gmail.com'],
+            fail_silently=False,
+            )
+
         return Response({'response': 'Item Updated'}, 200)
     except:
         return Response({'response': 'Failed to Update Item'}, 200)
 
-
+#Cafe Update Item
 @api_view(['POST'])
 def update_cafe_item(request, item_id):
-    stock_update = int(request.data.get('stock_update'))
+    stock_update = float(request.data.get('stock_update'))
 
     try:
         item = Item.objects.get(id=item_id)
@@ -127,22 +150,29 @@ def update_cafe_item(request, item_id):
         else:
             return Response({'response': 'Transaction Invalid'}, 403)
         
-        if item.cafe_stock <= 10:
+        if item.cafe_stock <= item.par_stock:
             cafe = User.objects.get(username='Cafe')
             intern = User.objects.get(username='Intern')
             
             cafe_notif = Notification(
                 notif_owner=cafe,
-                text=f'The stock of {item.item_name} has reached CRITICAL status.'
+                text=f'{item.item_name} has insufficient stocks.'
             )
             
             intern_notif = Notification(
                 notif_owner=intern,
-                text=f'The stock of {item.item_name} has reached CRITICAL status.'
+                text=f'{item.item_name} has insufficient stocks.'
             )
 
             cafe_notif.save()
             intern_notif.save()
+            send_mail(
+            'Low Stock Alert',
+            f'{item.item_name} has insufficient stocks.',
+            'notif.inventory@gmail.com',
+            ['mjtungul21@gmail.com'],
+            fail_silently=False,
+            )
 
         return Response({'response': 'Item Updated'}, 200)
     except:
@@ -165,7 +195,7 @@ def update_item_um(request, item_id):
 
 @api_view(['POST'])
 def update_item_um_amount(request, item_id):
-    new_um_amount = int(request.data.get('data'))
+    new_um_amount = float(request.data.get('data'))
     print(new_um_amount)
 
     # try:
@@ -196,7 +226,7 @@ def update_item_category(request, item_id):
 
 @api_view(['POST'])
 def request_item(request, item_id):
-    request_quantity = int(request.data.get('request_quantity'))
+    request_quantity = float(request.data.get('request_quantity'))
     transactor = request.data.get('transactor')
 
     try:
@@ -217,6 +247,13 @@ def request_item(request, item_id):
             )
 
         new_transaction.save()
+        send_mail(
+            f'Request from {transactor} ',  
+            f'{transactor} has requested the transfer of {request_quantity}{requested_id.um} worth of {requested_id.item_name}',
+            'notif.inventory@gmail.com',
+            ['inventorycommissary@gmail.com','kempay12345@gmail.com'],
+            fail_silently=False,
+            )
         
         commissary = User.objects.get(username='Commissary')
         new_notification = Notification(
@@ -232,14 +269,19 @@ def request_item(request, item_id):
                 notif_owner=cafe,
                 text=f'{transactor} has requested the transfer of {request_quantity}{requested_id.um} worth of {requested_id.item_name}'
             )
-        
             cafe_notification.save()
+            send_mail(
+            'Request from Intern',  
+            f'{transactor} has requested the transfer of {request_quantity}{requested_id.um} worth of {requested_id.item_name}',
+            'notif.inventory@gmail.com',
+            ['mjtungul21@gmail.com'],
+            fail_silently=False,
+            )
         
         return Response({'response': 'Request Made.'}, 200)
     except:
         return Response({'response': 'Failed to Create Item Request'}, 200)
-
-
+    
 @api_view(['POST'])
 def delete_item(request, item_id):
     try:
@@ -377,14 +419,23 @@ def process_transaction(request, transaction_id):
                             {item.item_name} * {retrieved_transaction.transacted_amount}
                         """
 
-                        if item.commissary_stock <= 10:
+                        if item.commissary_stock <= item.par_stock:
                             commissary = User.objects.get(username='Commissary')
                             
                             critical_stock_notif = Notification(
                                 notif_owner=commissary,
-                                text=f'Stock for {item.item_name} has reached CRITICAL status.'
+                                text=f'{item.item_name} has insufficient stocks.'
                             )
                             critical_stock_notif.save()
+                        
+                        # Send email to CafeJuan
+                        send_mail(
+                            'Request Approved',
+                            message,
+                            'notif.inventory@gmail.com',
+                            ['mjtungul21@gmail.com'],
+                            fail_silently=False,
+                        )
                     else:
                         return Response({'response': 'Request Failed. Stock Insufficient'}, 400)
                     
@@ -397,6 +448,7 @@ def process_transaction(request, transaction_id):
 
                 retrieved_transaction.save()
                 item.save()
+                
 
                 # NOTIFY INTERN
                 intern_account = User.objects.get(username='Intern')
@@ -423,12 +475,12 @@ def process_transaction(request, transaction_id):
                         {item.item_name} * {retrieved_transaction.transacted_amount}
                     """
 
-                    if item.commissary_stock <= 10:
+                    if item.commissary_stock <= item.par_stock:
                         commissary = User.objects.get(username='Commissary')
                         
                         critical_stock_notif = Notification(
                             notif_owner=commissary,
-                            text=f'Stock for {item.item_name} has reached CRITICAL status.'
+                            text=f'{item.item_name} has insufficient stocks.'
                         )
                         critical_stock_notif.save()
                 else:
@@ -451,10 +503,20 @@ def process_transaction(request, transaction_id):
                 text=message
             )
             new_notification.save()
+
+            # Send email to CafeJuan with appropriate subject
+            subject = 'Request Approved' if action == 'Approved' else 'Request Denied'
+            send_mail(
+                subject,
+                message,
+                'notif.inventory@gmail.com',
+                ['mjtungul21@gmail.com'],
+                fail_silently=False,
+            )
             return Response({'response': message, 'date_changed': retrieved_transaction.date_changed }, 200)
     except:
         return Response({'response': 'Failed to Process Item Request'}, 200)
-    
+
 
 @api_view(['POST'])
 def retrieve_transaction_summary(request):
@@ -538,7 +600,7 @@ def retrieve_spoilage_report_summary(request):
 
 @api_view(['POST'])
 def report_spoiled(request, item_id):
-    spoil_amount = int(request.data.get('spoil_amount'))
+    spoil_amount = float(request.data.get('spoil_amount'))
     report_creator = request.data.get('report_creator')
 
     try:
@@ -554,6 +616,38 @@ def report_spoiled(request, item_id):
 
             spoiled_item.cafe_stock -= spoil_amount
             spoiled_item.save()
+            send_mail(
+            'Spoiled Material',
+            f'{spoil_amount} of {spoiled_item.item_name} has been reported as spoiled',
+            'notif.inventory@gmail.com',
+            ['mjtungul21@gmail.com'],
+            fail_silently=False,
+            )
+
+            if spoiled_item.cafe_stock <= spoiled_item.par_stock:
+                # Create critical notifications for Cafe and Intern entities
+                cafe = User.objects.get(username='Cafe')
+                intern = User.objects.get(username='Intern')
+
+                cafe_notification = Notification.objects.create(
+                    notif_owner=cafe,
+                    text=f'The stock of {spoiled_item.item_name} has reached CRITICAL status after a spoilage report by {report_creator}.'
+                )
+                intern_notification = Notification.objects.create(
+                    notif_owner=intern,
+                    text=f'The stock of {spoiled_item.item_name} has reached CRITICAL status after a spoilage report by {report_creator}.'
+                )
+
+                cafe_notification.save()
+                intern_notification.save()
+                send_mail(
+                'Low Stock Alert',
+                f'The stock of {spoiled_item.item_name} has reached CRITICAL status after a spoilage report by {report_creator}.',
+                'notif.inventory@gmail.com',
+                ['mjtungul21@gmail.com'],
+                fail_silently=False,
+                )
+
 
             return Response({'response': 'Spoil Report Created'}, 200)
         else:
@@ -573,24 +667,55 @@ def search_spoilage_reports(request):
         return Response({'reports': serialize_reports.data}, 200)
     
 
+#PAR STOCK UPDATE
+@api_view(['PUT'])
+def update_item_par_stock(request, item_id):
+    try:
+        item = Item.objects.get(pk=item_id)
+        new_par_stock = request.data.get('par_stock')
+        item.par_stock = new_par_stock
+        item.save()
+        send_mail(
+                'Par Stock Level Update',
+                f'The Par Stock Level of {item.item_name} has been updated to {new_par_stock}',
+                'notif.inventory@gmail.com',
+                ['mjtungul21@gmail.com'],
+                fail_silently=False,
+                )
+        return Response({'response': 'Par Stock Updated'})
+    except Item.DoesNotExist:
+        return Response({'error': 'Item not found'}, status=404)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
 
 # STOCK TRANSFER ANALYSIS ENDPOINTS
 @api_view(['GET'])
 def retrieve_cafe_critical(request):
-    items = Item.objects.filter(cafe_stock__lt=10)
-    serializer = ItemSerializer(items, many=True)
+    items = Item.objects.all()
+
+    critical_items = []
+
+    for item in items:
+        if item.cafe_stock < item.par_stock:
+            critical_items.append(item)
+
+    serializer = ItemSerializer(critical_items, many=True)
 
     return Response({'items': serializer.data, 'response': 'Critical Cafe Stock Retrieved'})
-
-
 
 @api_view(['GET'])
 def retrieve_commissary_critical(request):
-    items = Item.objects.filter(commissary_stock__lt=10)
-    serializer = ItemSerializer(items, many=True)
-    
-    return Response({'items': serializer.data, 'response': 'Critical Cafe Stock Retrieved'})
+    items = Item.objects.all()
 
+    critical_items = []
+
+    for item in items:
+        if item.commissary_stock < item.par_stock:
+            critical_items.append(item)
+
+    serializer = ItemSerializer(critical_items, many=True)
+
+    return Response({'items': serializer.data, 'response': 'Critical Commissary Stock Retrieved'})
 
 
 # NOTIFICATION ENDPOINTS 
